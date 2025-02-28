@@ -73,6 +73,31 @@ opt
     assert_eq!(parse_exo(raw), fish_exo);
 }
 
+#[test]
+fn test_can_parse_more_complex_valid_exo() {
+    let raw = "// Basic warmup exo
+exo A good question
+// A few options
+opt
+- #ok a    \t
+-     bbbbbbb
+- c - and - and f
+- #okayguys !
+// That's done here #ok ! exo opt are ignored here
+";
+    let rnd_exo = McqExo {
+        title: "A good question".to_string(),
+        options: vec![
+            "a".to_string(),
+            "bbbbbbb".to_string(),
+            "c - and - and f".to_string(),
+            "#okayguys !".to_string(),
+        ],
+        correct_option_index: 0,
+    };
+    assert_eq!(parse_exo(raw), rnd_exo);
+}
+
 fn main() {
     println!("Hello, world!");
 }
