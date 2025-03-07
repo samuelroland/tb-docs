@@ -20,6 +20,7 @@ fn range_at(line_index: u32, range_start: u32, range_length: u32) -> Range {
 
 pub fn parse_exo(raw: &str) -> ParseResult {
     let mut title = String::default();
+    let mut title_found = false;
     let mut options = Vec::new();
     let mut errors = Vec::new();
 
@@ -36,6 +37,7 @@ pub fn parse_exo(raw: &str) -> ParseResult {
         }
 
         if line.starts_with("exo") {
+            title_found = true;
             title = line.strip_prefix("exo ").unwrap().trim().to_string();
             if title.is_empty() {
                 errors.push(ParseError::TitleEmpty(range_at(idx, 0, 3)));
@@ -52,9 +54,13 @@ pub fn parse_exo(raw: &str) -> ParseResult {
         if line.starts_with("- ") && options_started {
             let mut item = line.strip_prefix("- ").unwrap().trim();
             if item.starts_with("#ok ") {
+                if correct_option_found {
+                    errors.push(ParseError::TooMuchCorrectOptions(range_at(idx, 2, 3)));
+                } else {
+                    correct_option_found = true;
+                    correct_option_index = current_option_index;
+                }
                 item = item.strip_prefix("#ok ").unwrap();
-                correct_option_found = true;
-                correct_option_index = current_option_index;
             }
             options.push(item.to_string());
             current_option_index += 1;
@@ -74,6 +80,13 @@ pub fn parse_exo(raw: &str) -> ParseResult {
 
     if !correct_option_found {
         errors.push(ParseError::NoCorrectOption(range_at(opt_prefix_line, 0, 3)));
+    }
+
+    if !title_found {
+        errors.push(ParseError::TitleMissing(Position {
+            line: 0,
+            character: 0,
+        }));
     }
 
     ParseResult {
@@ -173,3 +186,40 @@ oups";
     expected_errors.sort();
     assert_eq!(errors, expected_errors);
 }
+
+#[test]
+fn test_can_detect_some_advanced_errors() {
+    let raw = "opt
+- #ok Friendly Interactive Shell
+- #ok Yet another geek joke
+- #ok something
+";
+
+    let fish_exo_wrong = McqExo {
+        title: String::default(),
+        options: vec![
+            "Friendly Interactive Shell".to_string(),
+            "Yet another geek joke".to_string(),
+            "something".to_string(),
+        ],
+        correct_option_index: 0,
+    };
+    let result = parse_exo(raw);
+    dbg!(&result);
+    assert_eq!(result.exo, fish_exo_wrong);
+    assert!(!result.success());
+
+    let mut errors = result.errors.clone();
+    errors.sort();
+    let mut expected_errors = vec![
+        ParseError::TitleMissing(Position {
+            line: 0,
+            character: 0,
+        }),
+        ParseError::TooMuchCorrectOptions(range_at(2, 2, 3)),
+        ParseError::TooMuchCorrectOptions(range_at(3, 2, 3)),
+    ];
+    expected_errors.sort();
+    assert_eq!(errors, expected_errors);
+}
+// TODO: continue by testing the 2 remaining errors
