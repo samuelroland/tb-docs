@@ -6,10 +6,10 @@ Experimenting with different libraries and technologies around parsing, LSP, syn
 ## POCs overview
 1. Define a very basic syntax that has a 2 prefixes, 2 type of values (same line + list values), comment support, and a single boolean flag. Only one object is defined, no blank lines authorized. File name `fish.dy`.
 1. `naive-parser`: Create a very basic hand-made parser in Rust (without any syntax abstractions, searching for literal prefixes) to parse this syntax into a Rust struct
-1. Create a basic Language server to develop a few autocompletions, error diagnostics, hover prefixes definitions, a code action.
-1. Write a TreeSitter grammar to support syntax highlighting, without any abstraction, straight to the point and install it in Neovim. See how it can be used via the tree-sitter CLI.
 1. Create another parser with chumsky, reuse tests suite, same features that `naive-parser`
 1. Create another parser with Winnow, reuse tests suite, same features that `naive-parser`
+1. Create a basic Language server to develop a few autocompletions, error diagnostics, hover prefixes definitions, a code action.
+1. Write a TreeSitter grammar to support syntax highlighting, without any abstraction, straight to the point and install it in Neovim. See how it can be used via the tree-sitter CLI.
 
 If I have the time
 1. Try to integrate the Language server into VSCode
@@ -68,8 +68,11 @@ If we wanted to export it in JSON, it would be
 
 ### Possible errors
 1. An empty line is forbidden, it should not block the parsing the raise an error in the IDE
-1. A missing or empty title is not authorized
+1. A missing or empty title is not authorized (the `exo` prefix must be found and trimmed value should not be "")
 1. Only one correct option is accepted, not less and not more
 1. Double prefixes is incorrect
 1. A line that starts with something else that a known prefix or a dash or `//` is invalid
 
+## Retrospective of on naive-parser implementation
+1. Basic parsing was very naive and very fast to implement
+1. 
