@@ -1,9 +1,7 @@
-#page(margin: 3em, [
-
+#set page(margin: 3em, header: [Cahier des Charges])
 #show link: underline
-
 // TODO: font okay ?
-#text(font: "Cantarell", size: 12pt, [
+#set text(font: "Cantarell", size: 12pt)
 
 = Concevoir une expérience d'apprentissage interactive à la programmation avec PLX
 
@@ -21,14 +19,15 @@ Ce TB aimerait pousser l'expérience en classe plus loin pour permettre aux étu
 Pour faciliter l'adoption de ces outils et la rapidité de création/transcription d'exercices, on souhaiterait avoir une syntaxe épurée, humainement lisible + éditable, facilement versionnable dans Git: la syntaxe DY, inventée pour Delibay (exemple #link("https://delibay.org/docs/use/dy-syntax", [Delibay Docs - DY Syntax])). Cette syntaxe sera adaptée pour PLX, pour remplacer le format TOML actuel.
 
 Ces 2 défis impliquent
-+ Une partie serveur de PLX, gérant des connexions websockets pour chaque étudiant et enseignant connecté, permettant de recevoir les réponses des étudiants et de les renvoyer à l'enseignant. Une partie client responsable d'envoyer le code modifié et les résultats après chaque lancement des checks.
-+ Le parseur de la syntaxe DY est écrit en TypeScript ce qui ne permet pas d'être simplement embarqué dans PLX. Le but est de réécrire le parseur en Rust s'aidant d'outils adaptés (TreeSitter, Chumsky, autre).
++ Une partie serveur de PLX, gérant des connexions persistantes pour chaque étudiant et enseignant connecté, permettant de recevoir les réponses des étudiants et de les renvoyer à l'enseignant. Une partie client responsable d'envoyer le code modifié et les résultats après chaque lancement des checks.
+// TODO: connexion persistantes ok ? au lieu de connexion websockets. aussi ailleurs dans le reste du document.
++ Le parseur existant de la syntaxe DY est écrit en TypeScript ce qui ne permet pas d'être simplement embarqué dans PLX. Le but est de réécrire le parseur en Rust en s'aidant d'outils adaptés (TreeSitter, Chumsky, Winnow, ...).
 
 Le projet, les documents et les contributions de ce TB, seront publiés sous licence libre.
 
 == Objectifs et livrables
 + Livrables standards: Rapport intermédiaire + rapport final + résumé + poster
-+ Un serveur websockets en Rust lancé via le CLI plx permettant de gérer des sessions live
++ Un serveur en Rust lancé via le CLI plx permettant de gérer des sessions live
 + Une librairie en Rust de parsing d'une variante de la syntaxe DY
 + Une intégration de cette librairie dans PLX
 
@@ -38,10 +37,10 @@ Le projet, les documents et les contributions de ce TB, seront publiés sous lic
 + Un pseudo aléatoire est attribué à chaque personne connectée, pas besoin de créer de compte.
 + Une vue globale permet au créateur de la session d'avoir un aperçu général de l'état des checks sur tous les exercices. En sélectionnant un exercice, il est possible de voir, la dernière version du code édité ainsi que les résultats des checks pour ce code, pour chaque étudiant.
 + La syntaxe DY adaptée à PLX permet de décrire les informations d'un cours, des compétences et des exercices. Le parseur sera capable de détecter les erreurs.
-+ L'intégration dans PLX permettant d'afficher les exercices extraits de fichiers .dy et retire l'usage de fichiers TOML.
++ L'intégration dans PLX permettant d'afficher les exercices extraits de fichiers .dy, pourra afficher les erreurs dans les fichiers .dy et retire l'usage de fichiers TOML par des humains (le stockage d'état peut rester en TOML).
 
 === Objectifs non fonctionnels
-+ Une session live doit supporter des déconnexions temporaires, l'enseignant pourra continuer à voir la dernière version du code envoyé, et le client PLX essaiera automatiquement de se reconnecter. Le serveur doit pouvoir supporter plusieurs sessions live incluant au total 200 connexions websockets simultanées.
++ Une session live doit supporter des déconnexions temporaires, l'enseignant pourra continuer à voir la dernière version du code envoyé, et le client PLX essaiera automatiquement de se reconnecter. Le serveur doit pouvoir supporter plusieurs sessions live incluant au total 200 connexions persistantes simultanées.
 + Pour des raisons de sécurité, aucun code externe ne doit être exécuté par PLX.
 + Le temps entre la fin de l'exécution des checks et la visibilité des modifications par l'enseignant ne doit pas dépasser 3s.
 + Le code doit être le plus possible couvert par des tests automatisés, notamment par des tests end-to-end avec multiples clients PLX.
@@ -52,5 +51,30 @@ Le projet, les documents et les contributions de ce TB, seront publiés sous lic
 + Syntax highlighting dans VSCode et Neovim
 + Implémenter un Language Server au-dessus du parseur pour intégrer les erreurs dans l'IDE
 
-])
-])
+== Calendrier du projet
+En se basant sur le calendrier des travaux de Bachelor, voici un aperçu du découpage du projet pour les différents rendus.
+
+=== Rendu 1 - 10 avril 2025 - Cahier des charges
+- Rédaction du cahier des charges
+- Analyse de l'état de l'art des parsers, du syntax highlighting et des languages servers
+- Analyse de l'état de l'art des protocoles bi-directionnel temps réel (websockets, gRPC, ...) et des formats de sérialisation (JSON, protobuf, ...)
+- Prototype avec les librairies disponibles de parsing et de language servers en Rust, choix du niveau d'abstraction espéré et réutilisation possibles
+
+=== Rendu 2 - 23 mai 2025 - Rapport intermédiaire
+- Rédaction du rapport intermédiaire
+- Définition formelle de la syntaxe DY à parser, les spécificités liés à PLX, et la liste des vérifications et erreurs à générer
+- Prototype d'un serveur PLX pour envoyer du code à chaque sauvegarde et le recevoir en temps réel
+- Prototype des tests automatisés sur le serveur PLX
+- Définition du protocole entre les clients PLX et le serveur pour les entrainements live
+
+=== Moitié des 6 semaines à temps plein - 4 juillet 2025
+- Ecriture des tests de validation du protocole et de gestion des erreurs
+- Développement du serveur PLX
+- Rédaction du rapport final par rapport aux développements effectués
+
+=== Rendu 3 - 24 juillet 2025 - Rapport final
+- Développement d'une librairie `dy`
+- Intégration de cette librairie à PLX
+- Rédaction de l'affiche et du résumé publiable
+- Rédaction du rapport final
+
