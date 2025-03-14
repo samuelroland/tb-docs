@@ -1,4 +1,4 @@
-#set page(margin: 3em, header: [Cahier des Charges])
+#set page(margin: 3em)
 #show link: underline
 // TODO: font okay ?
 #set text(font: "Cantarell", size: 12pt)
@@ -32,24 +32,27 @@ Le projet, les documents et les contributions de ce TB, seront publiés sous lic
 + Une intégration de cette librairie dans PLX
 
 === Objectifs fonctionnels
-+ Il est possible de lancer une session live via PLX pour le repository actuel. Il peut exister plusieurs sessions en même temps pour le même repository.
-+ Une fois une session lancée, il est possible de la rejoindre, ou de choisir parmi la liste des sessions liées à ce repository.
-+ Un pseudo aléatoire est attribué à chaque personne connectée, pas besoin de créer de compte.
-+ Une vue globale permet au créateur de la session d'avoir un aperçu général de l'état des checks sur tous les exercices. En sélectionnant un exercice, il est possible de voir, la dernière version du code édité ainsi que les résultats des checks pour ce code, pour chaque étudiant.
-+ La syntaxe DY adaptée à PLX permet de décrire les informations d'un cours, des compétences et des exercices. Le parseur sera capable de détecter les erreurs.
-+ L'intégration dans PLX permettant d'afficher les exercices extraits de fichiers .dy, pourra afficher les erreurs dans les fichiers .dy et retire l'usage de fichiers TOML par des humains (le stockage d'état peut rester en TOML).
+Par simplification dans ce document, j'explique uniquement les cas où les profs lancent des sessions live, mais des étudiants peuvent très bien réviser à plusieurs de leur coté et aussi lancer des sessions. Il n'y a donc pas de rôle spécifique attribuée au profs par rapport aux étudiants, il y a seulement une distinction des permissions entre le créateur de la session et ceux qui rejoignent.
++ Les profs peuvent lancer et stopper une session live via PLX liée au repository actuel, via un serveur défini dans un fichier de configuration présent dans le repository. Il peut exister plusieurs sessions en même temps pour le même repository (afin de supporter plusieurs cours en parallèle dans plusieurs classes). Ils donnent un nom à la session, afin que les étudiants puissent l'identifier parmi les sessions ouvertes. Un code de vérification unique est généré par session permettant de distinguer 2 sessions du même nom sur le même repos.
++ En tant qu'étudiant, une fois le repository cloné, il est possible de lancer PLX, lister les sessions ouvertes et rejoindre une session en cours en s'assurant du code de vérification. Un numéro unique incrémentale est attribué à chaque étudiant pour la session.
++ Le prof peut choisir une série d'exercices parmi ceux affichés par PLX, et lancer un exercice à son rythme. Cet exercice sera affiché directement chez les étudiants ayant rejoint.
++ Une vue globale permet au prof d'avoir un aperçu général de l'état des checks sur tous les exercices. En sélectionnant un exercice, il est possible de voir, la dernière version du code édité ainsi que les résultats des checks pour ce code, pour chaque étudiant.
++ La librairie générique `dy` permet de décrire facilement un nouvel ensemble de préfixes et flags, pour configurer un parseur convertissant du texte vers des structs Rust, tout en y en définissant du code de validation sur l'AST.
++ L'intégration de la librairie `dy` dans PLX permet de décrire les informations d'un cours, des compétences et des exercices. Elle détecte les erreurs spécifiques à PLX.
++ L'intégration dans PLX permet d'utiliser uniquement des fichiers `.dy` pour décrire le contenu. Elle doit aussi afficher les erreurs dans une liste sur une commande dédiée (par ex. `plx check`)
 
 === Objectifs non fonctionnels
-+ Une session live doit supporter des déconnexions temporaires, l'enseignant pourra continuer à voir la dernière version du code envoyé, et le client PLX essaiera automatiquement de se reconnecter. Le serveur doit pouvoir supporter plusieurs sessions live incluant au total 200 connexions persistantes simultanées.
-+ Pour des raisons de sécurité, aucun code externe ne doit être exécuté par PLX.
++ Une session live doit supporter des déconnexions temporaires, le prof pourra continuer à voir la dernière version du code envoyé, et le client PLX essaiera automatiquement de se reconnecter. Le serveur doit pouvoir supporter plusieurs sessions live incluant au total 300 connexions persistantes simultanées.
++ Une session live s'arrête automatiquement après 30minutes après déconnexion du prof, cela ne coupe pas l'affichage de l'exercice en cours aux étudiants
++ Pour des raisons de sécurité, aucun code externe ne doit être exécuté automatiquement par PLX. Seul une exécution volontaire par une action dédiée peut le faire.
 + Le temps entre la fin de l'exécution des checks et la visibilité des modifications par l'enseignant ne doit pas dépasser 3s.
 + Le code doit être le plus possible couvert par des tests automatisés, notamment par des tests end-to-end avec multiples clients PLX.
 + Le parseur DY doit être assez capable de parser 200 exercices en < 1s.
-+ Retranscrire un exercice existant du Markdown en DY ne devrait pas prendre plus d'une minute.
++ Retranscrire à la main un exercice existant du Markdown en PLX DY ne devrait pas prendre plus d'une minute.
 
 === Objectif nice to have
-+ Syntax highlighting dans VSCode et Neovim
-+ Implémenter un Language Server au-dessus du parseur pour intégrer les erreurs dans l'IDE
++ La librairie `dy` permettrait d'intégrer le parseur et les erreurs spécifiques à un language server permettant une expérience complète d'édition dans VSCode et Neovim
++ La librairie `dy` serait également capable de générer des définitions TreeSitter pour supporter le syntax highlighting via ce système
 
 == Calendrier du projet
 En se basant sur le calendrier des travaux de Bachelor, voici un aperçu du découpage du projet pour les différents rendus.
@@ -62,7 +65,7 @@ En se basant sur le calendrier des travaux de Bachelor, voici un aperçu du déc
 
 === Rendu 2 - 23 mai 2025 - Rapport intermédiaire
 - Rédaction du rapport intermédiaire
-- Définition formelle de la syntaxe DY à parser, les spécificités liés à PLX, et la liste des vérifications et erreurs à générer
+- Définition de la syntaxe DY à parser, des préfixes et flags liés à PLX, et la liste des vérifications et erreurs associées
 - Prototype d'un serveur PLX pour envoyer du code à chaque sauvegarde et le recevoir en temps réel
 - Prototype des tests automatisés sur le serveur PLX
 - Définition du protocole entre les clients PLX et le serveur pour les entrainements live
@@ -78,3 +81,4 @@ En se basant sur le calendrier des travaux de Bachelor, voici un aperçu du déc
 - Rédaction de l'affiche et du résumé publiable
 - Rédaction du rapport final
 
+//what about the nice to have ?
