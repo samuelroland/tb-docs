@@ -9,5 +9,10 @@ Documentations de mon Travail de Bachelor (TB) sur PLX
 1. [Cahier des charges (cdc)](./cdc.typ) - Typst - A rendre avant le 2025-04-09
 
 ## Schémas
-1. [Architecture haut-niveau](./schemas/high-level-arch.opti.svg) - Excalidraw
+
+<details>
+<summary>Architecture haut-niveau - Excalidraw</summary>
+
+![](./schemas/high-level-arch.opti.svg)
+</details>
 
