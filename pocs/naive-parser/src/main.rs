@@ -13,4 +13,9 @@ fn main() {
 
     println!("Parsing result is");
     dbg!(&result);
+
+    println!("Printing errors definitions");
+    for err in result.errors {
+        println!("- {}", err);
+    }
 }

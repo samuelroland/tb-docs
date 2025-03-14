@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 // Data structures
 #[derive(Eq, PartialEq, PartialOrd, Debug)]
 pub struct McqExo {
@@ -31,6 +33,26 @@ pub enum ParseError {
     TooMuchCorrectOptions(Range), // range of the second option flag "#ok"
     NoCorrectOption(Range),       // range of the "opt" prefix
     InvalidLine(Range),           // range of the whole line
+}
+
+impl Display for ParseError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let text = match self {
+            ParseError::EmptyLine(_) => "Empty lines are not accepted",
+            ParseError::TitleMissing(_) => "The exo title is missing, add an `exo` prefix",
+            ParseError::TitleEmpty(_) => "Given title is empty",
+            ParseError::TooMuchCorrectOptions(_) => {
+                "Found too much correct options, only one can be correct."
+            }
+            ParseError::NoCorrectOption(_) => {
+                "No correct option found, please add `#ok` between the dash and the correct option text"
+            }
+            ParseError::InvalidLine(_) => {
+                "This lines seems to be invalid, considering its position and start text."
+            }
+        };
+        f.write_str(text)
+    }
 }
 
 #[derive(Eq, PartialEq, PartialOrd, Debug)]
