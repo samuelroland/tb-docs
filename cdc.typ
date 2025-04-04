@@ -1,6 +1,5 @@
 #set page(margin: 3em)
 #show link: underline
-// TODO: font okay ?
 #set text(font: "Cantarell", size: 12pt)
 
 = Concevoir une expérience d'apprentissage interactive à la programmation avec PLX
@@ -10,7 +9,7 @@ Ce travail de Bachelor vise à développer le projet PLX (voir #link("https://pl
 
 == Problème
 
-Inspiré de Rustlings (TUI pour apprendre le Rust), permettant de s'habituer aux erreurs du compilateur Rust et de prendre en main la syntaxe. PLX fournit actuellement une expérience locale similaire pour le C et C++. Les étudiants clonent un repos Git et travaillent localement sur des exercices afin de faire passer des checks automatisés, à chaque sauvegarde le programme est compilé et les checks sont lancés. Cependant, faire passer les checks n'est que la 1ère étape, faire du code qualitatif, modulaire, lisible et performant demande des retours humains pour pouvoir progresser. De plus, les exercices existants étant stockés dans des PDF ou des fichiers Markdown, cela nécessite de les migrer à PLX.
+Le projet est inspiré de Rustlings (TUI pour apprendre le Rust), permettant de s'habituer aux erreurs du compilateur Rust et de prendre en main la syntaxe. PLX fournit actuellement une expérience locale similaire pour le C et C++. Les étudiants clonent un repos Git et travaillent localement sur des exercices afin de faire passer des checks automatisés, à chaque sauvegarde le programme est compilé et les checks sont lancés. Cependant, faire passer les checks n'est que la 1ère étape, faire du code qualitatif, modulaire, lisible et performant demande des retours humains pour pouvoir progresser. De plus, les exercices existants étant stockés dans des PDF ou des fichiers Markdown, cela nécessite de les migrer à PLX.
 
 == Défis
 
@@ -18,11 +17,27 @@ Ce TB aimerait pousser l'expérience en classe plus loin pour permettre aux étu
 
 Pour faciliter l'adoption de ces outils et la rapidité de création/transcription d'exercices, on souhaiterait avoir une syntaxe épurée, humainement lisible + éditable, facilement versionnable dans Git: la syntaxe DY. Cette syntaxe sera adaptée pour PLX, pour remplacer le format TOML actuel.
 
-Exemple de la syntaxe DY pour décrire des exerices de choix multiple
+Exemple de la syntaxe DY pour décrire un exercice de programmation dans PLX, elle contient 2 checks pour vérifier le comportement attendu et la gestion d'une erreur
+#block(fill: rgb(246, 248, 250), inset: 5pt)[
 ```
-todo exemple
-```
+exo Just greet me
 
+checks
+name Can enter the full name and be greeted
+see What is your firstname ?
+type John
+see Hello John, what's your lastname ?
+type Doe
+see Have a nice day John Doe !
+exit 0
+
+name Stops if the name contains number
+see What is your firstname ?
+type Alice23
+see Firstname cannot contain digits.
+exit 1
+```
+]
 Ces 2 défis impliquent
 + Une partie serveur de PLX, gérant des connexions persistantes pour chaque étudiant et enseignant connecté, permettant de recevoir les réponses des étudiants et de les renvoyer à l'enseignant. Une partie client est responsable d'envoyer le code modifié et les résultats après chaque lancement des checks.
 + Le but est de définir une syntaxe et de réécrire le parseur en Rust en s'aidant d'outils adaptés (TreeSitter, Chumsky, Winnow, ...).
@@ -36,7 +51,7 @@ Le projet, les documents et les contributions de ce TB, seront publiés sous lic
 + Une intégration de cette librairie dans PLX
 
 === Objectifs fonctionnels
-Les objectifs fonctionnels posent l'hypothèse du cas d'utilisation où un professeur lance une session live pour plusieurs étudiants. Il n'y a donc pas de rôle spécifique attribuée au professeur par rapport aux étudiants, il y a seulement une distinction des permissions entre le créateur de la session et ceux qui rejoignent.
+Les objectifs fonctionnels posent l'hypothèse du cas d'utilisation où un professeur lance une session live pour plusieurs étudiants. Il n'y a cependant pas de rôle spécifique attribuée au professeur par rapport aux étudiants, il y a seulement une distinction des permissions entre le créateur de la session et ceux qui rejoignent.
 + Les professeurs peuvent lancer et stopper une session live via PLX liée au repository actuel, via un serveur défini dans un fichier de configuration présent dans le repository. Il peut exister plusieurs sessions en même temps pour le même repository (afin de supporter plusieurs cours en parallèle dans plusieurs classes). Ils donnent un nom à la session, afin que les étudiants puissent l'identifier parmi les sessions ouvertes. Un code de vérification unique est généré par session permettant de distinguer 2 sessions du même nom dans le même repos.
 + En tant qu'étudiant, une fois le repository cloné, il est possible de lancer PLX, lister les sessions ouvertes et rejoindre une session en cours en s'assurant du code de vérification. Un numéro unique incrémentale est attribué à chaque étudiant pour la session.
 + Le professeur peut choisir une série d'exercices parmi ceux affichés par PLX, lancer un exercice et gérer le rythme d'avancement de la classe. Cet exercice sera affiché directement chez les étudiants ayant rejoint.
@@ -48,7 +63,7 @@ Les objectifs fonctionnels posent l'hypothèse du cas d'utilisation où un profe
 + Une session live doit supporter des déconnexions temporaires, le professeur pourra continuer à voir la dernière version du code envoyé, et le client PLX essaiera automatiquement de se reconnecter. Le serveur doit pouvoir supporter plusieurs sessions live incluant au total 300 connexions persistantes simultanées.
 + Une session live s'arrête automatiquement après 30 minutes après déconnexion du professeur, cela ne coupe pas l'affichage de l'exercice en cours aux étudiants
 + Pour des raisons de sécurité, aucun code externe ne doit être exécuté automatiquement par PLX. Seul une exécution volontaire par une action dédiée peut le faire.
-+ Le temps entre la fin de l'exécution des checks et la visibilité des modifications par l'enseignant ne doit pas dépasser 3s.
++ Le temps entre la fin de l'exécution des checks chez l'étudiant et la visibilité des modifications par l'enseignant ne doit pas dépasser 3s.
 + Le code doit être le plus possible couvert par des tests automatisés, notamment par des tests end-to-end avec de multiples clients PLX.
 + Le parseur DY doit être assez capable de parser 200 exercices en < 1s.
 + Retranscrire à la main un exercice existant du Markdown en PLX DY ne devrait pas prendre plus d'une minute.
@@ -62,7 +77,7 @@ En se basant sur le calendrier des travaux de Bachelor, voici un aperçu du déc
 
 === Rendu 1 - 10 avril 2025 - Cahier des charges
 - Rédaction du cahier des charges
-- Analyse de l'état de l'art des parsers, du syntax highlighting et des languages servers
+- Analyse de l'état de l'art des parsers, des formats existants de données humainement éditables, du syntax highlighting et des languages servers
 - Analyse de l'état de l'art des protocoles bi-directionnel temps réel (websockets, gRPC, ...) et des formats de sérialisation (JSON, protobuf, ...)
 - Prototype avec les librairies disponibles de parsing et de language servers en Rust, choix du niveau d'abstraction espéré et réutilisation possibles
 
