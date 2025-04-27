@@ -7,6 +7,7 @@
 == Etat de l'art
 
 === Syntaxes existantes de format de données humainement éditable
+Ces recherches se focalisent sur les syntaxes qui ne sont pas spécifique à un domaine ou qui seraient complètement déliée de l'informatique ou de l'éducation. Ainsi, l'auteur ne présente pas Cooklang @cooklangMention, qui se veut une langage de balise pour les recettes de cuisines, même si l'implémentation du parseur en Rust @cooklangParserInRust pourra servir pour d'autres recherches.
 
 #show raw.where(block: false): b => {
     box(fill: rgb(175, 184, 193, 20%), inset: 2pt, outset: 2pt, [#b.text])
@@ -113,6 +114,42 @@ Margaret Hodge:
   caption: [Exemple tiré de leur README @nestedTextGithub ]
 )
 
-Ce format a l'air assez léger visuellement 
+Ce format a l'air assez léger visuellement et l'idée de faciliter l'intégration de blocs multi-lignes sans contraintes de charactères réservée serait utile à PLX. Cependant, tout comme le JSON la validation du contenu n'est pas géré directement par le parseur mais par des librairies externes qui vérifient le schéma @nestedTextSchemasLib. De plus, l'implémentation officielle est en Python et il n'y a pas d'implémentation Rust disponible; il existe une crate réservée mais vide @nestedTextRsCrateEmpty.
+
+==== SDLang - Simple Declarative Language
+
+#figure(
+```
+// This is a node with a single string value
+title "Hello, World"
+
+// Multiple values are supported, too
+bookmarks 12 15 188 1234
+
+// Nodes can have attributes
+author "Peter Parker" email="peter@example.org" active=true
+
+// Nodes can be arbitrarily nested
+contents {
+	section "First section" {
+		paragraph "This is the first paragraph"
+		paragraph "This is the second paragraph"
+	}
+}
+
+// Anonymous nodes are supported
+"This text is the value of an anonymous node!"
+
+// This makes things like matrix definitions very convenient
+matrix {
+	1 0 0
+	0 1 0
+	0 0 1
+}
+```,
+  caption: [Exemple tiré de leur site web @sdlangWebsite]
+)
+
+
 
 #bibliography("bibliography.bib")
