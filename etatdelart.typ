@@ -4,10 +4,17 @@
 #show link: underline
 #set text(font: "Cantarell", size: 12pt, lang: "fr")
 
+// todo move that somewhere useful
+== Dictionnaire
+- `Cargo.toml` définit les dépendances (les crates) et leur versions minimum à inclure dans le projet, équivalent du `package.json` de NPM
+- `crate`: officiellement la plus petite unité de compilation avec cargo, concrètement chaque projet contient un ou plusieurs dossiers avec un `Cargo.toml`
+- `crates.io`: le registre officiel des crates publiée pour l'écosystème Rust, l'équivalent de `npmjs.com` pour l'écosystème Javascript, ou `mvnrepository.com` pour Java
+// todo check ces définitions
+
 == Etat de l'art
 
-=== Syntaxes existantes de format de données humainement éditable
-Ces recherches se focalisent sur les syntaxes qui ne sont pas spécifique à un domaine ou qui seraient complètement déliée de l'informatique ou de l'éducation. Ainsi, l'auteur ne présente pas Cooklang @cooklangMention, qui se veut une langage de balise pour les recettes de cuisines, même si l'implémentation du parseur en Rust @cooklangParserInRust pourra servir pour d'autres recherches.
+=== Format de données humainement éditable existants
+Ces recherches se focalisent sur les syntaxes qui ne sont pas spécifique à un domaine ou qui seraient complètement déliée de l'informatique ou de l'éducation. Ainsi, l'auteur ne présente pas Cooklang @cooklangMention, qui se veut une langage de balise pour les recettes de cuisines, même si l'implémentation du parseur en Rust @cooklangParserInRust pourra servir pour d'autres recherches. Contrairement aux languages de programmation qui existent par centaines, les syntaxes de ce genre ne sont pas monnaies courantes. Différentes manières de les nommer existent: language de balise (markup language), format de donnée, syntaxes, langage de donnée, language spécifique à un domaine (de l'anglais Domain Specific Language - DSL), ... Les mots-clés utilisés suivants ont été utilisés sur Google, la barre de recherche de Github.com et de crates.io: `data format`, `human friendly`, `human writable`, `human readable`.
 
 #show raw.where(block: false): b => {
     box(fill: rgb(175, 184, 193, 20%), inset: 2pt, outset: 2pt, [#b.text])
@@ -118,6 +125,8 @@ Ce format a l'air assez léger visuellement et l'idée de faciliter l'intégrati
 
 ==== SDLang - Simple Declarative Language
 
+SDLang se définit comme "une manière simple et concise de représenter des données textuellement. Il a une structure similaire au XML: des tags, des valeurs et des attributs, ce qui en fait un choix polyvalent pour la sérialisation de données, des fichiers de configuration ou des langages déclaratifs." (Traduction personnelle de leur site web @sdlangWebsite). SDLang définit également différents types de nombres (32bit, 64bit, entier, flottant, ...), 4 valeurs de booléans (`true`, `false`, `on`, `off`) comme en YAML, différents formats de dates et un moyen d'intégrer des données binaires encodées en Base64.
+
 #figure(
 ```
 // This is a node with a single string value
@@ -150,6 +159,6 @@ matrix {
   caption: [Exemple tiré de leur site web @sdlangWebsite]
 )
 
-
+Ce format s'avère plus intéressante que les précédentes de part la densité d'information, par exemple avec l'auteur décrit par son nom, email et un attribut booléan sur une seule ligne. Il est cependant regrettable de voir de les strings doivent être entourées de guillemets et les textes sur plusieurs lignes doivent être entourés de backticks ``` ` ```
 
 #bibliography("bibliography.bib")
