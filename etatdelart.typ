@@ -196,10 +196,40 @@ matrix {
 
 Ce format s'avère plus intéressant que les précédents de part le faible nombre de caractères réservés et la densité d'information: avec l'auteur décrit par son nom, email et un attribut booléan sur une seule ligne ou la matrice de 9 valeurs définie sur 5 lignes. Il est cependant regrettable de voir de les strings doivent être entourées de guillemets et les textes sur plusieurs lignes doivent être entourés de backticks ``` ` ```. De même la définition de la hiéarchie d'objets définis nécessite d'utiliser une paire `{` `}`, ce qui rend la rédaction un peu plus lente.
 
-==== KDL - TODO
-https://kdl.dev/
+==== KDL - Le "Cuddly Data language"
 
-// todo conclusion de cette partie ou pas ?
+#figure(
+```
+package {
+  name my-pkg
+  version "1.2.3"
+
+  dependencies {
+    // Nodes can have standalone values as well as
+    // key/value pairs.
+    lodash "^3.2.1" optional=#true alias=underscore
+  }
+
+  scripts {
+    // "Raw" and dedented multi-line strings are supported.
+    message """
+      hello
+      world
+      """
+    build #"""
+      echo "foo"
+      node -c "console.log('hello, world!');"
+      echo "foo" > some-file.txt
+      """#
+  }
+}
+```,
+  caption: [Exemple simplifié tiré de leur site web @kdlWebsite]
+)
+Est-ce que cela paraît proche de SDLang vu précédemment ? C'est normal puisque KDL est basé sur SDLang avec quelques améliorations. Celles qui nous intéressent concernent la possibilité d'utiliser des guillemets pour les strings sans espace (`person name=Samuel` au lieu de `person name="Samuel"`). Cette simplification n'inclue malheureusement des strings multilines, qui demande d'être entourée par `"""`. Le problème d'intégration de morceaux de code est également relevé, les strings brutes sont supportées entre `#` sur le mode une ou plusieurs lignes, ainsi pas d'échappements des backslashs à faire par ex.
+
+En plus des autres désavantages restant de hiéarchie avec `{` `}` et guillemets, il reste toujours le problème des types de nombres qui posent soucis avec certaines strings si on ne les entoure pas de guillemets. Par exemple ce numéro de version `version "1.2.3"` a besoin de guillemets sinon `1.2.3` est interprété comme une erreur de format de nombre à virgule.
+
 ==== Conclusion
 
 
