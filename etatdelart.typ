@@ -196,32 +196,59 @@ matrix {
 
 Ce format s'avère plus intéressant que les précédents de part le faible nombre de caractères réservés et la densité d'information: avec l'auteur décrit par son nom, email et un attribut booléan sur une seule ligne ou la matrice de 9 valeurs définie sur 5 lignes. Il est cependant regrettable de voir de les strings doivent être entourées de guillemets et les textes sur plusieurs lignes doivent être entourés de backticks ``` ` ```. De même la définition de la hiéarchie d'objets définis nécessite d'utiliser une paire `{` `}`, ce qui rend la rédaction un peu plus lente.
 
+==== KDL - TODO
+https://kdl.dev/
+
 // todo conclusion de cette partie ou pas ?
+==== Conclusion
+
 
 #pagebreak()
 === Librairies existantes de parsing en Rust
-Après s'être intéressé aux syntaxes existantes, nous nous intéressons maintenant aux solutions existantes pour simplifier ce parsing de cette nouvelle syntaxe en Rust. Ecrire un parseur entièrement à la main est possible, mais s'il existe des librairies de parsing c'est probablement que l'option d'utiliser une librairie pour s'abstraire d'une partie de la complexité est une option à considérer.
+Après s'être intéressé aux syntaxes existantes, nous nous intéressons maintenant aux solutions existantes pour simplifier ce parsing de cette nouvelle syntaxe en Rust.
 
-De nombreuses librairies, ce travail ne considère que les 4 premières librairies liées à du parsing générale publiée sur `crates.io` avec le mot clé `parser` le 2025-05-02. // todo date format ?
-avec la liste triée par `Recent Downloads` (c'est à dire dans l'ordre décroissant des compteurs de téléchargements des 3 derniers mois).
-les librairies non adaptées à des formats textes ou spécifique à un format, ou mis à jour il y a plus d'un an, sont également ignorés.
-@cratesIoParserTagsList
+Après quelques recherches avec le tag `parser` sur crates.io @cratesIoParserTagsList, j'ai trouvé la liste de librairies suivantes:
 
-J'ai retenu les librairies suivantes:
-- Winnow
-- Nom
+- Winnow, fork de Nom, utilisé notamment par le parseur Rust de KDL @kdlrsDeps
+- Nom, utilisé notamment par `cexpr` @nomRevDeps
 - pest
 - combine ?? - https://crates.io/crates/combine
-- Chumsky far less download but much more github stars 
+- Chumsky
 
-//todo check du 4
+A noter aussi l'existance de la crate `serde`, un framework de sérialisation et desérialisation très populaire dans l'écosystème Rust (selon lib.rs @librsMostPopular). Il est notamment utilisé pour les parseurs JSON et TOML. Ce n'est pas une librairie de parsing mais un modèle de donnée basée sur les traits de Rust pour faciliter son travail. Au vu du modèle de données de Serde @serdersDatamodel, qui supporte 29 types de données, ce projet paraît à l'auteur apporter plus de complexités qu'autre chose pour trois raisons:
+- Seulement les strings, listes et structs sont utiles pour PLX. Par exemple, les 12 types de nombres sont inutiles à différencier et seront propre au besoin de la variante.
+- La sérialisation (struct Rust vers syntaxe DY) n'est pas prévue, seulement la desérialisation est utile.
+- Le mappage des préfixes et flags par rapport aux attributs des structs Rust qui seront générées, n'est pas du 1:1, cela dépendra de la structure définie pour la variante de PLX.
 
-==== Winnow -
-54M téléchargements dans les 3 derniers mois
+Au final, l'auteur de ce travail a jugé que ces différentes librairies de parsing était trop compliquées pour le besoin de PLX. La syntaxe DY est relativement petite à parser et sa structure légère et souvent implicite.
 
-==== Chumsky
-==== PEG
-==== Nom
+Par exemple, une simple expression mathématique `((23+4) * 5)` paraît idéale pour ces outils, les débuts et fin sont claires, une stratégie de combinaisons de parseurs fonctionnerait bien. Une syntaxe EBNF permettra d'écrire le code de parsing très facilement. On peut facilement inspecter les charactères pour ignorer les espaces, extraires les nombres tant qu'il contiennent des chiffres, extraires des opérateurs et les 2 opérandes autour.
+
+Si on retire tous les séparateurs en paires (parenthèse, accolades, guillemets, ...), et qu'on rend une partie des préfixes optionnel cela complique l'approche de définir le début et la fin et d'appeler combiner récursivement des parseurs comme on ne sait pas facilement où est la fin.
+
+#figure(
+```
+exo Dog struct
+Consigne très longue
+
+en *Markdown*
+sur plusieurs lignes
+
+checks
+...
+```,
+    caption: [Exemple d'un début d'exercice de code, on voit que la consigne se trouve après la ligne `exo` et continue sur plusieurs lignes jusqu'à qu'on trouve un autre préfixe (ici `checks` ou un autre selon l'optionnalité d'autres préfixes présent avant `checks`).],
+)
+
+// todo la variante, terme correcte ?
+
+
+https://crates.io/crates/unscanny
+
+doc de rust-analyzer
+https://github.com/rust-lang/rust-analyzer/tree/master/docs/book/src/contributing
+
+Winnow, Chumsky, PEG, Nom
 
 #pagebreak()
 === Systèmes de surglignage de code
@@ -267,6 +294,10 @@ Content-Length: ...\r\n
 }
 ```
 
+    - https://github.com/rust-lang/rust-analyzer/blob/master/lib/lsp-server/examples/goto_def.rs
+    - https://github.com/rust-lang/rust-analyzer/tree/master/lib/lsp-server
+    - https://github.com/Myriad-Dreamin/tinymist/tree/main/crates/sync-lsp
+    - tower-lsp
 ==== lsp-server
 https://github.com/rust-lang/rust-analyzer/blob/master/lib/lsp-server/examples/goto_def.rs
 
