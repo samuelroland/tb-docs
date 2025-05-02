@@ -231,7 +231,9 @@ Est-ce que cela paraît proche de SDLang vu précédemment ? C'est normal puisqu
 En plus des autres désavantages restant de hiéarchie avec `{` `}` et guillemets, il reste toujours le problème des types de nombres qui posent soucis avec certaines strings si on ne les entoure pas de guillemets. Par exemple ce numéro de version `version "1.2.3"` a besoin de guillemets sinon `1.2.3` est interprété comme une erreur de format de nombre à virgule.
 
 ==== Conclusion
+En conclusion, au vu du nombre de tentatives/variantes trouvées, on voit que la verbosité des formats largement répandu du XML, JSON et même du YAML est un problème qui ne touche pas que l'auteur. Le gain de verbosité des syntaxes listées est réel mais reste ciblé sur un usage plus avancé de structure de données et types variés. L'auteur pense pouvoir proposer une approche encore plus légère et plus simple, inspirée du style du Markdown en évitant une partie des charactères non explicites.
 
+TODO finish + merge intro above
 
 #pagebreak()
 === Librairies existantes de parsing en Rust
