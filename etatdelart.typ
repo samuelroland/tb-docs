@@ -209,22 +209,23 @@ Après s'être intéressé aux syntaxes existantes, nous nous intéressons maint
 
 Après quelques recherches avec le tag `parser` sur crates.io @cratesIoParserTagsList, j'ai trouvé la liste de librairies suivantes:
 
-- Winnow, fork de Nom, utilisé notamment par le parseur Rust de KDL @kdlrsDeps
-- Nom, utilisé notamment par `cexpr` @nomRevDeps
-- pest
-- combine ?? - https://crates.io/crates/combine
-- Chumsky
+- `winnow` @winnowCratesio, fork de `nom`, utilisé notamment par le parseur Rust de KDL @kdlrsDeps
+- `nom` @nomCratesio, utilisé notamment par `cexpr` @nomRevDeps
+- `pest` @pestCratesio
+- `combine` @combineCratesio
+- `chumsky` @chumskyCratesio
+
 
 A noter aussi l'existance de la crate `serde`, un framework de sérialisation et desérialisation très populaire dans l'écosystème Rust (selon lib.rs @librsMostPopular). Il est notamment utilisé pour les parseurs JSON et TOML. Ce n'est pas une librairie de parsing mais un modèle de donnée basée sur les traits de Rust pour faciliter son travail. Au vu du modèle de données de Serde @serdersDatamodel, qui supporte 29 types de données, ce projet paraît à l'auteur apporter plus de complexités qu'autre chose pour trois raisons:
 - Seulement les strings, listes et structs sont utiles pour PLX. Par exemple, les 12 types de nombres sont inutiles à différencier et seront propre au besoin de la variante.
 - La sérialisation (struct Rust vers syntaxe DY) n'est pas prévue, seulement la desérialisation est utile.
 - Le mappage des préfixes et flags par rapport aux attributs des structs Rust qui seront générées, n'est pas du 1:1, cela dépendra de la structure définie pour la variante de PLX.
 
-Au final, l'auteur de ce travail a jugé que ces différentes librairies de parsing était trop compliquées pour le besoin de PLX. La syntaxe DY est relativement petite à parser et sa structure légère et souvent implicite.
+Après ces recherches et quelques essais avec `winnow`, l'auteur a finalement décidé qu'utiliser une librairie était trop compliqué pour le projet et que l'écriture manuelle d'un parseur ferait mieux l'affaire. La syntaxe DY est relativement petite à parser, et sa structure légère et souvent implicite rend compliqué l'usage de librairies pensées pour des langages de programmation très structuré.
 
-Par exemple, une simple expression mathématique `((23+4) * 5)` paraît idéale pour ces outils, les débuts et fin sont claires, une stratégie de combinaisons de parseurs fonctionnerait bien. Une syntaxe EBNF permettra d'écrire le code de parsing très facilement. On peut facilement inspecter les charactères pour ignorer les espaces, extraires les nombres tant qu'il contiennent des chiffres, extraires des opérateurs et les 2 opérandes autour.
+Par exemple, une simple expression mathématique `((23+4) * 5)` paraît idéale pour ces outils, les débuts et fin sont claires, une stratégie de combinaisons de parseurs fonctionnerait bien pour les expressions parenthésées, les opérateurs et les nombres. Elles semble bien adapter à exprimer l'ignorance des espaces, extraire les nombres tant qu'il contiennent des chiffres, extraires des opérateurs et les 2 opérandes autour...
 
-Si on retire tous les séparateurs en paires (parenthèse, accolades, guillemets, ...), et qu'on rend une partie des préfixes optionnel cela complique l'approche de définir le début et la fin et d'appeler combiner récursivement des parseurs comme on ne sait pas facilement où est la fin.
+Pour DY, l'aspect multilignes et qu'une partie des préfixes optionnel, complique l'approche de définir le début et la fin et d'appeler combiner récursivement des parseurs comme on ne sait pas facilement où est la fin.
 
 #figure(
 ```
@@ -234,21 +235,14 @@ Consigne très longue
 en *Markdown*
 sur plusieurs lignes
 
+xp 20
 checks
 ...
 ```,
-    caption: [Exemple d'un début d'exercice de code, on voit que la consigne se trouve après la ligne `exo` et continue sur plusieurs lignes jusqu'à qu'on trouve un autre préfixe (ici `checks` ou un autre selon l'optionnalité d'autres préfixes présent avant `checks`).],
+    caption: [Exemple d'un début d'exercice de code, on voit que la consigne se trouve après la ligne `exo` et continue sur plusieurs lignes jusqu'à qu'on trouve un autre préfixe (ici `xp` qui est optionnel ou alors `checks`).],
 )
 
 // todo la variante, terme correcte ?
-
-
-https://crates.io/crates/unscanny
-
-doc de rust-analyzer
-https://github.com/rust-lang/rust-analyzer/tree/master/docs/book/src/contributing
-
-Winnow, Chumsky, PEG, Nom
 
 #pagebreak()
 === Systèmes de surglignage de code
