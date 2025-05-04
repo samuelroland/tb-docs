@@ -1,8 +1,22 @@
 // Temporary document in waiting maturity of the Typst template
+#set text(lang: "fr")  // assuming you want French
+
+// Use "Snippet" instead of Liste -> Snippet 1, Snippet 2, ...
+#show figure.where(kind: raw): set figure(
+  supplement: "Snippet"
+)
 
 #set page(margin: 3em)
 #show link: underline
 #set text(font: "Cantarell", size: 12pt, lang: "fr")
+
+#show raw.where(block: false): b => {
+   box(fill: rgb(175, 184, 193, 20%), inset: 1pt, outset: 1pt, text()[ #b.text ])
+}
+
+#show raw.where(block: true): b => {
+    block(stroke: 1pt + black, fill: rgb(249, 251, 254), inset: 15pt, radius: 5pt,)[#b.text]
+}
 
 #outline(
  title: "Table of Contents",
@@ -30,13 +44,6 @@ Ces recherches se focalisent sur les syntaxes qui ne sont pas spécifique à un 
 
 Contrairement aux languages de programmation qui existent par centaines, les syntaxes de ce genre ne sont pas monnaies courantes. Différentes manières de les nommer existent: language de balise (markup language), format de donnée, syntaxes, langage de donnée, language spécifique à un domaine (de l'anglais Domain Specific Language - DSL), ... Les mots-clés utilisés suivants ont été utilisés sur Google, la barre de recherche de Github.com et de crates.io: `data format`, `human friendly`, `human writable`, `human readable`.
 
-#show raw.where(block: false): b => {
-    box(fill: rgb(175, 184, 193, 20%), inset: 2pt, outset: 2pt, [#b.text])
-}
-
-#show raw.where(block: true): b => {
-    block(stroke: 1pt + black, fill: rgb(249, 251, 254), inset: 15pt, radius: 5pt,)[#align(left)[#b.text]]
-}
 
 ==== KHI - Le langage de données universel
 D'abord nommée UDL (Universal Data Language) @UDLCratesio, cette syntaxe a été inventée pour mixer les possibilités du JSON, YAML, TOML, XML, CSV et Latex, afin de supporter toutes les structures de données modernes. Plus concrètement le markup, les structs, les listes, les tuples, les tables/matrices, les enums, les arbres hiérarchiques sont supportés. Les objectifs sont la polyvalence, un format source (fait pour être rédigé à la main), l'esthétisme et la simplicité.
@@ -108,7 +115,7 @@ La partie quizzes du standard inclut des textes à trous, des questions à choix
         "example": []
     }
 }
-```, caption: [Extrait simplifié de la réponse JSON, respectant le standard Bitmark @bitmarkDocsClozeSpec. La phrase `There used to be a ___ here.` doit être complétée par le mot `school` en s'aidant du texte en allemand.]
+```, caption: [Equivalent de @mcq-bitmark dans le Bitmark Json data model @bitmarkDocsMcqSpec]
 )
 Open Taskpool, projet qui met à disposition des exercices d'apprentissage de langues @openTaskpoolIntro, fournit une API JSON utilisant le Bitmark JSON data model.
 
@@ -308,8 +315,9 @@ La communication entre l'éditeur et un serveur de langage démarré pour le fic
 ) <fig-neovim-autocompletion-example>
 
 Les points clés du protocole à relever sont les suivants:
-- *JSON-RPC* (JSON Remote Procedure Call) est utilisé comme format de sérialisation des requêtes. Similaire au HTTP, il possède des entêtes et un corps. Ce standard définit quelques structures de données à respecter. Une requête doit contenir un champ `jsonrpc`, `id`, `method` et optionnelement `params` @jsonrpcSpec. Il est possible d'envoyer une notification (requête sans attendre de réponse). Par exemple, le champ `method` va indiquer l'action qu'on tente d'appeler, ici une des fonctionnalités du serveur.
-- Fort heureusement, un serveur de langage n'a pas besoin d'implémenter toutes les fonctionnalités du protocole. Un système "Capabilities" est défini pour annoncer les méthodes implémentées @lspCapabilities.
+- *JSON-RPC* (JSON Remote Procedure Call) est utilisé comme format de sérialisation des requêtes. Similaire au HTTP, il possède des entêtes et un corps. Ce standard définit quelques structures de données à respecter. Une requête doit contenir un champ `jsonrpc`, `id`, `method` et optionnelement `params` @jsonrpcSpec. Il est possible d'envoyer une notification (requête sans attendre de réponse). Par exemple, le champ `method` va indiquer l'action qu'on tente d'appeler, ici une des fonctionnalités du serveur. Voir @jsonRpcExample
+- Un serveur de langage n'a pas besoin d'implémenter toutes les fonctionnalités du protocole. Un système "Capabilities" est défini pour annoncer les méthodes implémentées @lspCapabilities.
+- Le transport des messages JSON-RPC peut se faire en `stdio` (flux standard entrée et sorties), sockets TCP ou même en HTTP.
 
 #figure(
 ```
@@ -325,11 +333,11 @@ Content-Length: ...\r\n
 }
 ```,
   caption: [Exemple de requête en JSON-RPC envoyé par le client pour demander des propositions d'auto-complétion à une position de curseur données. Tiré de la spécification @lspCompletionExample],
-)
+) <jsonRpcExample>
 
 Quelques exemples de serveurs de langages implémentés en Rust
 - `tinymist`, serveur de langage de Typst (système d'édition de document, utilisé pour la rédaction de ce rapport). Ce projet a abstrait la logique générale dans une crate `sync-ls`, mais le README déconseille son usage et conseille `async-lsp` à la place.
-- `rust-analyzer`, projet officiel du langage Rust. Ce projet a également extrait 
+- `rust-analyzer`, projet officiel du langage Rust. Ce projet a également extrait une crate `lsp-server`.
 
 Une crate commune à plusieurs projet est `lsp-types` @lspTypesCratesio qui définit les structures de données, comme `Diagnostic`, `Position`, `Range`. Ce projet est utilisé par `lsp-server`, `tower-lsp`, `lspower` et d'autres @lspTypesUses
 
@@ -338,8 +346,14 @@ Une crate commune à plusieurs projet est `lsp-types` @lspTypesCratesio qui déf
 - https://github.com/Myriad-Dreamin/tinymist/tree/main/crates/sync-lsp
 - tower-lsp
 
-==== lsp-server
-https://github.com/rust-lang/rust-analyzer/blob/master/lib/lsp-server/examples/goto_def.rs
+==== Adoption
+Les clients 
+
+Selon 
+https://microsoft.github.io/language-server-protocol/implementors/servers/
+
+==== Choix final
+
 
 ==== async-lsp
 
