@@ -296,17 +296,22 @@ Si le temps le permet, une grammaire développée avec Tree-Sitter permettra de 
 #pagebreak()
 
 === Les serveurs de language et librairies Rust existantes
-Une part importante du support d'un langage dans un éditeur, consiste en l'intégration des erreurs, l'auto-complétion, les propositions de corrections et des informations au survol... et de nombreuses fonctionnalités qui améliorent l'interaction et la productivité autour du travail avec le code. Par ex. les erreurs de compilation étant intégrées à l'éditeur, il est possible de voir immédiatement les problèmes même avant d'avoir lancer une compilation manuelle dans une interface séparée.
+Une part importante du support d'un langage dans un éditeur, consiste en l'intégration des erreurs, l'auto-complétion, les propositions de corrections, des informations au survol... et de nombreuses fonctionnalités qui améliorent la compréhension ou l'interaction. L'avantage d'avoir les erreurs de compilation directement soulignées dans l'éditeur, permet de voir et corriger immédiatement les problèmes sans lancer une compilation manuelle dans une interface séparée.
 
-Contrairement au surlignage de code, ces fonctionnalités demandent une compréhension beaucoup plus fine, ils sont implémentés des processus séparés de l'éditeur (étant donc agnostique du langage de programmation utilisé). Ces processus séparés sont appelés des serveurs de langage (language server en anglais).
+Contrairement au surlignage de code, ces fonctionnalités demandent une compréhension beaucoup plus fine, ils sont implémentés dans des processus séparés de l'éditeur (aucun langage de programmation n'est ainsi imposé). Ces processus séparés sont appelés des serveurs de langage (language server en anglais). Les éditeurs qui intègre Tree-Sitter développe un client LSP qui se charge de lancer ce serveur, de lancer des requêtes et d'intégrer les données des réponses dans leur interface visuelle.
 
-La communication entre l'éditeur et un serveur de langage démarré pour le fichier en cours, se fait via le `Language Server Protocol (LSP)` inventé par Microsoft pour VSCode.
+La communication entre l'éditeur et un serveur de langage démarré pour le fichier en cours, se fait via le `Language Server Protocol (LSP)`. Ce protocole inventé par Microsoft pour VSCode, résoud le problème des développeurs de langages qui doivent supporter chaque éditeur de code indépendamment avec des APIs légèrement différentes pour faire la même chose. Le projet a pour but également de simplifier la vie des nouveaux éditeurs pour intégrer rapidement des dizaines de langages via ce protocole commun et standardisé @lspWebsite.
 
-Fonctionnement général du protocole
-- *JSON-RPC* est utilisé pour faire des appels 
-JSON-RPC is a bit like HTTP
-// todo cite code provenance
+#figure(
+  image("imgs/neovim-autocompletion-example.png", width: 60%),
+  caption: [Exemple d'auto-complétion dans Neovim, générée par le serveur de language `rust-analyzer` sur l'appel d'une méthode sur les `&str`],
+) <fig-neovim-autocompletion-example>
 
+Les points clés du protocole à relever sont les suivants:
+- *JSON-RPC* (JSON Remote Procedure Call) est utilisé comme format de sérialisation des requêtes. Similaire au HTTP, il possède des entêtes et un corps. Ce standard définit quelques structures de données à respecter. Une requête doit contenir un champ `jsonrpc`, `id`, `method` et optionnelement `params` @jsonrpcSpec. Il est possible d'envoyer une notification (requête sans attendre de réponse). Par exemple, le champ `method` va indiquer l'action qu'on tente d'appeler, ici une des fonctionnalités du serveur.
+- Fort heureusement, un serveur de langage n'a pas besoin d'implémenter toutes les fonctionnalités du protocole. Un système "Capabilities" est défini pour annoncer les méthodes implémentées @lspCapabilities.
+
+#figure(
 ```
 Content-Length: ...\r\n
 \r\n
@@ -318,12 +323,21 @@ Content-Length: ...\r\n
 		...
 	}
 }
-```
+```,
+  caption: [Exemple de requête en JSON-RPC envoyé par le client pour demander des propositions d'auto-complétion à une position de curseur données. Tiré de la spécification @lspCompletionExample],
+)
 
-    - https://github.com/rust-lang/rust-analyzer/blob/master/lib/lsp-server/examples/goto_def.rs
-    - https://github.com/rust-lang/rust-analyzer/tree/master/lib/lsp-server
-    - https://github.com/Myriad-Dreamin/tinymist/tree/main/crates/sync-lsp
-    - tower-lsp
+Quelques exemples de serveurs de langages implémentés en Rust
+- `tinymist`, serveur de langage de Typst (système d'édition de document, utilisé pour la rédaction de ce rapport). Ce projet a abstrait la logique générale dans une crate `sync-ls`, mais le README déconseille son usage et conseille `async-lsp` à la place.
+- `rust-analyzer`, projet officiel du langage Rust. Ce projet a également extrait 
+
+Une crate commune à plusieurs projet est `lsp-types` @lspTypesCratesio qui définit les structures de données, comme `Diagnostic`, `Position`, `Range`. Ce projet est utilisé par `lsp-server`, `tower-lsp`, `lspower` et d'autres @lspTypesUses
+
+- https://github.com/rust-lang/rust-analyzer/blob/master/lib/lsp-server/examples/goto_def.rs
+- https://github.com/rust-lang/rust-analyzer/tree/master/lib/lsp-server
+- https://github.com/Myriad-Dreamin/tinymist/tree/main/crates/sync-lsp
+- tower-lsp
+
 ==== lsp-server
 https://github.com/rust-lang/rust-analyzer/blob/master/lib/lsp-server/examples/goto_def.rs
 
