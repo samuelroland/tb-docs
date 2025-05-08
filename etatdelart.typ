@@ -6,6 +6,8 @@
   supplement: "Snippet"
 )
 
+#set par(justify: true)
+
 #set page(margin: 3em)
 #show link: underline
 #set text(font: "Cantarell", size: 12pt, lang: "fr")
@@ -15,7 +17,7 @@
 }
 
 #show raw.where(block: true): b => {
-    block(stroke: 1pt + black, fill: rgb(249, 251, 254), inset: 15pt, radius: 5pt,)[#b.text]
+    block(stroke: 1pt + black, fill: rgb(249, 251, 254), inset: 15pt, radius: 5pt,)[#align(left)[#b.text]]
 }
 
 #outline(
@@ -71,10 +73,10 @@ electron-shells: [2; 8; 3]
 wikipedia: \https://en.wikipedia.org/wiki/Aluminium
 snl: \https://snl.no/aluminium
 ```,
-    caption: [Un exemple simplifié tiré de leur README @KHIGithub, décrivant un exemple d'article d'encyclopédie.],
+    caption: [Un exemple simplifié de KHI de leur README @KHIGithub, décrivant un exemple d'article d'encyclopédie.],
 ) <khi-example>
 
-Une implémentation en Rust en proposée @KHIRSGithub. Son dernier commit sur ces 2 repositorys date du 11.11.2024, le projet a l'air de ne pas être fini au vu des nombreux `todo!()` présent dans le code.
+Une implémentation en Rust en proposée @KHIRSGithub. Son dernier commit sur ces 2 repositorys date du 11.11.2024, le projet a l'air de ne pas être fini au vu des nombreux `todo!()` présent dans le code. La large palette de structures supportées implique une charge mentale additionnelle pour se rappeler, ce qui en fait une mauvaise option pour PLX.
 
 ==== Bitmark - le standard des formats éducatifs digitaux
 Bitmark est un standard open-source, qui vise à uniformiser tous les formats de données utilisés pour décrire du contenu éducatif digital sur les nombreuses plateformes existantes @bitmarkAssociation. Cette diversité de formats rend l'interropérabilité très difficile et freine l'accès à la connaissance et restreint les créateurs de contenus et les éditeurs dans les possibilités de migration entre plateformes. La stratégie est de définir un format basé sur le contenu (Content-first) plus que basé sur son rendu (layout-first) permettant un affichage sur tous type d'appareils incluant les appareils mobiles @bitmarkAssociation. C'est la Bitmark Association en Suisse à Zurich qui développe ce standard, notamment à travers des Hackatons organisés en 2023 et 2024 @bitmarkAssociationHackaton.
@@ -182,10 +184,10 @@ author "Peter Parker" email="peter@example.org" active=true
 
 // Nodes can be arbitrarily nested
 contents {
-	section "First section" {
-		paragraph "This is the first paragraph"
-		paragraph "This is the second paragraph"
-	}
+  section "First section" {
+    paragraph "This is the first paragraph"
+    paragraph "This is the second paragraph"
+  }
 }
 
 // Anonymous nodes are supported
@@ -193,9 +195,9 @@ contents {
 
 // This makes things like matrix definitions very convenient
 matrix {
-	1 0 0
-	0 1 0
-	0 0 1
+  1 0 0
+  0 1 0
+  0 0 1
 }
 ```,
   caption: [Exemple tiré de leur site web @sdlangWebsite]
@@ -290,15 +292,29 @@ Les IDEs modernes supportent possèdent des systèmes de surglignage de code (sy
 Un système de surlignage est très différent d'un parseur. Même s'il traite du même langage, dans un cas, on cherche juste à découper le code en tokens et y définir un type de token. Ce qui s'apparente seulement à la premier étape du lexer/tokenizer généralement rencontré dans les parseurs.
 
 ==== Textmate
-Textmate est un IDE pour MacOS qui a inventé un système de grammaire Textmate. Ces grammaires permettent de décrire comment tokeniser le code basée sur des expressions régulières. Ces expressions régulières viennent de la librairie Oniguruma @textmateRegex. VSCode utilise ces grammaires Textmate @vscodeSyntaxHighlighting. Intellij IDEA l'utilise également pour les langages non supportés par Intellij IDEA @ideaSyntaxHighlighting.
+Textmate est un IDE pour MacOS qui a inventé un système de grammaire Textmate. Elles permettent de décrire comment tokeniser le code basée sur des expressions régulières. Ces expressions régulières viennent de la librairie Oniguruma @textmateRegex. VSCode utilise ces grammaires Textmate @vscodeSyntaxHighlighting. Intellij IDEA l'utilise également pour les langages non supportés par Intellij IDEA @ideaSyntaxHighlighting.
 
 ==== Tree-Sitter
-Tree-Sitter est supporté dans Neovim @neovimTSSupport, dans le nouvel éditeur Zed @zedTSSupport, ainsi que d'autres. Tree-Sitter a été inventé par l'équipe derrière Atom @atomTSSupport
+
+Tree-Sitter @TreeSitterWebsite est un "outil de génération de parser et une librairie de parsing incrémentale. It peut build un abstract de syntaxe concret pour un fichier source et efficacement mettre à jour cet arbre quand le fichier source est modifié." @TreeSitterWebsite (Traduction personnelle)
+
+Rédiger une grammaire Tree-Sitter consiste en l'écriture d'une syntaxe en Javascript dans un fichier `grammar.js`. Le cli `tree-sitter` va ensuite générer un parseur en C qui /emc @TreeSitterCreatingParsers
+
+usage de github symbols panel
+
+    General enough to parse any programming language
+    Fast enough to parse on every keystroke in a text editor
+    Robust enough to provide useful results even in the presence of syntax errors
+    Dependency-free so that the runtime library (which is written in pure C11) can be embedded in any application
+
+Tree-Sitter est supporté dans Neovim @neovimTSSupport, dans le nouvel éditeur Zed @zedTSSupport, ainsi que d'autres. Tree-Sitter a été inventé par l'équipe derrière Atom @atomTSSupport.
+
+#image("test.svg", width: 85%)
 
 ==== Semantic highlighting
 
 ==== Choix final
-Si le temps le permet, une grammaire développée avec Tree-Sitter permettra de supporter du surglignage dans Neovim et VSCode dans le futur.
+Si le temps le permet, une grammaire développée avec Tree-Sitter permettra de supporter du surglignage dans Neovim. Le choix de ne pas explorer plus les grammaires Textmate se justifie également par l'intégration en cours de Tree-Sitter dans de VSCode
 
 #pagebreak()
 
@@ -310,7 +326,7 @@ Contrairement au surlignage de code, ces fonctionnalités demandent une compréh
 La communication entre l'éditeur et un serveur de langage démarré pour le fichier en cours, se fait via le `Language Server Protocol (LSP)`. Ce protocole inventé par Microsoft pour VSCode, résoud le problème des développeurs de langages qui doivent supporter chaque éditeur de code indépendamment avec des APIs légèrement différentes pour faire la même chose. Le projet a pour but également de simplifier la vie des nouveaux éditeurs pour intégrer rapidement des dizaines de langages via ce protocole commun et standardisé @lspWebsite.
 
 #figure(
-  image("imgs/neovim-autocompletion-example.png", width: 60%),
+  image("imgs/neovim-autocompletion-example.png", width: 70%),
   caption: [Exemple d'auto-complétion dans Neovim, générée par le serveur de language `rust-analyzer` sur l'appel d'une méthode sur les `&str`],
 ) <fig-neovim-autocompletion-example>
 
@@ -324,20 +340,21 @@ Les points clés du protocole à relever sont les suivants:
 Content-Length: ...\r\n
 \r\n
 {
-	"jsonrpc": "2.0",
-	"id": 1,
-	"method": "textDocument/completion",
-	"params": {
-		...
-	}
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "textDocument/completion",
+    "params": {
+        ...
+    }
 }
 ```,
   caption: [Exemple de requête en JSON-RPC envoyé par le client pour demander des propositions d'auto-complétion à une position de curseur données. Tiré de la spécification @lspCompletionExample],
 ) <jsonRpcExample>
 
 Quelques exemples de serveurs de langages implémentés en Rust
-- `tinymist`, serveur de langage de Typst (système d'édition de document, utilisé pour la rédaction de ce rapport). Ce projet a abstrait la logique générale dans une crate `sync-ls`, mais le README déconseille son usage et conseille `async-lsp` à la place.
-- `rust-analyzer`, projet officiel du langage Rust. Ce projet a également extrait une crate `lsp-server`.
+- `tinymist`, serveur de langage de Typst (système d'édition de document, utilisé pour la rédaction de ce rapport).
+- `rust-analyzer`, projet officiel du langage Rust.
+- `asm-lsp` @AsmLspCratesio, permet d'inclure des erreurs dans du code assembleur
 
 Une crate commune à plusieurs projet est `lsp-types` @lspTypesCratesio qui définit les structures de données, comme `Diagnostic`, `Position`, `Range`. Ce projet est utilisé par `lsp-server`, `tower-lsp`, `lspower` et d'autres @lspTypesUses
 
@@ -347,20 +364,19 @@ Une crate commune à plusieurs projet est `lsp-types` @lspTypesCratesio qui déf
 - tower-lsp
 
 ==== Adoption
-Les clients 
+Selon la liste des clients qui supportent le LSP sur le site de la spécification @lspClientsList, de nombreux éditeurs tel que Atom, Eclipse, Emacs, GoLand, Intellij IDEA, Helix, Neovim, Visual Studio et bien sûr VSCode. La liste des serveurs LSP @lspServersList quand à elle, contient plus de 200 projets, dont 40 implémentés en Rust! Ce large support et ces nombreux exemples vont faciliter le développement et le support de différents IDE.
 
-Selon 
-https://microsoft.github.io/language-server-protocol/implementors/servers/
+==== Librairies disponibles
+En cherchant à nouveau sur `crates.io` sur le tag `lsp`, on trouve différent projets dont `async-lsp` @AsyncLspCratesio utilisée dans `nil` @NilUsingAsyncLspGithub (un serveur de langage pour le système de configuration de NixOS) et de la même auteure.
 
-==== Choix final
-
-
-==== async-lsp
-
-==== tower-lsp-server
+Le projet `tinymist` a fait une abstraction `sync-ls`, mais le README déconseille son usage et conseille `async-lsp` à la place @tinymistSyncLspImpl. En continuant la recherche on trouve encore un autre `tower-lsp` et un fork `tower-lsp-server` @TowerLspServerCratesio... `rust-analyzer` a également extrait une crate `lsp-server`.
 
 ==== Choix final
-Si le temps le permet...
+L'auteur travaillant dans Neovim, l'intégration ne sera faite que dans Neovim pour ce TB, l'intégration dans VSCode pourra être fait dans le futur et devrait être relativement simple.
+
+Les 2 projets les plus utilisés (en terme de reverse dependencies sur crates.io) sont `lsp-server` @LspServerCratesio (56) et `tower-lsp` (85) @TowerLspCratesio. L'auteur a choisi d'utiliser la crate `lsp-server` étant développé par la communauté Rust, la probabilité d'une maintenance long-terme est plus élevée, et le projet `tower-lsp` est basée sur des abstractions asynchrones, l'auteur préfère partir sur la version synchrone pour simplifier l'implémentation.
+
+Cette partie est un nice-to-have de ce travail, il n'est pas sûr qu'elle puisse aboutir.
 
 #pagebreak()
 
