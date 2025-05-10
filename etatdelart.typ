@@ -12,13 +12,31 @@
 #show link: underline
 #set text(font: "Cantarell", size: 12pt, lang: "fr")
 
-#show raw.where(block: false): b => {
-   box(fill: rgb(175, 184, 193, 20%), inset: 1pt, outset: 1pt, text()[ #b.text ])
-}
+// todo only for svg !
+#show image: box.with(
+  // fill: rgb(249, 251, 254),
+  inset: 10pt,
+  outset: (y: 3pt),
+  radius: 2pt,
+  stroke: 1pt + luma(200)
+)
+// Display inline code in a small box that retains the correct baseline.
+#show raw.where(block: false): box.with(
+  fill: luma(240),
+  inset: (x: 3pt, y: 0pt),
+  outset: (y: 3pt),
+  radius: 2pt,
+)
 
-#show raw.where(block: true): b => {
-    block(stroke: 1pt + black, fill: rgb(249, 251, 254), inset: 15pt, radius: 5pt,)[#align(left)[#b.text]]
-}
+#show block: text.with(size: 0.95em, font: "Fira Code")
+
+// Display block code in a larger block with more padding.
+#show raw.where(block: true): block.with(
+  // fill: rgb(249, 251, 254),
+  inset: 10pt,
+  radius: 2pt,
+  stroke: 1pt + luma(200)
+)
 
 #outline(
  title: "Table of Contents",
@@ -93,7 +111,7 @@ La partie quizzes du standard inclut des textes à trous, des questions à choix
 [+white]
 [-red]
 [-blue]
-```, caption: [Un exemple de question à choix multiple tiré de leur documentation @bitmarkDocsMcqSpec. L'option correcte `white` est préfixée par `+` et les 2 autres options incorrectes par `-`. Plus haut, `[!...]` décrit une consigne, `[?...]` décrit un indice.]
+```, caption: [Un exemple de question à choix multiple tiré de leur documentation @bitmarkDocsMcqSpec. #linebreak() L'option correcte `white` est préfixée par `+` et les 2 autres options incorrectes par `-`. #linebreak()Plus haut, `[!...]` décrit une consigne, `[?...]` décrit un indice.]
 )
 <mcq-bitmark>
 
@@ -296,20 +314,113 @@ Textmate est un IDE pour MacOS qui a inventé un système de grammaire Textmate.
 
 ==== Tree-Sitter
 
-Tree-Sitter @TreeSitterWebsite est un "outil de génération de parser et une librairie de parsing incrémentale. It peut build un abstract de syntaxe concret pour un fichier source et efficacement mettre à jour cet arbre quand le fichier source est modifié." @TreeSitterWebsite (Traduction personnelle)
+Tree-Sitter @TreeSitterWebsite se définit comme un "outil de génération de parser et une librairie de parsing incrémentale. Il peut construire un arbre de syntaxe concret (CST) pour depuis un fichier source et efficacement mettre à jour cet arbre quand le fichier source est modifié." @TreeSitterWebsite (Traduction personnelle)
 
-Rédiger une grammaire Tree-Sitter consiste en l'écriture d'une syntaxe en Javascript dans un fichier `grammar.js`. Le cli `tree-sitter` va ensuite générer un parseur en C qui /emc @TreeSitterCreatingParsers
+Rédiger une grammaire Tree-Sitter consiste en l'écriture d'une grammaire en Javascript dans un fichier `grammar.js`. Le cli `tree-sitter` va ensuite générer un parseur en C qui pourra être utilisé directement via le CLI `tree-sitter` durant le développement et être facilement embarquée comme librarie C sans dépendance dans n'importe quelle type d'application @TreeSitterCreatingParsers @TreeSitterWebsite.
 
-usage de github symbols panel
+Etant donné @exo-dy-ts-poc, le défi est d'arriver à coloriser les préfixes et les flags pour ne pas avoir cette affichage noir sur blanc qui ne facilite pas la lecture.
+#figure(
+```
+// Basic MCQ exo
+exo Introduction
+opt .multiple
+- C is an interpreted language
+- .ok C is a compiled language
+- C is mostly used for web applications
+```,
+  caption: [Un exemple de question choix multiple, décrite avec la syntaxe DY. Les préfixes sont `exo` (titre) et `opt` (options). Les flags sont `.ok` et `.multiple`.]
+) <exo-dy-ts-poc>
 
-    General enough to parse any programming language
-    Fast enough to parse on every keystroke in a text editor
-    Robust enough to provide useful results even in the presence of syntax errors
-    Dependency-free so that the runtime library (which is written in pure C11) can be embedded in any application
+Une fois la grammaire mise en place avec la commande `tree-sitter init`, il suffit de remplir le fichier `grammar.js`, avec une ensemble de régle construites via des fonctions fournies par Tree-Sitter et des expressions régulières.
+
+// todo link or not link to ts docs ??
+
+```js
+module.exports = grammar({
+  name: "dy",
+  rules: {
+    source_file: ($) => repeat($._line),
+    _line: ($) =>
+      seq( choice($.commented_line, $.prefixed_line, $.list_line, $.content_line), "\n"),
+    prefixed_line: ($) =>
+      seq($.prefix, optional(repeat($.property)), optional(seq(" ", $.content))),
+    commented_line: (_) => token(seq(/\/\/ /, /.+/)),
+    list_line: ($) => seq($.dash, repeat($.property), optional(" "), optional($.content)),
+    dash: (_) => token(prec(2, /- /)),
+    prefix: (_) => token(prec(1, choice("exo", "opt"))),
+    property: (_) => token(prec(3, seq(".", choice("multiple", "ok")))),
+    content_line: ($) => $.content,
+    content: (_) => token(prec(0, /.+/)),
+  },
+});
+```
+
+On observe dans cet exemple un fichier source, découpé en une répétition de ligne. Il y a 4 types de lignes qui sont chacunes décrites avec des plus petits morceaux. `seq` indique une liste de tokens qui viendront en séquence, `choice` permet de tester plusieurs options à la même position. On remarque également la liste des préfixes et flags insérés dans les tokens de `prefix` et `property`. La documentation The Grammar DSL de la documentation explique toutes les options possibles en détails @TreeSitterGrammarDSL.
+
+Après avoir appelé `tree-sitter generate` pour générer le code du parser C et `tree-sitter build` pour le compiler, on peut demander au CLI de parser un fichier donné et afficher le CST. Dans cet arbre qui démarre avec son noeud racine `source_file`, on y voit les noeuds du même type que les règles définies précédemment, avec le texte extrait dans la plage de charactères associée au noeud. Par exemple, on voit que l'option `C is a compiled language` a bien été extraite à la ligne 4, entre le byte 6 et 30 (`4:6  - 4:30`) en tant que `content`. Elle suit un token de `property` avec notre flag `.ok` et le tiret de la règle `dash`.
+
+```
+> tree-sitter parse -c mcq.dy
+0:0  - 6:0    source_file 
+0:0  - 0:16     commented_line `// Basic MCQ exo`
+0:16 - 1:0      "\n"
+1:0  - 1:16     prefixed_line 
+1:0  - 1:3        prefix `exo`
+1:3  - 1:4        " "
+1:4  - 1:16       content `Introduction`
+1:16 - 2:0      "\n"
+2:0  - 2:13     prefixed_line 
+2:0  - 2:3        prefix `opt`
+2:3  - 2:13       property ` .multiple`
+2:13 - 3:0      "\n"
+3:0  - 3:30     list_line 
+3:0  - 3:2        dash `- `
+3:2  - 3:30       content `C is an interpreted language`
+3:30 - 4:0      "\n"
+4:0  - 4:30     list_line 
+4:0  - 4:2        dash `- `
+4:2  - 4:5        property `.ok`
+4:5  - 4:6        " "
+4:6  - 4:30       content `C is a compiled language`
+4:30 - 5:0      "\n"
+5:0  - 5:39     list_line 
+5:0  - 5:2        dash `- `
+5:2  - 5:39       content `C is mostly used for web applications`
+5:39 - 6:0      "\n"
+```
+
+La tokenisation fonctionne bien pour cette exemple, chaque élément est correctement découpé et catégorisé. Pour voir ce snippet en couleurs, il nous reste deux choses à définir. La première consiste en un fichier `queries/highlighting.scm` qui décrit des requêtes de surlignage sur l'arbre (highlights query) permettant de sélectionner des noeuds de l'arbre et leur attribuer un nom de surlignage (highlighting name). Ces noms ressembles à `@variable`, `@constant`, `@function`, `@keyword`, `@string` etc... et des versions plus spécifiques comme `@string.regexp`, `@string.special.path`. Ces noms sont ensuite utilisés par les thèmes pour appliquer un style.
+
+```
+> cat queries/highlights.scm
+(prefix) @keyword
+(commented_line) @comment
+(content) @string
+(property) @property
+(dash) @operator
+```
+
+Le CLI supporte directement la configuration d'un thème via son fichier de configuration, on reprend simplement chaque nom de surlignage en lui donnant une couleur.
+```
+> cat ~/.config/tree-sitter/config.json
+{
+    "parser-directories": [ "/home/sam/code/tree-sitter-grammars" ],
+    "theme": {
+        "property": "#1bb588",
+        "operator": "#20a8c3",
+        "string": "#1f2328",
+        "keyword": "#20a8c3",
+        "comment": "#737a7e"
+    }
+}
+```
+
+#figure(
+  box(image("./imgs/mcq.svg"), width:50%),
+  caption: [Résultat final surligné par `tree-sitter highlighting mcq.dy`]
+)
 
 Tree-Sitter est supporté dans Neovim @neovimTSSupport, dans le nouvel éditeur Zed @zedTSSupport, ainsi que d'autres. Tree-Sitter a été inventé par l'équipe derrière Atom @atomTSSupport.
-
-#image("test.svg", width: 85%)
 
 ==== Semantic highlighting
 

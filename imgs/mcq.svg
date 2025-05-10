@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" viewBox="0 0 548.44 204.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+    <style>
+        * {
+            font-family: Fira Code, monospace;
+            font-size: 23px;
+        }
+        tspan, text {
+            font-variant-ligatures: none;
+            dominant-baseline: central;
+            white-space: pre;
+            fill: #c0caf5;
+        }
+        .bg {
+            stroke-width: "0.5px";
+        }
+        .italic {
+            font-style: italic;
+        }
+        
+        .fc0 { fill: #737a7e; }
+        .fc1 { fill: #20a8c3; }
+        .fc2 { fill: #1f2328; }
+        .fc3 { fill: #1bb588; }
+    </style>
+<text x="-1.2384615" y="13.345898"><tspan/><tspan class="italic fc0">// Basic MCQ exo
+</tspan></text>
+<text x="-1.2384615" y="43.345898"><tspan class="fc1">exo </tspan><tspan class="fc2">Introduction
+</tspan></text>
+<text x="-1.2384615" y="103.34589"><tspan class="fc1">opt </tspan><tspan class="fc3">.multiple
+</tspan></text>
+<text x="-1.2384615" y="133.3459"><tspan class="fc1">- </tspan><tspan class="fc2">C is an interpreted language
+</tspan></text>
+<text x="-1.2384615" y="163.3459"><tspan class="fc1">- </tspan><tspan class="fc3">.ok </tspan><tspan class="fc2">C is a compiled language
+</tspan></text>
+<text x="-1.2384615" y="193.3459"><tspan class="fc1">- </tspan><tspan class="fc2">C is mostly used for web applications
+</tspan></text>
+<text x="-1.2384615" y="223.3459"><tspan/></text>
+</svg>
