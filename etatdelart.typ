@@ -464,9 +464,15 @@ Content-Length: ...\r\n
 ) <jsonRpcExample>
 
 Quelques exemples de serveurs de langages implémentés en Rust
-- `tinymist`, serveur de langage de Typst (système d'édition de document, utilisé pour la rédaction de ce rapport).
-- `rust-analyzer`, projet officiel du langage Rust.
+- `tinymist`, serveur de langage de Typst (système d'édition de document, utilisé pour la rédaction de ce rapport)
+- `rust-analyzer`, serveur de language officiel du langage Rust
 - `asm-lsp` @AsmLspCratesio, permet d'inclure des erreurs dans du code assembleur
+
+D'autres exemples de serveurs de langages implémentés dans d'autres langages
+- `jdtls` le serveur de language pour Java implémenté en Java @EclipseJdtlsGithub
+- `tailwindcss-language-server`, le serveur de langage pour le framework CSS TailwindCSS, implémenté en TypeScript @TailwindcssIntellisenseGithub
+- `typescript-language-server` et pour finir celui pour TypeScript, implémenté en TypeScript également @TypescriptLanguageServerGithub
+- et beaucoup d'autres projets existent...
 
 Une crate commune à plusieurs projet est `lsp-types` @lspTypesCratesio qui définit les structures de données, comme `Diagnostic`, `Position`, `Range`. Ce projet est utilisé par `lsp-server`, `tower-lsp`, `lspower` et d'autres @lspTypesUses
 
@@ -487,7 +493,7 @@ Le code qui gère cette requête du type `GotoDefinition` se présente ainsi.
   match cast::<GotoDefinition>(req) {
       Ok((id, params)) => {
           let locations = vec![Location::new(
-              Uri::from_str("file:///tmp/another.rs").unwrap(),
+              Uri::from_str("file:///tmp/another.rs")?,
               Range::new(Position::new(3, 12), Position::new(3, 25)),
           )];
           let result = Some(GotoDefinitionResponse::Array(locations));
@@ -503,12 +509,12 @@ Le code qui gère cette requête du type `GotoDefinition` se présente ainsi.
 )
 
 ==== Adoption
-Selon la liste des clients qui supportent le LSP sur le site de la spécification @lspClientsList, de nombreux éditeurs tel que Atom, Eclipse, Emacs, GoLand, Intellij IDEA, Helix, Neovim, Visual Studio et bien sûr VSCode. La liste des serveurs LSP @lspServersList quand à elle, contient plus de 200 projets, dont 40 implémentés en Rust! Ce large support et ces nombreux exemples vont faciliter le développement et le support de différents IDE.
+Selon la liste sur le site de la spécification @lspClientsList, la liste des IDE qui supportent le LSP est longue: Atom, Eclipse, Emacs, GoLand, Intellij IDEA, Helix, Neovim, Visual Studio, VSCode bien sûr et d'autres. La liste des serveurs LSP @lspServersList quand à elle, contient plus de 200 projets, dont 40 implémentés en Rust! Ce large support et ces nombreux exemples va grandement faciliter le développement de ce serveur de language et son intégrations dans différents IDE.
 
 ==== Librairies disponibles
 En cherchant à nouveau sur `crates.io` sur le tag `lsp`, on trouve différent projets dont `async-lsp` @AsyncLspCratesio utilisée dans `nil` @NilUsingAsyncLspGithub (un serveur de langage pour le système de configuration de NixOS) et de la même auteure.
 
-Le projet `tinymist` a fait une abstraction `sync-ls`, mais le README déconseille son usage et conseille `async-lsp` à la place @tinymistSyncLspImpl. En continuant la recherche on trouve encore un autre `tower-lsp` et un fork `tower-lsp-server` @TowerLspServerCratesio... `rust-analyzer` a également extrait une crate `lsp-server`.
+Le projet `tinymist` a extrait une crate `sync-ls`, mais le README déconseille son usage et conseille `async-lsp` à la place @tinymistSyncLspImpl. En continuant la recherche on trouve encore un autre `tower-lsp` et un fork `tower-lsp-server` @TowerLspServerCratesio... `rust-analyzer` a également extrait une crate `lsp-server`.
 
 ==== Choix final
 L'auteur travaillant dans Neovim, l'intégration ne sera faite que dans Neovim pour ce TB, l'intégration dans VSCode pourra être fait dans le futur et devrait être relativement simple.
