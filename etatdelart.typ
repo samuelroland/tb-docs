@@ -28,7 +28,7 @@
   radius: 2pt,
 )
 
-#show block: text.with(size: 0.95em, font: "Fira Code")
+#show raw: text.with(size: 0.95em, font: "Fira Code")
 
 // Display block code in a larger block with more padding.
 #show raw.where(block: true): block.with(
@@ -94,9 +94,9 @@ snl: \https://snl.no/aluminium
     caption: [Un exemple simplifié de KHI de leur README @KHIGithub, décrivant un exemple d'article d'encyclopédie.],
 ) <khi-example>
 
-Une implémentation en Rust en proposée @KHIRSGithub. Son dernier commit sur ces 2 repositorys date du 11.11.2024, le projet a l'air de ne pas être fini au vu des nombreux `todo!()` présent dans le code. La large palette de structures supportées implique une charge mentale additionnelle pour se rappeler, ce qui en fait une mauvaise option pour PLX.
+Une implémentation en Rust est proposée @KHIRSGithub. Son dernier commit sur ces 2 repositorys date du 11.11.2024, le projet a l'air de ne pas être fini au vu des nombreux `todo!()` présent dans le code. La large palette de structures supportées implique une charge mentale additionnelle pour se rappeler, ce qui en fait une mauvaise option pour PLX.
 
-==== Bitmark - le standard des formats éducatifs digitaux
+==== Bitmark - le standard des contenus éducatifs digitaux
 Bitmark est un standard open-source, qui vise à uniformiser tous les formats de données utilisés pour décrire du contenu éducatif digital sur les nombreuses plateformes existantes @bitmarkAssociation. Cette diversité de formats rend l'interropérabilité très difficile et freine l'accès à la connaissance et restreint les créateurs de contenus et les éditeurs dans les possibilités de migration entre plateformes. La stratégie est de définir un format basé sur le contenu (Content-first) plus que basé sur son rendu (layout-first) permettant un affichage sur tous type d'appareils incluant les appareils mobiles @bitmarkAssociation. C'est la Bitmark Association en Suisse à Zurich qui développe ce standard, notamment à travers des Hackatons organisés en 2023 et 2024 @bitmarkAssociationHackaton.
 
 Le standard permet de décrire du contenu statique et interactif, comme des articles ou des quiz de divers formats. 2 formats équivalents sont définis: le bitmark markup language et le bitmark JSON data model @bitmarkDocs
@@ -446,6 +446,7 @@ Les points clés du protocole à relever sont les suivants:
 - Un serveur de langage n'a pas besoin d'implémenter toutes les fonctionnalités du protocole. Un système "Capabilities" est défini pour annoncer les méthodes implémentées @lspCapabilities.
 - Le transport des messages JSON-RPC peut se faire en `stdio` (flux standard entrée et sorties), sockets TCP ou même en HTTP.
 
+// todo vraiment utile ce morceau du coup ??
 #figure(
 ```
 Content-Length: ...\r\n
@@ -469,10 +470,37 @@ Quelques exemples de serveurs de langages implémentés en Rust
 
 Une crate commune à plusieurs projet est `lsp-types` @lspTypesCratesio qui définit les structures de données, comme `Diagnostic`, `Position`, `Range`. Ce projet est utilisé par `lsp-server`, `tower-lsp`, `lspower` et d'autres @lspTypesUses
 
-- https://github.com/rust-lang/rust-analyzer/blob/master/lib/lsp-server/examples/goto_def.rs
-- https://github.com/rust-lang/rust-analyzer/tree/master/lib/lsp-server
-- https://github.com/Myriad-Dreamin/tinymist/tree/main/crates/sync-lsp
-- tower-lsp
+L'auteur a modifié et exécuté l'exemple de `goto_def.rs` fourni par la crate `lsp-server` @gotodefLspserver. Il a aussi créé un script `demo.fish` permettant de lancer la communication en stdin et attendre entre chaque requête. Cet exemple minimaliste mais clair démontre la communication qui se produit quand on clique sur un `Aller à la définition` dans un IDE. L'IDE va lancer le serveur de langage associé au fichier édité en lancant simplement le processus et en communication via les flux standards. Il y a d'abord une phase d'initialisation et d'annonces des capacités puis l'IDE peut envoyer des requêtes.
+
+#figure(
+  box(image("./imgs/lsp-demo.svg"), width:90%),
+  caption: [Exemple de discussion en LSP une demande de `textDocument/definition`, output de `fish demo.fish` dans le dossier `pocs/lsp-server-demo`. #linebreak() Les lignes après `CLIENT:` sont envoyés en stdin et celles après `SERVER` sont reçues en stdout.],
+)
+
+L'initialisation nous montre que le serveur se présente comme supportant uniquement les "aller à la définition" (go to definition) puisque `definitionProvider` est à `true`. Le client envoie ensuite une demande de `textDocument/definition`, en précisant que celle-ci doit être donnée sur le symbole dans fichier `/tmp/test.rs` sur la ligne 7 au charactère 23.
+
+L'auteur a codé en dur une liste de `Location` (positions dans le code pour cette définition), dans `/tmp/another.rs` sur la `Range` de la ligne 3 du charactère 12 à 25. Une fois la réponse envoyée, le client demande au serveur de s'arrêter.
+
+Le code qui gère cette requête du type `GotoDefinition` se présente ainsi.
+#figure(
+  ```rust
+  match cast::<GotoDefinition>(req) {
+      Ok((id, params)) => {
+          let locations = vec![Location::new(
+              Uri::from_str("file:///tmp/another.rs").unwrap(),
+              Range::new(Position::new(3, 12), Position::new(3, 25)),
+          )];
+          let result = Some(GotoDefinitionResponse::Array(locations));
+          let result = serde_json::to_value(&result).unwrap();
+          let resp = Response { id, result: Some(result), error: None };
+          connection.sender.send(Message::Response(resp))?;
+          continue;
+      }
+      ...
+  };
+  ```,
+  caption: [Extrait de `goto_def.rs` modifié pour retourner un `Location` dans la réponse `GotoDefinitionResponse`],
+)
 
 ==== Adoption
 Selon la liste des clients qui supportent le LSP sur le site de la spécification @lspClientsList, de nombreux éditeurs tel que Atom, Eclipse, Emacs, GoLand, Intellij IDEA, Helix, Neovim, Visual Studio et bien sûr VSCode. La liste des serveurs LSP @lspServersList quand à elle, contient plus de 200 projets, dont 40 implémentés en Rust! Ce large support et ces nombreux exemples vont faciliter le développement et le support de différents IDE.

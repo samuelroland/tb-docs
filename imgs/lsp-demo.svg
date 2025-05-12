@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" viewBox="0 0 1271.2 827.88" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+    <style>
+        * {
+            font-family: Fira Code, monospace;
+            font-size: 23px;
+        }
+        tspan, text {
+            font-variant-ligatures: none;
+            dominant-baseline: central;
+            white-space: pre;
+            fill: #3760bf;
+        }
+        .bg {
+            stroke-width: "0.5px";
+        }
+        
+        .f2 { fill: #587539; }
+        .f3 { fill: #8c6c3e; }
+    </style>
+<text x="-1.0261538" y="-18.140257"><tspan>
+</tspan></text>
+<text x="-1.0261538" y="11.859743"><tspan class="f2">CLIENT: </tspan><tspan>Content-Length: 85
+
+</tspan></text>
+<text x="-1.0261538" y="71.859741"><tspan>{"jsonrpc": "2.0", "method": "initialize", "id": 1, "params": {"capabilities": {}}}
+
+</tspan></text>
+<text x="-1.0261538" y="101.85974"><tspan class="f3">SERVER: </tspan><tspan>Content-Length: 78
+
+</tspan></text>
+<text x="-1.0261538" y="161.85974"><tspan>{"jsonrpc":"2.0","id":1,"result":{"capabilities":{"definitionProvider":true}}}
+</tspan></text>
+<text x="-1.0261538" y="191.85974"><tspan class="f2">CLIENT: </tspan><tspan>Content-Length: 59
+
+</tspan></text>
+<text x="-1.0261538" y="251.85974"><tspan>{"jsonrpc": "2.0", "method": "initialized", "params": {}}
+
+</tspan></text>
+<text x="-1.0261538" y="311.85974"><tspan class="f2">CLIENT: </tspan><tspan>Content-Length: 167
+
+</tspan></text>
+<text x="-1.0261538" y="371.85974"><tspan>{"jsonrpc": "2.0", "method": "textDocument/definition", "id": 2, "params": </tspan></text>
+<text x="-1.0261538" y="401.85974"><tspan>{"textDocument": {"uri": "file///tmp/test.rs"}, "position": {"line": 7, "character": 23}}}
+
+</tspan></text>
+<text x="-1.0261538" y="431.85974"><tspan class="f3">SERVER: </tspan><tspan>Content-Length: 144
+
+</tspan></text>
+<text x="-1.0261538" y="491.85974"><tspan>{"jsonrpc":"2.0","id":2,"result":[{"range":{"end":{"character":25,"line":3},"start":{"char</tspan></text>
+<text x="-1.0261538" y="521.85974"><tspan>acter":12,"line":3}},"uri":"file:///tmp/another.rs"}]}
+</tspan></text>
+<text x="-1.0261538" y="551.85974"><tspan class="f2">CLIENT: </tspan><tspan>Content-Length: 67
+
+</tspan></text>
+<text x="-1.0261538" y="611.85974"><tspan>{"jsonrpc": "2.0", "method": "shutdown", "id": 3, "params": null}
+
+</tspan></text>
+<text x="-1.0261538" y="641.85974"><tspan class="f3">SERVER: </tspan><tspan>Content-Length: 38
+
+</tspan></text>
+<text x="-1.0261538" y="701.85974"><tspan>{"jsonrpc":"2.0","id":3,"result":null}
+</tspan></text>
+<text x="-1.0261538" y="731.85974"><tspan class="f2">CLIENT: </tspan><tspan>Content-Length: 54
+
+</tspan></text>
+<text x="-1.0261538" y="791.85974"><tspan>{"jsonrpc": "2.0", "method": "exit", "params": null}
+
+</tspan><tspan/></text>
+</svg>

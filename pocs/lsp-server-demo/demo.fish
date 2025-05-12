@@ -39,7 +39,7 @@ begin
     send '{"jsonrpc": "2.0", "method": "shutdown", "id": 3, "params": null}'
     sleep 1
     send '{"jsonrpc": "2.0", "method": "exit", "params": null}'
-
+    # WARNING: if you continue, make sure to manage IDs correctly !
     echo 1>&2
     echo 1>&2
 end | cargo run -q
