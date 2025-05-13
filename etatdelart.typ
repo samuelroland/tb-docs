@@ -406,8 +406,9 @@ Le CLI supporte directement la configuration d'un thème via son fichier de conf
 )
 
 L'auteur s'est inspiré de l'article *How to write a tree-sitter grammar in an afternoon* (Ben Siraphob) @SirabenTreeSitterTuto pour ce POC.
+// todo comment citer ??
 
-Tree-Sitter est supporté dans Neovim @neovimTSSupport, dans le nouvel éditeur Zed @zedTSSupport, ainsi que d'autres. Tree-Sitter a été inventé par l'équipe derrière Atom @atomTSSupport et est même utilisé sur GitHub, notamment pour la navigation du code pour trouver les définitions et références et lister tous les symboles (fonctions, classes, structs, etc).
+Tree-Sitter est supporté dans Neovim @neovimTSSupport, dans le nouvel éditeur Zed @zedTSSupport, ainsi que d'autres. Tree-Sitter a été inventé par l'équipe derrière Atom @atomTSSupport et est même utilisé sur GitHub, notamment pour la navigation du code pour trouver les définitions et références et lister tous les symboles (fonctions, classes, structs, etc) @TreeSitterUsageGithub.
 
 #figure(
   image("imgs/tree-sitter-on-github.png", width: 100%),
@@ -415,9 +416,59 @@ Tree-Sitter est supporté dans Neovim @neovimTSSupport, dans le nouvel éditeur 
 ) <fig-tree-sitter-on-github>
 
 ==== Semantic highlighting
+Le surlignage sémantique est une extension du surlignage syntaxique. Les serveurs de language peuvent ainsi fournir des tokens sémantiques qui apportent une classification plus fine du language, que les systèmes syntaxiques ne peuvent pas détecter. @VSCodeSemanticHighlighting
+
+#figure(
+  image("imgs/semantic-highlighting-example.png", width: 100%),
+  caption: [Exemple tiré de la documentation de VSCode, démontrant quelques améliorations dans le surglignage. Les paramètres `languageModes` et `document` sont colorisés différemment que les variables locales. `Range` et `Position` sont colorisées commes des classes.#linebreak() `getFoldingRanges` dans la condition est colorisée en tant que fonction ce qui la différencie des autres propriétés. @VSCodeSemanticHighlighting],
+) <fig-semantic-highlighting-example>
+
+En voyant la liste des tokens sémantiques possible dans la spécification LSP @LspSpecSemanticTokens, on comprend mieux l'intérêt et les possibilités de surlignage avancé. Par exemple, on trouve des tokens `macro`, `regexp`, `typeParameter`, `interface`,  `enum`, `enumMember`, qui seraient difficile de différencier durant la tokenisation mais qui peuvent être surligné différement pour mettre en avant leur différence sémantique.
+
+Sur cette exemple de C, surgligné ici uniquement grâce à Tree-Sitter, sans surlignage sémantique, on voit que les appels de `HEY` et `hi` dans le `main` ont les mêmes couleurs.
+```c
+#include <stdio.h>
+
+const char *HELLO = "Hey";
+#define HEY(name) printf("%s %s\n", HELLO, name)
+void hi(char *name) { printf("%s %s\n", HELLO, name); }
+
+int main(int argc, char *argv[]) {
+    hi("Samuel");
+    HEY("Samuel");
+    return 0;
+}
+```
+
+Via la commande `:InspectTree` dans Neovim qui permet d'afficher l'arbre généré par Tree-Sitter, on voit que les 2 lignes `hi` et `HEY` sont catégorisés sans surprise comme des fonctions (noeuds `function`, `arguments`, ...).
+```
+(expression_statement ; [7, 4] - [7, 17]
+  (call_expression ; [7, 4] - [7, 16]
+    function: (identifier) ; [7, 4] - [7, 6]
+    arguments: (argument_list ; [7, 6] - [7, 16]
+      (string_literal ; [7, 7] - [7, 15]
+        (string_content))))) ; [7, 8] - [7, 14]
+(expression_statement ; [8, 4] - [8, 18]
+  (call_expression ; [8, 4] - [8, 17]
+    function: (identifier) ; [8, 4] - [8, 7]
+    arguments: (argument_list ; [8, 7] - [8, 17]
+      (string_literal ; [8, 8] - [8, 16]
+        (string_content))))) ; [8, 9] - [8, 15]
+```
+
+Extrait de la commande `:Inspect` dans Neovim avec le curseur sur le `HEY`, qui nous montre que le serveur de langage (`clangd` ici), a réussi à préciser la notion de macro au-delà simple appel de fonction.
+```
+Semantic Tokens
+  - @lsp.type.macro.c links to PreProc   priority: 125
+  - @lsp.mod.globalScope.c links to @lsp   priority: 126
+  - @lsp.typemod.macro.globalScope.c links to @lsp   priority: 127
+```
+Ainsi dans Neovim une fois `clangd` lancé, l'appel de `HEY` prend ainsi la même couleur que celle attribuée sur sa définition.
+
+// todo bouger partie lsp avant surlignage ???
 
 ==== Choix final
-Si le temps le permet, une grammaire développée avec Tree-Sitter permettra de supporter du surglignage dans Neovim. Le choix de ne pas explorer plus les grammaires Textmate se justifie également par l'intégration en cours de Tree-Sitter dans de VSCode
+Si le temps le permet, une grammaire développée avec Tree-Sitter permettra de supporter du surglignage dans Neovim. Le choix de ne pas explorer plus les grammaires Textmate sur le long terme se justifie également par la roadmap de VSCode: entre mars et mai 2025 @TSVSCodeWorkStart @TSVSCodeWorkNow, du travail d'investigation a été fait pour explorer les grammaires existantes et l'usage de surlignage de code @ExploreTSVSCodeCodeHighlight. Des premiers efforts d'exploration avait d'ailleurs déjà eu lieu en septembre 2022 @EarlyTSVSCodeExp. L'usage du Semantic highlighting n'est pas au programme de ce travail mais pourra être explorer dans le futur si certains éléments sémantiques pourraient en bénéficier.
 
 #pagebreak()
 
