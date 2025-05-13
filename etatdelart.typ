@@ -318,8 +318,34 @@ Les IDEs modernes supportent possèdent des systèmes de surglignage de code (sy
 
 Un système de surlignage est très différent d'un parseur. Même s'il traite du même langage, dans un cas, on cherche juste à découper le code en tokens et y définir un type de token. Ce qui s'apparente seulement à la premier étape du lexer/tokenizer généralement rencontré dans les parseurs.
 
+
 ==== Textmate
-Textmate est un IDE pour MacOS qui a inventé un système de grammaire Textmate. Elles permettent de décrire comment tokeniser le code basée sur des expressions régulières. Ces expressions régulières viennent de la librairie Oniguruma @textmateRegex. VSCode utilise ces grammaires Textmate @vscodeSyntaxHighlighting. Intellij IDEA l'utilise également pour les langages non supportés par Intellij IDEA @ideaSyntaxHighlighting.
+Textmate est un IDE pour MacOS qui a inventé un système de grammaire Textmate. Elles permettent de décrire comment tokeniser le code basée sur des expressions régulières. Ces expressions régulières viennent de la librairie C Oniguruma @textmateRegex. VSCode utilise ces grammaires Textmate @vscodeSyntaxHighlighting. Intellij IDEA l'utilise également pour les langages non supportés par Intellij IDEA comme Swift, C++ et Perl @ideaSyntaxHighlighting.
+
+Exemple de grammaire Textmate permettant de décrire un language nommé `untitled` avec 4 mots clés et des chaines de charactères entre guillemets, ceci matché avec des expressions régulières. Tiré de leur documentation @TextMateDocsLanguageGrammars.
+```
+{  scopeName = 'source.untitled';
+   fileTypes = ( );
+   foldingStartMarker = '\{\s*$';
+   foldingStopMarker = '^\s*\}';
+   patterns = (
+      {  name = 'keyword.control.untitled';
+         match = '\b(if|while|for|return)\b';
+      },
+      {  name = 'string.quoted.double.untitled';
+         begin = '"';
+         end = '"';
+         patterns = ( 
+            {  name = 'constant.character.escape.untitled';
+               match = '\\.';
+            }
+         );
+      },
+   );
+}
+```
+
+La documentation précise un choix important de conception: "A noter que ces regex sont matchées contre une seule ligne à la fois. Cela signifie qu'il n'est pas possible d'utiliser une pattern qui matche plusieurs lignes. La raison est technique: être capable de redémarrer le parseur à une ligne arbitraire et devoir reparser seulement un nombre minimal de lignes affectés par un changement. Dans la plupart des situations, il est possible d'utiliser le model `begin`/`end` pour dépasser cette limite." @TextMateDocsLanguageGrammars (Traduction personnelle, dernier paragraphe section 12.2).
 
 ==== Tree-Sitter
 
@@ -468,6 +494,8 @@ Ainsi dans Neovim une fois `clangd` lancé, l'appel de `HEY` prend ainsi la mêm
 // todo bouger partie lsp avant surlignage ???
 
 ==== Choix final
+L'auteur a ignoré l'option du système de SublimeText. pour la simple raison qu'il n'est supporté nativement que dans SublimeText, probablement parce que cet IDE est propriétaire @SublimeHQEULA. Ce système utilisent des fichiers `.sublime-syntax`, qui ressemble à TextMate @SublimeHQSyntax mais rédigé en YAML.
+
 Si le temps le permet, une grammaire développée avec Tree-Sitter permettra de supporter du surglignage dans Neovim. Le choix de ne pas explorer plus les grammaires Textmate sur le long terme se justifie également par la roadmap de VSCode: entre mars et mai 2025 @TSVSCodeWorkStart @TSVSCodeWorkNow, du travail d'investigation a été fait pour explorer les grammaires existantes et l'usage de surlignage de code @ExploreTSVSCodeCodeHighlight. Des premiers efforts d'exploration avait d'ailleurs déjà eu lieu en septembre 2022 @EarlyTSVSCodeExp. L'usage du Semantic highlighting n'est pas au programme de ce travail mais pourra être explorer dans le futur si certains éléments sémantiques pourraient en bénéficier.
 
 #pagebreak()
