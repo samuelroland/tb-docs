@@ -6,6 +6,22 @@
 1. Then `tree-sitter langs` should list `source.dy`
 1. You can then highlight with `tree-sitter highlight dy/mcq.dy`, see other examples in `dy/` folder
 
-TODO:
+## Preview
+
+```
+// Basic MCQ exo
+exo Introduction
+
+opt .multiple
+- C is an interpreted language
+- .ok C is a compiled language
+- C is mostly used for web applications
+```
+
+`tree-sitter highlight dy/mcq.dy`
+
+![](../../imgs/tree-sitter-cst.svg)
+
+## TODO
 - Figure out how to embbed Markdown highlighting into DY highlighting
 - Figure out if it is possible to dynamically generate a `grammar.js` or the equivalent in JSON, based on the a list of prefixes and flags ?
