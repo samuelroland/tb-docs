@@ -332,12 +332,13 @@ Etant donné @exo-dy-ts-poc, le défi est d'arriver à coloriser les préfixes e
 ```
 // Basic MCQ exo
 exo Introduction
+
 opt .multiple
 - C is an interpreted language
 - .ok C is a compiled language
 - C is mostly used for web applications
 ```,
-  caption: [Un exemple de question choix multiple, décrite avec la syntaxe DY. Les préfixes sont `exo` (titre) et `opt` (options). Les flags sont `.ok` et `.multiple`.]
+  caption: [Un exemple de question choix multiple dans un fichier `mcq.dy`, décrite avec la syntaxe DY. Les préfixes sont `exo` (titre) et `opt` (options). Les flags sont `.ok` et `.multiple`.]
 ) <exo-dy-ts-poc>
 
 Une fois la grammaire mise en place avec la commande `tree-sitter init`, il suffit de remplir le fichier `grammar.js`, avec une ensemble de régle construites via des fonctions fournies par Tree-Sitter et des expressions régulières.
@@ -366,41 +367,16 @@ module.exports = grammar({
 
 On observe dans cet exemple un fichier source, découpé en une répétition de ligne. Il y a 4 types de lignes qui sont chacunes décrites avec des plus petits morceaux. `seq` indique une liste de tokens qui viendront en séquence, `choice` permet de tester plusieurs options à la même position. On remarque également la liste des préfixes et flags insérés dans les tokens de `prefix` et `property`. La documentation The Grammar DSL de la documentation explique toutes les options possibles en détails @TreeSitterGrammarDSL.
 
-Après avoir appelé `tree-sitter generate` pour générer le code du parser C et `tree-sitter build` pour le compiler, on peut demander au CLI de parser un fichier donné et afficher le CST. Dans cet arbre qui démarre avec son noeud racine `source_file`, on y voit les noeuds du même type que les règles définies précédemment, avec le texte extrait dans la plage de charactères associée au noeud. Par exemple, on voit que l'option `C is a compiled language` a bien été extraite à la ligne 4, entre le byte 6 et 30 (`4:6  - 4:30`) en tant que `content`. Elle suit un token de `property` avec notre flag `.ok` et le tiret de la règle `dash`.
+Après avoir appelé `tree-sitter generate` pour générer le code du parser C et `tree-sitter build` pour le compiler, on peut demander au CLI de parser un fichier donné et afficher le CST. Dans cet arbre qui démarre avec son noeud racine `source_file`, on y voit les noeuds du même type que les règles définies précédemment, avec le texte extrait dans la plage de charactères associée au noeud. Par exemple, on voit que l'option `C is a compiled language` a bien été extraite à la ligne 5, entre le byte 6 et 30 (`5:6  - 5:30`) en tant que `content`. Elle suit un token de `property` avec notre flag `.ok` et le tiret de la règle `dash`.
 
-```
-> tree-sitter parse -c mcq.dy
-0:0  - 6:0    source_file 
-0:0  - 0:16     commented_line `// Basic MCQ exo`
-0:16 - 1:0      "\n"
-1:0  - 1:16     prefixed_line 
-1:0  - 1:3        prefix `exo`
-1:3  - 1:4        " "
-1:4  - 1:16       content `Introduction`
-1:16 - 2:0      "\n"
-2:0  - 2:13     prefixed_line 
-2:0  - 2:3        prefix `opt`
-2:3  - 2:13       property ` .multiple`
-2:13 - 3:0      "\n"
-3:0  - 3:30     list_line 
-3:0  - 3:2        dash `- `
-3:2  - 3:30       content `C is an interpreted language`
-3:30 - 4:0      "\n"
-4:0  - 4:30     list_line 
-4:0  - 4:2        dash `- `
-4:2  - 4:5        property `.ok`
-4:5  - 4:6        " "
-4:6  - 4:30       content `C is a compiled language`
-4:30 - 5:0      "\n"
-5:0  - 5:39     list_line 
-5:0  - 5:2        dash `- `
-5:2  - 5:39       content `C is mostly used for web applications`
-5:39 - 6:0      "\n"
-```
+#figure(
+  image("imgs/tree-sitter-cst.svg", width: 80%),
+  caption: [Concrete Syntax Tree généré par la grammaire définie sur le fichier `mcq.dy`],
+) <fig-tree-sitter-on-github>
 
 La tokenisation fonctionne bien pour cette exemple, chaque élément est correctement découpé et catégorisé. Pour voir ce snippet en couleurs, il nous reste deux choses à définir. La première consiste en un fichier `queries/highlighting.scm` qui décrit des requêtes de surlignage sur l'arbre (highlights query) permettant de sélectionner des noeuds de l'arbre et leur attribuer un nom de surlignage (highlighting name). Ces noms ressembles à `@variable`, `@constant`, `@function`, `@keyword`, `@string` etc... et des versions plus spécifiques comme `@string.regexp`, `@string.special.path`. Ces noms sont ensuite utilisés par les thèmes pour appliquer un style.
 
-```
+```scm
 > cat queries/highlights.scm
 (prefix) @keyword
 (commented_line) @comment
@@ -410,7 +386,7 @@ La tokenisation fonctionne bien pour cette exemple, chaque élément est correct
 ```
 
 Le CLI supporte directement la configuration d'un thème via son fichier de configuration, on reprend simplement chaque nom de surlignage en lui donnant une couleur.
-```
+```json
 > cat ~/.config/tree-sitter/config.json
 {
     "parser-directories": [ "/home/sam/code/tree-sitter-grammars" ],
@@ -429,7 +405,14 @@ Le CLI supporte directement la configuration d'un thème via son fichier de conf
   caption: [Résultat final surligné par `tree-sitter highlighting mcq.dy`]
 )
 
-Tree-Sitter est supporté dans Neovim @neovimTSSupport, dans le nouvel éditeur Zed @zedTSSupport, ainsi que d'autres. Tree-Sitter a été inventé par l'équipe derrière Atom @atomTSSupport.
+L'auteur s'est inspiré de l'article *How to write a tree-sitter grammar in an afternoon* (Ben Siraphob) @SirabenTreeSitterTuto pour ce POC.
+
+Tree-Sitter est supporté dans Neovim @neovimTSSupport, dans le nouvel éditeur Zed @zedTSSupport, ainsi que d'autres. Tree-Sitter a été inventé par l'équipe derrière Atom @atomTSSupport et est même utilisé sur GitHub, notamment pour la navigation du code pour trouver les définitions et références et lister tous les symboles (fonctions, classes, structs, etc).
+
+#figure(
+  image("imgs/tree-sitter-on-github.png", width: 100%),
+  caption: [Liste de symboles générées par Tree-Sitter, affichés à droite du code sur GitHub pour un exemple de code Rust de PLX],
+) <fig-tree-sitter-on-github>
 
 ==== Semantic highlighting
 
@@ -483,7 +466,7 @@ D'autres exemples de serveurs de langages implémentés dans d'autres langages
 - `typescript-language-server` et pour finir celui pour TypeScript, implémenté en TypeScript également @TypescriptLanguageServerGithub
 - et beaucoup d'autres projets existent...
 
-Une crate commune à plusieurs projet est `lsp-types` @lspTypesCratesio qui définit les structures de données, comme `Diagnostic`, `Position`, `Range`. Ce projet est utilisé par `lsp-server`, `tower-lsp`, `lspower` et d'autres @lspTypesUses
+Une crate commune à plusieurs projets est `lsp-types` @lspTypesCratesio qui définit les structures de données, comme `Diagnostic`, `Position`, `Range`. Ce projet est utilisé par `lsp-server`, `tower-lsp` et d'autres @lspTypesUses.
 
 L'auteur a modifié et exécuté l'exemple de `goto_def.rs` fourni par la crate `lsp-server` @gotodefLspserver. Il a aussi créé un script `demo.fish` permettant de lancer la communication en stdin et attendre entre chaque requête. Cet exemple minimaliste mais clair démontre la communication qui se produit quand on clique sur un `Aller à la définition` dans un IDE. L'IDE va lancer le serveur de langage associé au fichier édité en lancant simplement le processus et en communication via les flux standards. Il y a d'abord une phase d'initialisation et d'annonces des capacités puis l'IDE peut envoyer des requêtes.
 
