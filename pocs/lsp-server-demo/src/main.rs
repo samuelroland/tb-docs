@@ -112,7 +112,7 @@ fn main_loop(
                     Ok((id, params)) => {
                         // eprintln!("got gotoDefinition request #{id}: {params:?}");
                         let locations = vec![Location::new(
-                            Uri::from_str("file:///tmp/another.rs").unwrap(),
+                            Uri::from_str("file:///tmp/another.rs")?,
                             Range::new(Position::new(3, 12), Position::new(3, 25)),
                         )];
                         let result = Some(GotoDefinitionResponse::Array(locations));

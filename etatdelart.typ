@@ -1,6 +1,9 @@
 // Temporary document in waiting maturity of the Typst template
 #set text(lang: "fr")  // assuming you want French
 
+#import "@local/syntastica:0.1.1": syntastica, languages, themes, theme-bg, theme-fg
+
+
 // Use "Snippet" instead of Liste -> Snippet 1, Snippet 2, ...
 #show figure.where(kind: raw): set figure(
   supplement: "Snippet"
@@ -20,6 +23,11 @@
   radius: 2pt,
   stroke: 1pt + luma(200)
 )
+
+// Disable syntastica as it is slow
+#let syntastica-enabled = true
+#show raw: it => if syntastica-enabled { align(left)[#syntastica(it, theme: "catppuccin::latte")]} else { it }
+
 // Display inline code in a small box that retains the correct baseline.
 #show raw.where(block: false): box.with(
   fill: luma(240),
@@ -37,6 +45,7 @@
   radius: 2pt,
   stroke: 1pt + luma(200)
 )
+
 
 #outline(
  title: "Table of Contents",
