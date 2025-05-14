@@ -25,7 +25,7 @@
 )
 
 // Disable syntastica as it is slow
-#let syntastica-enabled = false
+#let syntastica-enabled = true
 #show raw: it => if syntastica-enabled { align(left)[#syntastica(it, theme: "catppuccin::latte")]} else { it }
 
 // Display inline code in a small box that retains the correct baseline.
@@ -50,6 +50,9 @@
 #outline(
  title: "Table of Contents",
 )
+TODO: inclure ce document dans le rapport plus large
+
+Note: ce brouillon demande encore de nombreuses finitions et relecture avant d'être rendu le 23 mai.
 
 // todo move that somewhere useful
 == Dictionnaire
@@ -232,7 +235,7 @@ matrix {
 
 Ce format s'avère plus intéressant que les précédents de part le faible nombre de caractères réservés et la densité d'information: avec l'auteur décrit par son nom, email et un attribut booléan sur une seule ligne ou la matrice de 9 valeurs définie sur 5 lignes. Il est cependant regrettable de voir de les strings doivent être entourées de guillemets et les textes sur plusieurs lignes doivent être entourés de backticks ``` ` ```. De même la définition de la hiéarchie d'objets définis nécessite d'utiliser une paire `{` `}`, ce qui rend la rédaction un peu plus lente.
 
-==== KDL - Le "Cuddly Data language"
+==== KDL - Cuddly Data language
 
 #figure(
 ```
@@ -307,7 +310,8 @@ xp 20
 checks
 ...
 ```,
-    caption: [Exemple d'un début d'exercice de code, on voit que la consigne se trouve après la ligne `exo` et continue sur plusieurs lignes jusqu'à qu'on trouve un autre préfixe (ici `xp` qui est optionnel ou alors `checks`).],
+    caption: [Exemple d'un début d'exercice de code, on voit que la consigne se trouve après la ligne `exo` et continue sur plusieurs lignes jusqu'à qu'on trouve un autre préfixe (ici `xp` qui est optionnel ou alors `checks`).
+size],
 )
 
 // todo la variante, terme correcte ?
@@ -396,7 +400,7 @@ On observe dans cet exemple un fichier source, découpé en une répétition de 
 Après avoir appelé `tree-sitter generate` pour générer le code du parser C et `tree-sitter build` pour le compiler, on peut demander au CLI de parser un fichier donné et afficher le CST. Dans cet arbre qui démarre avec son noeud racine `source_file`, on y voit les noeuds du même type que les règles définies précédemment, avec le texte extrait dans la plage de charactères associée au noeud. Par exemple, on voit que l'option `C is a compiled language` a bien été extraite à la ligne 5, entre le byte 6 et 30 (`5:6  - 5:30`) en tant que `content`. Elle suit un token de `property` avec notre flag `.ok` et le tiret de la règle `dash`.
 
 #figure(
-  image("imgs/tree-sitter-cst.svg", width: 80%),
+  image("imgs/tree-sitter-cst.svg", width: 70%),
   caption: [Concrete Syntax Tree généré par la grammaire définie sur le fichier `mcq.dy`],
 ) <fig-tree-sitter-on-github>
 
@@ -466,6 +470,7 @@ int main(int argc, char *argv[]) {
 }
 ```
 
+#pagebreak()
 Via la commande `:InspectTree` dans Neovim qui permet d'afficher l'arbre généré par Tree-Sitter, on voit que les 2 lignes `hi` et `HEY` sont catégorisés sans surprise comme des fonctions (noeuds `function`, `arguments`, ...).
 ```
 (expression_statement ; [7, 4] - [7, 17]
@@ -491,7 +496,7 @@ Semantic Tokens
 ```
 Ainsi dans Neovim une fois `clangd` lancé, l'appel de `HEY` prend ainsi la même couleur que celle attribuée sur sa définition.
 
-// todo bouger partie lsp avant surlignage ???
+TODO bouger partie lsp avant surlignage de code, pour que le sémantic highlighting soit plus clair ???
 
 ==== Choix final
 L'auteur a ignoré l'option du système de SublimeText. pour la simple raison qu'il n'est supporté nativement que dans SublimeText, probablement parce que cet IDE est propriétaire @SublimeHQEULA. Ce système utilisent des fichiers `.sublime-syntax`, qui ressemble à TextMate @SublimeHQSyntax mais rédigé en YAML.
@@ -550,8 +555,23 @@ D'autres exemples de serveurs de langages implémentés dans d'autres langages
 
 Une crate commune à plusieurs projets est `lsp-types` @lspTypesCratesio qui définit les structures de données, comme `Diagnostic`, `Position`, `Range`. Ce projet est utilisé par `lsp-server`, `tower-lsp` et d'autres @lspTypesUses.
 
-==== POC ?
-TODO: section séparée pour ce POC ?
+==== Adoption
+Selon la liste sur le site de la spécification @lspClientsList, la liste des IDE qui supportent le LSP est longue: Atom, Eclipse, Emacs, GoLand, Intellij IDEA, Helix, Neovim, Visual Studio, VSCode bien sûr et d'autres. La liste des serveurs LSP @lspServersList quand à elle, contient plus de 200 projets, dont 40 implémentés en Rust! Ce large support et ces nombreux exemples va grandement faciliter le développement de ce serveur de language et son intégrations dans différents IDE.
+
+==== Librairies disponibles
+En cherchant à nouveau sur `crates.io` sur le tag `lsp`, on trouve différent projets dont `async-lsp` @AsyncLspCratesio utilisée dans `nil` @NilUsingAsyncLspGithub (un serveur de langage pour le système de configuration de NixOS) et de la même auteure.
+
+Le projet `tinymist` a extrait une crate `sync-ls`, mais le README déconseille son usage et conseille `async-lsp` à la place @tinymistSyncLspImpl. En continuant la recherche on trouve encore un autre `tower-lsp` et un fork `tower-lsp-server` @TowerLspServerCratesio... `rust-analyzer` a également extrait une crate `lsp-server`.
+
+==== Choix final
+L'auteur travaillant dans Neovim, l'intégration se fera en priorité dans Neovim pour ce travail. L'intégration dans VSCode pourra être fait dans le futur et devrait être relativement simple.
+
+Les 2 projets les plus utilisés (en terme de reverse dependencies sur crates.io) sont `lsp-server` @LspServerCratesio (56) et `tower-lsp` (85) @TowerLspCratesio. L'auteur a choisi d'utiliser la crate `lsp-server` étant développé par la communauté Rust, la probabilité d'une maintenance long-terme est plus élevée, et le projet `tower-lsp` est basée sur des abstractions asynchrones, l'auteur préfère partir sur la version synchrone pour simplifier l'implémentation.
+
+Cette partie est un nice-to-have, l'auteur espère avoir le temps de l'intégrer dans ce travail. Après quelques heures sur le POC suivant, on voit cela semble être assez facile et la possibilité d'ajouter progressivement le support de fonctionnalités est aussi un atout.
+
+==== POC sur lsp-server
+TODO: bien d'avoir cette section séparée pour ce POC ?
 
 L'auteur a modifié et exécuté l'exemple de `goto_def.rs` fourni par la crate `lsp-server` @gotodefLspserver. Il a aussi créé un script `demo.fish` permettant de lancer la communication en stdin et attendre entre chaque requête. Cet exemple minimaliste mais clair démontre la communication qui se produit quand on clique sur un `Aller à la définition` dans un IDE. L'IDE va lancer le serveur de langage associé au fichier édité en lancant simplement le processus et en communication via les flux standards. Il y a d'abord une phase d'initialisation et d'annonces des capacités puis l'IDE peut envoyer des requêtes.
 
@@ -586,20 +606,6 @@ Le code qui gère cette requête du type `GotoDefinition` se présente ainsi.
   caption: [Extrait de `goto_def.rs` modifié pour retourner un `Location` dans la réponse `GotoDefinitionResponse`],
 )
 
-==== Adoption
-Selon la liste sur le site de la spécification @lspClientsList, la liste des IDE qui supportent le LSP est longue: Atom, Eclipse, Emacs, GoLand, Intellij IDEA, Helix, Neovim, Visual Studio, VSCode bien sûr et d'autres. La liste des serveurs LSP @lspServersList quand à elle, contient plus de 200 projets, dont 40 implémentés en Rust! Ce large support et ces nombreux exemples va grandement faciliter le développement de ce serveur de language et son intégrations dans différents IDE.
-
-==== Librairies disponibles
-En cherchant à nouveau sur `crates.io` sur le tag `lsp`, on trouve différent projets dont `async-lsp` @AsyncLspCratesio utilisée dans `nil` @NilUsingAsyncLspGithub (un serveur de langage pour le système de configuration de NixOS) et de la même auteure.
-
-Le projet `tinymist` a extrait une crate `sync-ls`, mais le README déconseille son usage et conseille `async-lsp` à la place @tinymistSyncLspImpl. En continuant la recherche on trouve encore un autre `tower-lsp` et un fork `tower-lsp-server` @TowerLspServerCratesio... `rust-analyzer` a également extrait une crate `lsp-server`.
-
-==== Choix final
-L'auteur travaillant dans Neovim, l'intégration se fera en priorité dans Neovim pour ce travail. L'intégration dans VSCode pourra être fait dans le futur et devrait être relativement simple.
-
-Les 2 projets les plus utilisés (en terme de reverse dependencies sur crates.io) sont `lsp-server` @LspServerCratesio (56) et `tower-lsp` (85) @TowerLspCratesio. L'auteur a choisi d'utiliser la crate `lsp-server` étant développé par la communauté Rust, la probabilité d'une maintenance long-terme est plus élevée, et le projet `tower-lsp` est basée sur des abstractions asynchrones, l'auteur préfère partir sur la version synchrone pour simplifier l'implémentation.
-
-Cette partie est un nice-to-have de ce travail, il n'est pas sûr qu'elle puisse aboutir.
 
 #pagebreak()
 
@@ -681,10 +687,21 @@ Le slogan de MessagePack, format binaire de sérialisation: "C'est comme JSON, m
 //todo un exemple ou pas ?
 
 ==== Websockets
+TODO finir
+usage large
+bon support des navigateurs
+
+crate `websocket`
 
 ==== gRPC
 
+TODO finir
+
+gRPC est un protocole basé sur ProtoBuf, comme système de Remote Procedure Call, un système d'appel de fonctions à distance.
+
 tonic utilise prost.
+
+pas bon support web
 
 ==== tarpc
 tarpc également développé sur l'organisation GitHub de Google sans être un produit officiel, se définit comme "un framework RPC pour Rust, avec un focus sur la facilité d'utilisation. Définir un service peut être fait avec juste quelques lignes de code et le code boilerplate du serveur est géré pour vous." (Traduction personnelle) @TarpcGithub
@@ -693,16 +710,16 @@ tarpc est différent de gRPC et Cap'n Proto "en définissant le schéma directem
 
 ==== Choix final
 
-Par soucis de facilité de debug, d'implémentation et d'intégration, l'auteur a choisi de rester sur un format textuel et d'implémenter la sérialisation en JSON via la crate mentionnée précédemment `serde_json`. L'expérience existante de websocket de l'auteur, sa possibilité de choisir le format de données, et son solide support dans les navigateurs.
+Par soucis de facilité de debug, d'implémentation et d'intégration, l'auteur a choisi de rester sur un format textuel et d'implémenter la sérialisation en JSON via la crate mentionnée précédemment `serde_json`. L'expérience existante des websockets de l'auteur, sa possibilité de choisir le format de données, et son solide support dans les navigateurs (au cas où PLX avait une version web un jour), font que ce travail utilisera la combinaisons Websockets + JSON.
 
-Si le besoin de performance se fait sentir à l'avenir, quand l'usage de PLX dépassera une centaine d'étudiants connectés, l'auteur pourra creuser plus en détails les avantages des formats binaires, mesurer la taille et latence de transport et de la conversion. D'autres projets pourraient également être considéré comme Cap'n Proto @CapnprotoWebsite qui se veut plus rapide que Protobuf, ou encore Apache Thrift @ThriftWebsite.
+Quand l'usage de PLX dépassera une dizaines/centaines d'étudiants connectés en même moment et que la latence sera trop forte ou que les coûts d'infrastructures deviendront un soucis, les formats binaires plus légers seront à creuser plus en détails. Au vu des nombreux choix, mesurer la taille des messages, latence de transport et temps de sérialisation sera important pour faire le bon choix. D'autres projets pourraient également être considéré comme Cap'n Proto @CapnprotoWebsite qui se veut plus rapide que Protobuf, ou encore Apache Thrift @ThriftWebsite.
+
+==== POC synchronisation websockets en JSON
+TODO: est-il une bonne idée d'inclure le POC de synchronisation par websockets + JSON ici ?
 
 #pagebreak()
 
-==== POC ?
-TODO: est-il une bonne idée d'inclure le POC de synchronisation par websockets + JSON ici ?
-
 // todo corriger encore tous les soucis avec cette bibliographie
 #set text(size: 0.9em);
-Note: cette bibliographie ne respecte pas encore tous les standards de la HEIG-VD, encore en rôdage avec Typst et le guide de la bibliothèque sur la norme ISO-690...
+TODO: cette bibliographie ne respecte pas encore tous les standards de la HEIG-VD, encore en rôdage avec Typst et le guide de la bibliothèque sur la norme ISO-690...
 #bibliography("bibliography.bib", style: "iso-690-numeric")
