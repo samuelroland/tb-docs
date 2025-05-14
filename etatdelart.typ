@@ -498,6 +498,9 @@ L'auteur a ignoré l'option du système de SublimeText. pour la simple raison qu
 
 Si le temps le permet, une grammaire développée avec Tree-Sitter permettra de supporter du surglignage dans Neovim. Le choix de ne pas explorer plus les grammaires Textmate sur le long terme se justifie également par la roadmap de VSCode: entre mars et mai 2025 @TSVSCodeWorkStart @TSVSCodeWorkNow, du travail d'investigation a été fait pour explorer les grammaires existantes et l'usage de surlignage de code @ExploreTSVSCodeCodeHighlight. Des premiers efforts d'exploration avait d'ailleurs déjà eu lieu en septembre 2022 @EarlyTSVSCodeExp. L'usage du Semantic highlighting n'est pas au programme de ce travail mais pourra être explorer dans le futur si certains éléments sémantiques pourraient en bénéficier.
 
+==== POC ?
+TODO: faut-il inclure le POC avec Tree-Sitter dans une section séparée ici ?
+
 #pagebreak()
 
 === Les serveurs de language et librairies Rust existantes
@@ -547,12 +550,16 @@ D'autres exemples de serveurs de langages implémentés dans d'autres langages
 
 Une crate commune à plusieurs projets est `lsp-types` @lspTypesCratesio qui définit les structures de données, comme `Diagnostic`, `Position`, `Range`. Ce projet est utilisé par `lsp-server`, `tower-lsp` et d'autres @lspTypesUses.
 
+==== POC ?
+TODO: section séparée pour ce POC ?
+
 L'auteur a modifié et exécuté l'exemple de `goto_def.rs` fourni par la crate `lsp-server` @gotodefLspserver. Il a aussi créé un script `demo.fish` permettant de lancer la communication en stdin et attendre entre chaque requête. Cet exemple minimaliste mais clair démontre la communication qui se produit quand on clique sur un `Aller à la définition` dans un IDE. L'IDE va lancer le serveur de langage associé au fichier édité en lancant simplement le processus et en communication via les flux standards. Il y a d'abord une phase d'initialisation et d'annonces des capacités puis l'IDE peut envoyer des requêtes.
 
 #figure(
   box(image("./imgs/lsp-demo.svg"), width:90%),
   caption: [Exemple de discussion en LSP une demande de `textDocument/definition`, output de `fish demo.fish` dans le dossier `pocs/lsp-server-demo`. #linebreak() Les lignes après `CLIENT:` sont envoyés en stdin et celles après `SERVER` sont reçues en stdout.],
 )
+// todo comment citer les dossiers de POCs à coté ??
 
 L'initialisation nous montre que le serveur se présente comme supportant uniquement les "aller à la définition" (go to definition) puisque `definitionProvider` est à `true`. Le client envoie ensuite une demande de `textDocument/definition`, en précisant que celle-ci doit être donnée sur le symbole dans fichier `/tmp/test.rs` sur la ligne 7 au charactère 23.
 
@@ -624,7 +631,7 @@ let p: Person = serde_json::from_str(data).unwrap();
 println!("Please call {} at the number {}", p.name, p.phones[0]);
 ```
 
-Autre exemple pour montrer qu'il est facile de générer un objet JSON de structure quelconque. Egalement tiré de leur documentation @DocsRSSerdeJson.
+Autre exemple pour montrer qu'il est facile de générer un objet JSON de structure quelconque. Egalement tiré de leur documentation @DocsRSSerdeJsonConJsonVal.
 ```rust
 use serde_json::json;
 
@@ -679,10 +686,21 @@ Le slogan de MessagePack, format binaire de sérialisation: "C'est comme JSON, m
 
 tonic utilise prost.
 
+==== tarpc
+tarpc également développé sur l'organisation GitHub de Google sans être un produit officiel, se définit comme "un framework RPC pour Rust, avec un focus sur la facilité d'utilisation. Définir un service peut être fait avec juste quelques lignes de code et le code boilerplate du serveur est géré pour vous." (Traduction personnelle) @TarpcGithub
+
+tarpc est différent de gRPC et Cap'n Proto "en définissant le schéma directement dans le code, plutôt que dans un langage séparé comme Protobuf. Ce qui signifie qu'il n'y a pas de processus de compilation séparée et pas de changement de contexte entre différent langages." (Traduction personnelle) @TarpcGithub
 
 ==== Choix final
 
+Par soucis de facilité de debug, d'implémentation et d'intégration, l'auteur a choisi de rester sur un format textuel et d'implémenter la sérialisation en JSON via la crate mentionnée précédemment `serde_json`. L'expérience existante de websocket de l'auteur, sa possibilité de choisir le format de données, et son solide support dans les navigateurs.
+
+Si le besoin de performance se fait sentir à l'avenir, quand l'usage de PLX dépassera une centaine d'étudiants connectés, l'auteur pourra creuser plus en détails les avantages des formats binaires, mesurer la taille et latence de transport et de la conversion. D'autres projets pourraient également être considéré comme Cap'n Proto @CapnprotoWebsite qui se veut plus rapide que Protobuf, ou encore Apache Thrift @ThriftWebsite.
+
 #pagebreak()
+
+==== POC ?
+TODO: est-il une bonne idée d'inclure le POC de synchronisation par websockets + JSON ici ?
 
 // todo corriger encore tous les soucis avec cette bibliographie
 #set text(size: 0.9em);
