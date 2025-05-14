@@ -25,7 +25,7 @@
 )
 
 // Disable syntastica as it is slow
-#let syntastica-enabled = true
+#let syntastica-enabled = false
 #show raw: it => if syntastica-enabled { align(left)[#syntastica(it, theme: "catppuccin::latte")]} else { it }
 
 // Display inline code in a small box that retains the correct baseline.
@@ -144,7 +144,7 @@ La partie quizzes du standard inclut des textes à trous, des questions à choix
         "example": []
     }
 }
-```, caption: [Equivalent de @mcq-bitmark dans le Bitmark Json data model @bitmarkDocsMcqSpec]
+```, caption: [Equivalent de @mcq-bitmark dans le Bitmark JSON data model @bitmarkDocsMcqSpec]
 )
 Open Taskpool, projet qui met à disposition des exercices d'apprentissage de langues @openTaskpoolIntro, fournit une API JSON utilisant le Bitmark JSON data model.
 
@@ -588,7 +588,7 @@ En cherchant à nouveau sur `crates.io` sur le tag `lsp`, on trouve différent p
 Le projet `tinymist` a extrait une crate `sync-ls`, mais le README déconseille son usage et conseille `async-lsp` à la place @tinymistSyncLspImpl. En continuant la recherche on trouve encore un autre `tower-lsp` et un fork `tower-lsp-server` @TowerLspServerCratesio... `rust-analyzer` a également extrait une crate `lsp-server`.
 
 ==== Choix final
-L'auteur travaillant dans Neovim, l'intégration ne sera faite que dans Neovim pour ce TB, l'intégration dans VSCode pourra être fait dans le futur et devrait être relativement simple.
+L'auteur travaillant dans Neovim, l'intégration se fera en priorité dans Neovim pour ce travail. L'intégration dans VSCode pourra être fait dans le futur et devrait être relativement simple.
 
 Les 2 projets les plus utilisés (en terme de reverse dependencies sur crates.io) sont `lsp-server` @LspServerCratesio (56) et `tower-lsp` (85) @TowerLspCratesio. L'auteur a choisi d'utiliser la crate `lsp-server` étant développé par la communauté Rust, la probabilité d'une maintenance long-terme est plus élevée, et le projet `tower-lsp` est basée sur des abstractions asynchrones, l'auteur préfère partir sur la version synchrone pour simplifier l'implémentation.
 
@@ -596,12 +596,95 @@ Cette partie est un nice-to-have de ce travail, il n'est pas sûr qu'elle puisse
 
 #pagebreak()
 
-=== Protocoles de synchronisation existants
+=== Protocoles de synchronisation et formats de sérialisation existants
+Le serveur de gestion de sessions live a besoin d'un système de communication bidirectionnelle en temps réel, afin de transmettre le code et les résultats des étudiants. Ces données seront également dans un format standard défini, facile à sérialiser et désérialiser en Rust.
+
+==== JSON
+Contrairement à toutes les critiques relevées précédemment sur le JSON et d'autres formats largement utilisé en tant que format source, JSON est une option solide pour la communication entre clients-serveurs. Le format JSON est très populaire pour les APIs REST, les fichiers de configuration, et d'autres usages.
+// todo okay ces affirmations ? pas besoin de présenter plus ?
+
+En Rust, avec `serde_json`, il est plutôt facile de parser du JSON dans une `struct`. Exemple simplifié tiré de leur documentation @DocsRSSerdeJson. Une fois la macro `Deserialize` appliquée, on peut directement appeler `serde_json::from_str(json_data)`.
+```rust
+use serde::{Deserialize, Serialize};
+use serde_json::Result;
+
+#[derive(Serialize, Deserialize)]
+struct Person {
+    name: String,
+    age: u8,
+    phones: Vec<String>,
+}
+// ...
+let data = r#" {
+        "name": "John Doe",
+        "age": 43,
+        "phones": [ "+44 1234567", "+44 2345678" ]
+    }"#;
+let p: Person = serde_json::from_str(data).unwrap();
+println!("Please call {} at the number {}", p.name, p.phones[0]);
+```
+
+Autre exemple pour montrer qu'il est facile de générer un objet JSON de structure quelconque. Egalement tiré de leur documentation @DocsRSSerdeJson.
+```rust
+use serde_json::json;
+
+fn main() {
+    // The type of `john` is `serde_json::Value`
+    let john = json!({
+        "name": "John Doe",
+        "age": 43,
+        "phones": [ "+44 1234567", "+44 2345678" ]
+    });
+    println!("first phone number: {}", john["phones"][0]);
+    println!("{}", john.to_string());
+}
+```
+
+==== Protocol Buffers - ProtoBuf
+Parmi les formats binaires, on trouve ProtoBuf, un format développé par Google pour sérialiser des données structurées, de manière compacte, rapide et simple. L'idée est de définir un schéma dans un style non spécifique à un langage de programmation, puis de génération automatiquement du code pour interagir avec ces structures depuis du C++, Java, Go, Ruby, C\# et d'autres. @ProtobufWebsite
+
+Un simple exemple de description d'une personne en ProtoBuf tiré de leur site web @ProtobufWebsite.
+```proto
+edition = "2023";
+
+message Person {
+  string name = 1;
+  int32 id = 2;
+  string email = 3;
+}
+```
+
+Et son usage en Java avec les classes autogénérées à la compilation, exemple tiré de leur site web @ProtobufWebsite.
+```java
+// Java code
+Person john = Person.newBuilder()
+    .setId(1234)
+    .setName("John Doe")
+    .setEmail("jdoe@example.com")
+    .build();
+output = new FileOutputStream(args[0]);
+john.writeTo(output);
+```
+
+Le langage Rust n'est pas officiellement supporté mais un projet du nom de PROST! existe @ProstGithub et permet de générer du code Rust depuis des fichiers Protobuf.
+
+==== MessagePack
+Le slogan de MessagePack, format binaire de sérialisation: "C'est comme JSON, mais rapide et léger" (Traduction personnelle). Une implémentation en Rust du nom de RPM existe @DocsRmp.
+
+//todo un exemple ou pas ?
+
+==== Websockets
 
 ==== gRPC
-==== Websockets
+
+tonic utilise prost.
+
 
 ==== Choix final
 
+#pagebreak()
 
-#bibliography("bibliography.bib")
+// todo corriger encore tous les soucis avec cette bibliographie
+#set text(size: 0.9em);
+Note: cette bibliographie ne respecte pas encore tous les standards de la HEIG-VD, encore en rôdage avec Typst et le guide de la bibliothèque sur la norme ISO-690...
+#bibliography("bibliography.bib", style: "iso-690-numeric")
