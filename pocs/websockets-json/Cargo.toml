@@ -1,0 +1,10 @@
+[package]
+name = "websockets-json"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+colored = "3.0.0"
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+websocket = "0.27.1"
