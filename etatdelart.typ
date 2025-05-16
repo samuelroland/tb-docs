@@ -52,6 +52,11 @@
 )
 TODO: inclure ce document dans le rapport plus large
 
+todo: ajouter screenshots de PLX
+
+todo: parler de rustlings et d'autres projets autour
+
+
 Note: ce brouillon demande encore de nombreuses finitions et relecture avant d'être rendu le 23 mai.
 
 // todo move that somewhere useful
@@ -606,6 +611,7 @@ Le code qui gère cette requête du type `GotoDefinition` se présente ainsi.
   caption: [Extrait de `goto_def.rs` modifié pour retourner un `Location` dans la réponse `GotoDefinitionResponse`],
 )
 
+Cette communication permet de visualiser les échanges entre l'IDE et un serveur de langage. En pratique après avoir implémenté une logique de résolution des définitions un peu plus réaliste cette communication ne serait pas visible mais bénéficiera à l'intégration dans l'IDE. Si on l'intégrait dans VSCode, , la fonctionnalité du clic droit + Aller à la définition fonctionnerait.
 
 #pagebreak()
 
@@ -669,7 +675,6 @@ message Person {
 
 Et son usage en Java avec les classes autogénérées à la compilation, exemple tiré de leur site web @ProtobufWebsite.
 ```java
-// Java code
 Person john = Person.newBuilder()
     .setId(1234)
     .setName("John Doe")
@@ -714,8 +719,133 @@ Par soucis de facilité de debug, d'implémentation et d'intégration, l'auteur 
 
 Quand l'usage de PLX dépassera une dizaines/centaines d'étudiants connectés en même moment et que la latence sera trop forte ou que les coûts d'infrastructures deviendront un soucis, les formats binaires plus légers seront à creuser plus en détails. Au vu des nombreux choix, mesurer la taille des messages, latence de transport et temps de sérialisation sera important pour faire le bon choix. D'autres projets pourraient également être considéré comme Cap'n Proto @CapnprotoWebsite qui se veut plus rapide que Protobuf, ou encore Apache Thrift @ThriftWebsite.
 
-==== POC synchronisation websockets en JSON
-TODO: est-il une bonne idée d'inclure le POC de synchronisation par websockets + JSON ici ?
+==== POC de synchronisation de messages JSON via websockets
+Pour vérifier la faisabilité technique d'envoyer des messages en temps réel en Rust via websockets, un petit POC a été développé dans le dossiers `pocs/websockets-json`. Le code et les résultats des checks doivent être transmis des étudiants depuis le client PLX des étudiants vers ce lui de l'enseignant, en passant par le serveur de session live.
+
+De part sa nature interactive, il n'est pas évident de retranscrire ce qui s'y passe quand on lance le POC dans 3 shell côte à côte, le mieux serait d'aller compiler et lancer à la main. Nous documentons ici un aperçu du résultat.
+
+Ce petit programme en Rust prend en argument son rôle (`server`, `teacher` ou `student`), tout le code est ainsi dans un seul fichier `main.rs` et un seul binaire.
+
+Ce programme a la structure suivante, le dossier `fake-exo` contient l'exercice à implémenter.
+#figure(
+```sh
+.
+├── Cargo.lock
+├── Cargo.toml
+├── fake-exo
+│  ├── Cargo.lock
+│  ├── Cargo.toml
+│  ├── compare_output.txt
+│  └── src
+├── src
+│  └── main.rs
+``` ,
+    caption: [Structure de fichiers du POC.]
+)
+
+#figure(
+```rust
+// Just print "Hello <name> !" where <name> comes from argument 1
+fn main() {
+    println!("Hello, world!");
+}
+```,
+    caption: [Code Rust de départ de l'exercice fictif fait par l'étudiant]
+)
+
+Dans un premier shell (S1), nous lançons en premier lieu le serveur:
+#figure(
+```
+websockets-json> cargo run -q server
+Starting server process...
+Server started on 127.0.0.1:9120
+```,
+    caption: [Lancement du serveur et attente de connexions sur le port 9120.]
+)
+
+Dans un deuxième shell (S2), on lance le `teacher`:
+#figure(
+```
+websockets-json> cargo run -q teacher
+Starting teacher process...
+Sending whoami message
+Waiting on student's check results
+```
+    ,
+    caption: [Lancement du `teacher`, connexion au serveur et envoi d'un premier message littéral `teacher` pour annoncer son rôle]
+
+)
+
+Dans S1, on voit que le serveur a bien reçu la connexion et a détecté le rôle de `teacher`.
+#figure(
+```
+...
+Teacher connected, saved associated socket.
+``` , caption: [`teacher` est bien connecté au serveur])
+
+Dans S3, on lance finalement le rôle de l'étudiant:
+```
+websockets-json> cargo run -q student
+Starting student process...
+Sending whoami message
+Starting to send check's result every 2000 ms
+Sending another check result
+{"path":"fake-exo/src/main.rs","status":{"IncorrectOutput":{"stdout":"Hello, world!\n"}},"code":"// Just print \"Hello <name> !\" where <name> comes from argument 1\nfn main() {\n    println!(\"Hello, world!\");\n}\n"}
+```
+
+On y voit le message envoyé contient le résultat du check après compilation et exécution.
+#figure(
+```json
+{
+  "path": "fake-exo/src/main.rs",
+  "status": {
+    "IncorrectOutput": {
+      "stdout": "Hello, world!\n"
+    }
+  },
+  "code": "// Just print \"Hello <name> !\" where <name> comes from argument 1\nfn main() {\n    println!(\"Hello, world!\");\n}\n"
+}
+```
+    ,
+    caption: [Le message envoyé avec un chemin de fichier, le code et le statut. Le statut est une enum définie à "output incorrect", puisque l'exercice n'est pas encore implémenté.]
+)
+
+Le serveur sur le S1, on ne voit que le `Forwarded one message to teacher`. Sur le S2, on voit immédiatement ceci
+#figure(
+```
+Exo check on file fake-exo/src/main.rs, with given code:
+// Just print "Hello <name> !" where <name> comes from argument 1
+fn main() {
+    println!("Hello, world!");
+}
+Built but output is incorrect
+Hello, world!
+```, caption: [Le `teacher` a bien reçu le message et peut l'afficher, la synchronisation temps réel a fonctionné.]
+)
+
+Si l'étudiant introduit une erreur de compilation, un message avec un statut différent est envoyé, voici ce que reçoit le `teacher`:
+#figure(
+  ```
+  Exo check on file fake-exo/src/main.rs, with given code:
+  // Just print "Hello <name> !" where <name> comes from argument 1
+  fn main() {
+      println!("Hello, world!", args[3]);
+  }
+  failed build with error
+    Compiling fake-exo v0.1.0 (/home/sam/HEIG/year3/TB/tb-docs/pocs/websockets-json/fake-exo)
+  error: argument never used
+  --> src/main.rs:3:31
+    |
+  3 |     println!("Hello, world!", args[3]);
+    |              ---------------  ^^^^^^^ argument never used
+    |              |
+    |              formatting specifier missing
+  ```
+    ,
+    caption: [Le `teacher` a bien reçu le code actuel avec l'erreur et l'output de compilation de Cargo]
+)
+
+Le système de synchronisation en temps réel permet ainsi d'envoyer différents messages au serveur qui le retransmet. Même si cet exemple est minimale puisqu'il n'y a qu'un seul étudiant et enseignant impliqué, nous avons vu que de travailler avec la crate `websocket` sur son implémentation `sync` peut fonctionner. A voir, durant l'implémentation si son implémentation `async` est plus adaptée.
 
 #pagebreak()
 
