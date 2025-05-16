@@ -139,27 +139,22 @@ fn start_server() {
         // Spawn a new thread for each connection.
         let student_socket_ref = student_socket.clone();
         let teacher_socket_ref = teacher_socket.clone();
-        thread::spawn(move || match connection {
-            Ok(conn) => {
-                let mut client = conn.accept().unwrap();
+        let mut client = connection.unwrap().accept().unwrap();
 
-                let first_msg = client.recv_message().unwrap();
-                if let websocket::OwnedMessage::Text(txt) = first_msg {
-                    match txt.as_str() {
-                        "student" => {
-                            *student_socket_ref.lock().unwrap() = Some(client);
-                            println!("Student connected, saved associated socket.");
-                        }
-                        "teacher" => {
-                            *teacher_socket_ref.lock().unwrap() = Some(client);
-                            println!("Teacher connected, saved associated socket.");
-                        }
-                        _ => (),
-                    }
+        let first_msg = client.recv_message().unwrap();
+        if let websocket::OwnedMessage::Text(txt) = first_msg {
+            match txt.as_str() {
+                "student" => {
+                    *student_socket_ref.lock().unwrap() = Some(client);
+                    println!("Student connected, saved associated socket.");
                 }
+                "teacher" => {
+                    *teacher_socket_ref.lock().unwrap() = Some(client);
+                    println!("Teacher connected, saved associated socket.");
+                }
+                _ => (),
             }
-            Err(_) => todo!(),
-        });
+        }
 
         // We finished the setup of the 2 socket
         if student_socket.lock().unwrap().is_some() && teacher_socket.lock().unwrap().is_some() {
@@ -216,7 +211,7 @@ fn start_teacher() {
     let message = Message::text("teacher");
     client.send_message(&message).unwrap(); // Send message
     println!("Waiting on student's check results");
-    for msg in client.recv_message() {
+    while let Ok(msg) = client.recv_message() {
         match msg {
             websocket::OwnedMessage::Text(msg) => match serde_json::from_str::<CheckResult>(&msg) {
                 Ok(check_result) => check_result.resume(),
