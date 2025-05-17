@@ -1,22 +1,19 @@
 use std::{
     fmt::format,
     fs::read_to_string,
-    net::TcpStream,
+    net::{SocketAddr, TcpListener, TcpStream},
     path::{Path, PathBuf},
     process::{Command, Stdio, exit},
     str::FromStr,
     sync::{Arc, Mutex},
-    thread::{self, sleep},
+    thread::{self, sleep, spawn},
     time::Duration,
 };
 
 use colored::Colorize;
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
-use websocket::{
-    ClientBuilder, CloseData, Message,
-    sync::{Client, Server},
-};
+use tungstenite::{ClientRequestBuilder, Message, WebSocket, accept, connect, http::Uri};
 
 const TCP_SOCKET: &str = "127.0.0.1:9120";
 const FAKE_EXO: &str = "fake-exo/";
@@ -127,67 +124,63 @@ fn fake_exo_test() -> CheckResult {
     }
 }
 
-// This implementation is based on examples from the websocket crate
-// https://docs.rs/websocket/latest/websocket/server/sync/type.Server.html
+// This implementation is based on examples from the tungstenite crate README and docs.rs
 fn start_server() {
-    let server = Server::bind(TCP_SOCKET).unwrap();
+    let server = TcpListener::bind(TCP_SOCKET).unwrap();
     println!("Server started on {TCP_SOCKET}");
-    let student_socket: Arc<Mutex<Option<Client<TcpStream>>>> = Arc::new(Mutex::new(None));
-    let teacher_socket: Arc<Mutex<Option<Client<TcpStream>>>> = Arc::new(Mutex::new(None));
+    let teacher_socket: Arc<Mutex<Option<WebSocket<TcpStream>>>> = Arc::new(Mutex::new(None));
 
-    for connection in server.into_iter() {
+    for stream in server.incoming() {
         // Spawn a new thread for each connection.
-        let student_socket_ref = student_socket.clone();
         let teacher_socket_ref = teacher_socket.clone();
-        let mut client = connection.unwrap().accept().unwrap();
+        spawn(move || {
+            let st = stream.unwrap();
+            let mut websocket = accept(st).unwrap();
 
-        let first_msg = client.recv_message().unwrap();
-        if let websocket::OwnedMessage::Text(txt) = first_msg {
-            match txt.as_str() {
-                "student" => {
-                    *student_socket_ref.lock().unwrap() = Some(client);
-                    println!("Student connected, saved associated socket.");
+            // Loop on all received messages for this client
+            loop {
+                let msg = websocket.read().unwrap();
+                if let Ok(txt) = msg.to_text() {
+                    match txt {
+                        "student" => {
+                            println!("Student connected");
+                        }
+                        "teacher" => {
+                            *teacher_socket_ref.lock().unwrap() = Some(websocket);
+                            println!("Teacher connected, saved associated socket.");
+                            return; // do not listen further
+                        }
+                        _ => {
+                            // Instead of making sure the messages come from the student, which I
+                            // don't know how to do yet, we just forward any message to the
+                            // teacher's web socket
+                            let mut teacher_socket_guard = teacher_socket_ref.lock().unwrap();
+                            if let Some(teacher_client) = teacher_socket_guard.as_mut() {
+                                let _ = teacher_client.send(Message::text(txt));
+                                println!("Forwarded one message to teacher");
+                            } else {
+                                println!("No teacher connected, cannot forward message");
+                            }
+                        }
+                    }
                 }
-                "teacher" => {
-                    *teacher_socket_ref.lock().unwrap() = Some(client);
-                    println!("Teacher connected, saved associated socket.");
-                }
-                _ => (),
             }
-        }
-
-        // We finished the setup of the 2 socket
-        if student_socket.lock().unwrap().is_some() && teacher_socket.lock().unwrap().is_some() {
-            println!("student and teacher is connected !");
-            break;
-        }
-    }
-
-    println!("Listening on messages from student and forward to teacher");
-    let mut teacher_socket_guard = teacher_socket.lock().unwrap();
-    let mut student_socket_guard = student_socket.lock().unwrap();
-    let teacher_client = teacher_socket_guard.as_mut().unwrap();
-    let student_client = student_socket_guard.as_mut().unwrap();
-    while let Some(msg) = student_client.recv_message().into_iter().next() {
-        if let websocket::OwnedMessage::Text(txt) = msg {
-            let _ = teacher_client.send_message(&Message::text(txt));
-            println!("Forwarded one message to teacher");
-        }
+        });
     }
 }
 
 fn start_student() {
     sleep(Duration::from_secs(1));
-    let mut client = ClientBuilder::new(&format!("ws://{TCP_SOCKET}"))
-        .unwrap()
-        .connect_insecure()
-        .unwrap();
+    let uri: Uri = format!("ws://{TCP_SOCKET}").parse().unwrap();
+    let builder = ClientRequestBuilder::new(uri);
+    let socket = connect(builder).unwrap();
+    let mut client = socket.0;
 
     println!("Sending whoami message");
     let message = Message::text("student");
-    client.send_message(&message).unwrap(); // Send message
+    client.send(message).unwrap(); // Send message
     println!(
-        "Starting to send code every {} ms, printing a dot + an emoji to indicate build status",
+        "Starting to send check's result every {} ms",
         STUDENT_SENDING_CODE_FREQUENCY_MS
     );
 
@@ -195,35 +188,32 @@ fn start_student() {
         let check_result = fake_exo_test();
         let json = serde_json::to_string(&check_result).unwrap();
         println!("Sending another check result\n{}", json.dimmed());
-        let _ = client.send_message(&Message::text(json));
+        let _ = client.send(Message::text(json));
         sleep(Duration::from_millis(STUDENT_SENDING_CODE_FREQUENCY_MS));
     }
 }
 
 fn start_teacher() {
     sleep(Duration::from_millis(500));
-    let mut client = ClientBuilder::new(&format!("ws://{TCP_SOCKET}"))
-        .unwrap()
-        .connect_insecure()
-        .unwrap();
+
+    let uri: Uri = format!("ws://{TCP_SOCKET}").parse().unwrap();
+    let builder = ClientRequestBuilder::new(uri);
+    let socket = connect(builder).unwrap();
+    let mut client = socket.0;
 
     println!("Sending whoami message");
     let message = Message::text("teacher");
-    client.send_message(&message).unwrap(); // Send message
+    client.send(message).unwrap(); // Send message
     println!("Waiting on student's check results");
-    while let Ok(msg) = client.recv_message() {
-        match msg {
-            websocket::OwnedMessage::Text(msg) => match serde_json::from_str::<CheckResult>(&msg) {
+    while let Ok(msg) = client.read() {
+        if let Ok(msg) = msg.to_text() {
+            match serde_json::from_str::<CheckResult>(msg) {
                 Ok(check_result) => check_result.resume(),
                 Err(e) => eprintln!(
                     "Received unknown message {}, trying to parse to CheckResult failed with {e}",
                     msg
                 ),
-            },
-            websocket::OwnedMessage::Close(close_data) => {
-                dbg!("Closed {}", close_data);
             }
-            _ => (),
         }
     }
 }
