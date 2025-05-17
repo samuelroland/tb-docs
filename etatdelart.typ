@@ -616,10 +616,10 @@ Cette communication permet de visualiser les échanges entre l'IDE et un serveur
 #pagebreak()
 
 === Protocoles de synchronisation et formats de sérialisation existants
-Le serveur de gestion de sessions live a besoin d'un système de communication bidirectionnelle en temps réel, afin de transmettre le code et les résultats des étudiants. Ces données seront également dans un format standard défini, facile à sérialiser et désérialiser en Rust.
+Le serveur de gestion de sessions live a besoin d'un système de communication bidirectionnelle en temps réel, afin de transmettre le code et les résultats des étudiants. Ces messages seront transformées dans un format standard, facile à sérialiser et désérialiser en Rust. Cette section explore les formats textuels et binaires disponibles, ainsi que les protocoles de communication bi-directionnelle.
 
 ==== JSON
-Contrairement à toutes les critiques relevées précédemment sur le JSON et d'autres formats largement utilisé en tant que format source, JSON est une option solide pour la communication entre clients-serveurs. Le format JSON est très populaire pour les APIs REST, les fichiers de configuration, et d'autres usages.
+Contrairement à toutes les critiques relevées précédemment sur le JSON et d'autres formats, dans leur usage en tant que format source, JSON est une option solide pour la communication entre clients-serveurs. Le format JSON est très populaire pour les APIs REST, les fichiers de configuration, et d'autres usages.
 // todo okay ces affirmations ? pas besoin de présenter plus ?
 
 En Rust, avec `serde_json`, il est plutôt facile de parser du JSON dans une `struct`. Exemple simplifié tiré de leur documentation @DocsRSSerdeJson. Une fois la macro `Deserialize` appliquée, on peut directement appeler `serde_json::from_str(json_data)`.
@@ -691,22 +691,84 @@ Le slogan de MessagePack, format binaire de sérialisation: "C'est comme JSON, m
 
 //todo un exemple ou pas ?
 
-==== Websockets
-TODO finir
-usage large
-bon support des navigateurs
+==== Websocket
+Le protocole Websocket, définie dans la RFC 6455 @WSRFC, permet une communication bi-directionnelle entre un client et un serveur. A la place de l'approche de requête-réponses du HTTP, le protocole Websocket définit une manière de garder une connexion TCP ouverte et un moyen d'envoyer des messages dans les 2 sens.
+On évite ainsi d'ouvrir plusieurs connexions HTTP, une nouvelle à chaque fois qu'un événement se produit ou que le client veut vérifier si le serveur n'a pas d'événements à transmettre. La technologie a été pensée pour être utilisée par des applications dans les navigateurs, mais fonctionne également en dehors @WSRFC.
 
-crate `websocket`
+La section *1.5 Design Philosophy* explique que le protocole est conçu pour un "minimal framing" (encadrement minimal autour des données envoyées), juste assez pour permettre de découper le flux TCP en frame (en message d'une durée définie) et de distinguer le texte des données binaires. Le texte doit être encodé en UTF-8. @WSRFConepointfive
+
+La section *1.3. Opening Handshake*, nous explique que pour permettre une compatibilité avec les serveurs HTTP et intermédiaires sur le réseau, l'opening handshake (l'initialisation du socket une fois connecté) est compatible avec le format des entêtes HTTP. Cela permet d'utiliser un serveur websocket sur le même port qu'un serveur web, ou d'héberger plusieurs serveurs websocket sur différents routes par exemple `/chat` et `/news`. @WSRFConepointthree
+
+Dans l'écosystème Rust, il existe plusieurs crate qui implémente le protocole, parfois côté client, côté serveur ou les deux. Il existe plusieurs approches sync et async, nous nous concentrons ici sur une approche sync avec gestion des threads natifs manuelle pour simplifier l'implémentation et les recherches.
+
+La crate `tungstenite` propose une abstraction du protocole qui permet de facilement interagir avec des `Message`, leur écriture `send()` et leur lecture `read()` de façon très simple @TungsteniteCratesio. Elle passe la Autobahn Test Suite (suite de tests de plus de 500 cas) @AutobahnTestsuiteGithub.
+
+#figure(
+```rust
+use std::net::TcpListener;
+use std::thread::spawn;
+use tungstenite::accept;
+
+/// A WebSocket echo server
+fn main () {
+    let server = TcpListener::bind("127.0.0.1:9001").unwrap();
+    for stream in server.incoming() {
+        spawn (move || {
+            let mut websocket = accept(stream.unwrap()).unwrap();
+            loop {
+                let msg = websocket.read().unwrap();
+
+                // We do not want to send back ping/pong messages.
+                if msg.is_binary() || msg.is_text() {
+                    websocket.send(msg).unwrap();
+                }
+            }
+        });
+    }
+}
+``` , caption: [Exemple de serveur echo en WebSocket avec la crate `tungstenite`. Tiré de leur README @TungsteniteCratesio])
+
+Une version async pour le runtime tokio existe également, elle s'appelle `tokio-tungstenite`, si le besoin de passer à un modèle async avec Tokio se fait sentir, nous devrions pouvoir y migrer @TokioTungsteniteCratesio.
+
+Il existe une crate `websocket` avec une approche sync et async, qui est dépréciee et dont le README @WebsocketCratesio conseille l'usage de `tungstenite` ou `tokio-tungstenite` à la place @WebsocketCratesio.
+
+A noter qu'il existe d'autres crates tel que `fastwebsockets` @FastwebsocketsCratesio à disposition, qui ont l'air de permettre de travailler a un plus bas niveau. Pour faciliter l'implémentation nous les ignorons pour ce travail.
 
 ==== gRPC
 
-TODO finir
+gRPC est un protocole basé sur ProtoBuf, inventé par Google. Il se veut être un système de Remote Procedure Call (RPC - un système d'appel de fonctions à distance), universelle et performant qui supporte le streaming bi-directionnelle sur HTTP2. La possibilité de travailler avec plusieurs langages reposent sur la génération automatique de code pour les clients et serveurs permettant de gérer la sérialisation en Protobuf et gérant le transport.
 
-gRPC est un protocole basé sur ProtoBuf, comme système de Remote Procedure Call, un système d'appel de fonctions à distance.
+En plus des définitions des messages en Protobuf déjà présentée, il est possible de définir des services, avec des méthodes avec un type de message et un type de réponse.
 
-tonic utilise prost.
+#figure(
+```proto
+// The greeter service definition.
+service Greeter {
+  // Sends a greeting
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
+}
 
-pas bon support web
+// The request message containing the user's name.
+message HelloRequest {
+  string name = 1;
+}
+
+// The response message containing the greetings
+message HelloReply {
+  string message = 1;
+}
+```
+    ,
+    caption: [Exemple de fichier .proto définissant 2 messages et un service permettant d'envoyer un nom et de recevoir des salutations en retour. Tiré de leur documentation d'introduction @GrpcDocsIntro]
+
+)
+
+Comme Protobuf, Rust n'est pas supporté officiellement mais une implémentation du nom de Tonic existe @TonicGithub, elle utilise Prost! mentionnée précédemment pour l'intégration de Protobuf.
+
+Un article de 2019, intituté *The state of gRPC in the browser* @GrpcBlogStateOfGrpcWeb montre que l'utilisation de gRPC dans les navigateurs web est encore malheureusement mal supportée. En résumé, "il est actuellement impossible d'implémenter la spécification HTTP/2 gRPC dans le navigateur, comme il n'y a simplement pas d'API de navigateur avec un contrôle assez fin sur les requêtes." (Traduction personnelle). La solution a été trouvée à ce problème est le projet gRPC-Web qui fournit un proxy entre le navigateur et le serveur gRPC, faisant les conversions nécessaires entres gRPC-Web et gRPC.
+
+Il reste malheureusement plusieurs limites: le streaming bi-directionnelle n'est pas possible, le client peut faire des appels unaires (pour un seul message) et peut écouter une server-side streams (flux de messages venant du server). L'autre limite est le nombre maximum de connexions en streaming simultanées dans un navigateur sur HTTP/1.1 fixées à 6 @EventSourceStreamMax, ce qui demande de restructurer ses services gRPC pour ne pas avoir plus de 6 connexions en server-side streaming à la fois.
+
 
 ==== tarpc
 tarpc également développé sur l'organisation GitHub de Google sans être un produit officiel, se définit comme "un framework RPC pour Rust, avec un focus sur la facilité d'utilisation. Définir un service peut être fait avec juste quelques lignes de code et le code boilerplate du serveur est géré pour vous." (Traduction personnelle) @TarpcGithub
@@ -717,9 +779,11 @@ tarpc est différent de gRPC et Cap'n Proto "en définissant le schéma directem
 
 Par soucis de facilité de debug, d'implémentation et d'intégration, l'auteur a choisi de rester sur un format textuel et d'implémenter la sérialisation en JSON via la crate mentionnée précédemment `serde_json`. L'expérience existante des websockets de l'auteur, sa possibilité de choisir le format de données, et son solide support dans les navigateurs (au cas où PLX avait une version web un jour), font que ce travail utilisera la combinaisons Websockets + JSON.
 
-Quand l'usage de PLX dépassera une dizaines/centaines d'étudiants connectés en même moment et que la latence sera trop forte ou que les coûts d'infrastructures deviendront un soucis, les formats binaires plus légers seront à creuser plus en détails. Au vu des nombreux choix, mesurer la taille des messages, latence de transport et temps de sérialisation sera important pour faire le bon choix. D'autres projets pourraient également être considéré comme Cap'n Proto @CapnprotoWebsite qui se veut plus rapide que Protobuf, ou encore Apache Thrift @ThriftWebsite.
+gRPC aurait pu aussi être une option comme PLX est en dehors du navigateur, il ne serait pas touché par les limites exprimées. Cependant, cela renderait plus difficile un support d'une version web de PLX si le projet en avait besoin dans le futur.
 
-==== POC de synchronisation de messages JSON via websockets
+Quand l'usage de PLX dépassera une dizaines/centaines d'étudiants connectés en même moment et que la latence sera trop forte ou que les coûts d'infrastructures deviendront un soucis, les formats binaires plus légers seront une option à creuser. Au vu des nombreux choix, mesurer la taille des messages, la latence de transport et le temps de sérialisation sera important pour faire un choix. D'autres projets pourraient également être considéré comme Cap'n Proto @CapnprotoWebsite qui se veut plus rapide que Protobuf, ou encore Apache Thrift @ThriftWebsite. Ces dernières options n'ont pas été explorée dans cet état de l'art principalement parce qu'elles proposent un format binaire.
+
+==== POC de synchronisation de messages JSON via websockets avec tungstenite
 Pour vérifier la faisabilité technique d'envoyer des messages en temps réel en Rust via websockets, un petit POC a été développé dans le dossiers `pocs/websockets-json`. Le code et les résultats des checks doivent être transmis des étudiants depuis le client PLX des étudiants vers ce lui de l'enseignant, en passant par le serveur de session live.
 
 De part sa nature interactive, il n'est pas évident de retranscrire ce qui s'y passe quand on lance le POC dans 3 shell côte à côte, le mieux serait d'aller compiler et lancer à la main. Nous documentons ici un aperçu du résultat.
@@ -846,6 +910,8 @@ Si l'étudiant introduit une erreur de compilation, un message avec un statut di
 )
 
 Le système de synchronisation en temps réel permet ainsi d'envoyer différents messages au serveur qui le retransmet directement au `teacher`. Même si cet exemple est minimale puisqu'il ne vérifie pas la source des messages, et qu'il n'y a qu'un seul étudiant et enseignant impliqué, nous avons démontré que la crate `tungstenite` fonctionne.
+
+todo ajouter schéma réseau du POC
 
 #pagebreak()
 
