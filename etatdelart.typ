@@ -792,7 +792,7 @@ Ce petit programme en Rust prend en argument son rôle (`server`, `teacher` ou `
 
 Ce programme a la structure suivante, le dossier `fake-exo` contient l'exercice à implémenter.
 #figure(
-```sh
+```
 .
 ├── Cargo.lock
 ├── Cargo.toml
@@ -801,8 +801,8 @@ Ce programme a la structure suivante, le dossier `fake-exo` contient l'exercice 
 │  ├── Cargo.toml
 │  ├── compare_output.txt
 │  └── src
-├── src
-│  └── main.rs
+└── src
+   └── main.rs
 ``` ,
     caption: [Structure de fichiers du POC.]
 )
@@ -814,7 +814,17 @@ fn main() {
     println!("Hello, world!");
 }
 ```,
-    caption: [Code Rust de départ de l'exercice fictif fait par l'étudiant]
+    caption: [Code Rust de départ de l'exercice fictif à compléter par l'étudiant]
+)
+
+Le mini protocole définit pour permettre cette synchronisation est découpé en 2 étapes.
+#figure(
+  image("schemas/websocket-json-poc-arch-announce.png", width: 60%),
+  caption: [La première partie consiste en une mise en place par la connexion et l'annonce des clients de leur rôle, en se connectant puis en envoyant leur rôle en string.],
+)
+#figure(
+  image("schemas/websocket-json-poc-arch-forwarding.png", width: 60%),
+  caption: [La deuxième partie consiste en l'envoi régulier du client du résultat du check vers le serveur, qui ne fait que de transmettre au socket associé au `teacher`.],
 )
 
 Dans un premier shell (S1), nous lançons en premier lieu le serveur:
@@ -910,8 +920,6 @@ Si l'étudiant introduit une erreur de compilation, un message avec un statut di
 )
 
 Le système de synchronisation en temps réel permet ainsi d'envoyer différents messages au serveur qui le retransmet directement au `teacher`. Même si cet exemple est minimale puisqu'il ne vérifie pas la source des messages, et qu'il n'y a qu'un seul étudiant et enseignant impliqué, nous avons démontré que la crate `tungstenite` fonctionne.
-
-todo ajouter schéma réseau du POC
 
 #pagebreak()
 
