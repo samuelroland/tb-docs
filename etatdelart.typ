@@ -362,87 +362,6 @@ Tree-Sitter @TreeSitterWebsite se définit comme un "outil de génération de pa
 
 Rédiger une grammaire Tree-Sitter consiste en l'écriture d'une grammaire en Javascript dans un fichier `grammar.js`. Le cli `tree-sitter` va ensuite générer un parseur en C qui pourra être utilisé directement via le CLI `tree-sitter` durant le développement et être facilement embarquée comme librarie C sans dépendance dans n'importe quelle type d'application @TreeSitterCreatingParsers @TreeSitterWebsite.
 
-Etant donné @exo-dy-ts-poc, le défi est d'arriver à coloriser les préfixes et les flags pour ne pas avoir cette affichage noir sur blanc qui ne facilite pas la lecture.
-#figure(
-```
-// Basic MCQ exo
-exo Introduction
-
-opt .multiple
-- C is an interpreted language
-- .ok C is a compiled language
-- C is mostly used for web applications
-```,
-  caption: [Un exemple de question choix multiple dans un fichier `mcq.dy`, décrite avec la syntaxe DY. Les préfixes sont `exo` (titre) et `opt` (options). Les flags sont `.ok` et `.multiple`.]
-) <exo-dy-ts-poc>
-
-Une fois la grammaire mise en place avec la commande `tree-sitter init`, il suffit de remplir le fichier `grammar.js`, avec une ensemble de régle construites via des fonctions fournies par Tree-Sitter et des expressions régulières.
-
-// todo link or not link to ts docs ??
-
-```js
-module.exports = grammar({
-  name: "dy",
-  rules: {
-    source_file: ($) => repeat($._line),
-    _line: ($) =>
-      seq( choice($.commented_line, $.prefixed_line, $.list_line, $.content_line), "\n"),
-    prefixed_line: ($) =>
-      seq($.prefix, optional(repeat($.property)), optional(seq(" ", $.content))),
-    commented_line: (_) => token(seq(/\/\/ /, /.+/)),
-    list_line: ($) => seq($.dash, repeat($.property), optional(" "), optional($.content)),
-    dash: (_) => token(prec(2, /- /)),
-    prefix: (_) => token(prec(1, choice("exo", "opt"))),
-    property: (_) => token(prec(3, seq(".", choice("multiple", "ok")))),
-    content_line: ($) => $.content,
-    content: (_) => token(prec(0, /.+/)),
-  },
-});
-```
-
-On observe dans cet exemple un fichier source, découpé en une répétition de ligne. Il y a 4 types de lignes qui sont chacunes décrites avec des plus petits morceaux. `seq` indique une liste de tokens qui viendront en séquence, `choice` permet de tester plusieurs options à la même position. On remarque également la liste des préfixes et flags insérés dans les tokens de `prefix` et `property`. La documentation The Grammar DSL de la documentation explique toutes les options possibles en détails @TreeSitterGrammarDSL.
-
-Après avoir appelé `tree-sitter generate` pour générer le code du parser C et `tree-sitter build` pour le compiler, on peut demander au CLI de parser un fichier donné et afficher le CST. Dans cet arbre qui démarre avec son noeud racine `source_file`, on y voit les noeuds du même type que les règles définies précédemment, avec le texte extrait dans la plage de charactères associée au noeud. Par exemple, on voit que l'option `C is a compiled language` a bien été extraite à la ligne 5, entre le byte 6 et 30 (`5:6  - 5:30`) en tant que `content`. Elle suit un token de `property` avec notre flag `.ok` et le tiret de la règle `dash`.
-
-#figure(
-  image("imgs/tree-sitter-cst.svg", width: 70%),
-  caption: [Concrete Syntax Tree généré par la grammaire définie sur le fichier `mcq.dy`],
-) <fig-tree-sitter-on-github>
-
-La tokenisation fonctionne bien pour cette exemple, chaque élément est correctement découpé et catégorisé. Pour voir ce snippet en couleurs, il nous reste deux choses à définir. La première consiste en un fichier `queries/highlighting.scm` qui décrit des requêtes de surlignage sur l'arbre (highlights query) permettant de sélectionner des noeuds de l'arbre et leur attribuer un nom de surlignage (highlighting name). Ces noms ressembles à `@variable`, `@constant`, `@function`, `@keyword`, `@string` etc... et des versions plus spécifiques comme `@string.regexp`, `@string.special.path`. Ces noms sont ensuite utilisés par les thèmes pour appliquer un style.
-
-```scm
-> cat queries/highlights.scm
-(prefix) @keyword
-(commented_line) @comment
-(content) @string
-(property) @property
-(dash) @operator
-```
-
-Le CLI supporte directement la configuration d'un thème via son fichier de configuration, on reprend simplement chaque nom de surlignage en lui donnant une couleur.
-```json
-> cat ~/.config/tree-sitter/config.json
-{
-    "parser-directories": [ "/home/sam/code/tree-sitter-grammars" ],
-    "theme": {
-        "property": "#1bb588",
-        "operator": "#20a8c3",
-        "string": "#1f2328",
-        "keyword": "#20a8c3",
-        "comment": "#737a7e"
-    }
-}
-```
-
-#figure(
-  box(image("./imgs/mcq.svg"), width:50%),
-  caption: [Résultat final surligné par `tree-sitter highlighting mcq.dy`]
-)
-
-L'auteur s'est inspiré de l'article *How to write a tree-sitter grammar in an afternoon* (Ben Siraphob) @SirabenTreeSitterTuto pour ce POC.
-// todo comment citer ??
-
 Tree-Sitter est supporté dans Neovim @neovimTSSupport, dans le nouvel éditeur Zed @zedTSSupport, ainsi que d'autres. Tree-Sitter a été inventé par l'équipe derrière Atom @atomTSSupport et est même utilisé sur GitHub, notamment pour la navigation du code pour trouver les définitions et références et lister tous les symboles (fonctions, classes, structs, etc) @TreeSitterUsageGithub.
 
 #figure(
@@ -508,8 +427,86 @@ L'auteur a ignoré l'option du système de SublimeText. pour la simple raison qu
 
 Si le temps le permet, une grammaire développée avec Tree-Sitter permettra de supporter du surglignage dans Neovim. Le choix de ne pas explorer plus les grammaires Textmate sur le long terme se justifie également par la roadmap de VSCode: entre mars et mai 2025 @TSVSCodeWorkStart @TSVSCodeWorkNow, du travail d'investigation a été fait pour explorer les grammaires existantes et l'usage de surlignage de code @ExploreTSVSCodeCodeHighlight. Des premiers efforts d'exploration avait d'ailleurs déjà eu lieu en septembre 2022 @EarlyTSVSCodeExp. L'usage du Semantic highlighting n'est pas au programme de ce travail mais pourra être explorer dans le futur si certains éléments sémantiques pourraient en bénéficier.
 
-==== POC ?
-TODO: faut-il inclure le POC avec Tree-Sitter dans une section séparée ici ?
+==== POC de Tree-Sitter
+Ce POC vise à prouver que l'usage de Tree-Sitter fonctionne pour coloriser les préfixes et les flags de @exo-dy-ts-poc pour ne pas avoir cette affichage noir sur blanc qui ne facilite pas la lecture.
+#figure(
+```
+// Basic MCQ exo
+exo Introduction
+
+opt .multiple
+- C is an interpreted language
+- .ok C is a compiled language
+- C is mostly used for web applications
+```,
+  caption: [Un exemple de question choix multiple dans un fichier `mcq.dy`, décrite avec la syntaxe DY. Les préfixes sont `exo` (titre) et `opt` (options). Les flags sont `.ok` et `.multiple`.]
+) <exo-dy-ts-poc>
+
+Une fois la grammaire mise en place avec la commande `tree-sitter init`, il suffit de remplir le fichier `grammar.js`, avec une ensemble de régle construites via des fonctions fournies par Tree-Sitter et des expressions régulières.
+
+```js
+module.exports = grammar({
+  name: "dy",
+  rules: {
+    source_file: ($) => repeat($._line),
+    _line: ($) =>
+      seq( choice($.commented_line, $.prefixed_line, $.list_line, $.content_line), "\n"),
+    prefixed_line: ($) =>
+      seq($.prefix, optional(repeat($.property)), optional(seq(" ", $.content))),
+    commented_line: (_) => token(seq(/\/\/ /, /.+/)),
+    list_line: ($) => seq($.dash, repeat($.property), optional(" "), optional($.content)),
+    dash: (_) => token(prec(2, /- /)),
+    prefix: (_) => token(prec(1, choice("exo", "opt"))),
+    property: (_) => token(prec(3, seq(".", choice("multiple", "ok")))),
+    content_line: ($) => $.content,
+    content: (_) => token(prec(0, /.+/)),
+  },
+});
+```
+
+On observe dans cet exemple un fichier source, découpé en une répétition de ligne. Il y a 4 types de lignes qui sont chacunes décrites avec des plus petits morceaux. `seq` indique une liste de tokens qui viendront en séquence, `choice` permet de tester plusieurs options à la même position. On remarque également la liste des préfixes et flags insérés dans les tokens de `prefix` et `property`. La documentation *The Grammar DSL* de la documentation explique toutes les options possibles en détails @TreeSitterGrammarDSL.
+
+Après avoir appelé `tree-sitter generate` pour générer le code du parser C et `tree-sitter build` pour le compiler, on peut demander au CLI de parser un fichier donné et afficher le CST. Dans cet arbre qui démarre avec son noeud racine `source_file`, on y voit les noeuds du même type que les règles définies précédemment, avec le texte extrait dans la plage de charactères associée au noeud. Par exemple, on voit que l'option `C is a compiled language` a bien été extraite à la ligne 5, entre le byte 6 et 30 (`5:6  - 5:30`) en tant que `content`. Elle suit un token de `property` avec notre flag `.ok` et le tiret de la règle `dash`.
+
+#figure(
+  image("imgs/tree-sitter-cst.svg", width: 70%),
+  caption: [Concrete Syntax Tree généré par la grammaire définie sur le fichier `mcq.dy`],
+)
+
+La tokenisation fonctionne bien pour cette exemple, chaque élément est correctement découpé et catégorisé. Pour voir ce snippet en couleurs, il nous reste deux choses à définir. La première consiste en un fichier `queries/highlighting.scm` qui décrit des requêtes de surlignage sur l'arbre (highlights query) permettant de sélectionner des noeuds de l'arbre et leur attribuer un nom de surlignage (highlighting name). Ces noms ressembles à `@variable`, `@constant`, `@function`, `@keyword`, `@string` etc... et des versions plus spécifiques comme `@string.regexp`, `@string.special.path`. Ces noms sont ensuite utilisés par les thèmes pour appliquer un style.
+
+```scm
+> cat queries/highlights.scm
+(prefix) @keyword
+(commented_line) @comment
+(content) @string
+(property) @property
+(dash) @operator
+```
+
+Le CLI supporte directement la configuration d'un thème via son fichier de configuration, on reprend simplement chaque nom de surlignage en lui donnant une couleur.
+```json
+> cat ~/.config/tree-sitter/config.json
+{
+    "parser-directories": [ "/home/sam/code/tree-sitter-grammars" ],
+    "theme": {
+        "property": "#1bb588",
+        "operator": "#20a8c3",
+        "string": "#1f2328",
+        "keyword": "#20a8c3",
+        "comment": "#737a7e"
+    }
+}
+```
+
+#figure(
+  box(image("./imgs/mcq.svg"), width:50%),
+  caption: [Screenshot du résultat de la commande #linebreak() `tree-sitter highlight mcq.dy` avec notre exercice surligné]
+)
+
+L'auteur de ce travail s'est inspiré de l'article *How to write a tree-sitter grammar in an afternoon* (Ben Siraphob) @SirabenTreeSitterTuto pour ce POC.
+// todo comment citer ??
+Le résultat de ce POC est encourageant, même s'il faudra probablement plus que quelques heures pour gérer les détails, comprendre, tester et documenter l'intégration dans Neovim, cette partie nice to have a des chances de pouvoir être réalisée dans ce travail au vu du résultat atteint avec ce POC.
 
 #pagebreak()
 
