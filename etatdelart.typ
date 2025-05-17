@@ -810,7 +810,7 @@ On y voit le message envoyé contient le résultat du check après compilation e
     caption: [Le message envoyé avec un chemin de fichier, le code et le statut. Le statut est une enum définie à "output incorrect", puisque l'exercice n'est pas encore implémenté.]
 )
 
-Le serveur sur le S1, on ne voit que le `Forwarded one message to teacher`. Sur le S2, on voit immédiatement ceci
+Le serveur sur le S1, on ne voit que le `Forwarded one message to teacher`. Sur le S2, on voit immédiatement ceci:
 #figure(
 ```
 Exo check on file fake-exo/src/main.rs, with given code:
@@ -832,7 +832,7 @@ Si l'étudiant introduit une erreur de compilation, un message avec un statut di
       println!("Hello, world!", args[3]);
   }
   failed build with error
-    Compiling fake-exo v0.1.0 (/home/sam/HEIG/year3/TB/tb-docs/pocs/websockets-json/fake-exo)
+    Compiling fake-exo v0.1.0
   error: argument never used
   --> src/main.rs:3:31
     |
@@ -845,7 +845,7 @@ Si l'étudiant introduit une erreur de compilation, un message avec un statut di
     caption: [Le `teacher` a bien reçu le code actuel avec l'erreur et l'output de compilation de Cargo]
 )
 
-Le système de synchronisation en temps réel permet ainsi d'envoyer différents messages au serveur qui le retransmet. Même si cet exemple est minimale puisqu'il n'y a qu'un seul étudiant et enseignant impliqué, nous avons vu que de travailler avec la crate `websocket` sur son implémentation `sync` peut fonctionner. A voir, durant l'implémentation si son implémentation `async` est plus adaptée.
+Le système de synchronisation en temps réel permet ainsi d'envoyer différents messages au serveur qui le retransmet directement au `teacher`. Même si cet exemple est minimale puisqu'il ne vérifie pas la source des messages, et qu'il n'y a qu'un seul étudiant et enseignant impliqué, nous avons démontré que la crate `tungstenite` fonctionne.
 
 #pagebreak()
 

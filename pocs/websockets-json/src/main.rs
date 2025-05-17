@@ -1,3 +1,5 @@
+/// This is a very dirty/basic implementation of code synchronisation between a student process and
+/// teacher process, via a central WebSocket server in Rust using the tungstenite crate
 use std::{
     fmt::format,
     fs::read_to_string,
