@@ -322,194 +322,6 @@ size],
 // todo la variante, terme correcte ?
 
 #pagebreak()
-=== Systèmes de surglignage de code
-Les IDEs modernes supportent possèdent des systèmes de surglignage de code (syntax highlighting en anglais) permettant de rendre le code plus lisible en colorisant les mots, charactères ou groupe de symboles de même type (séparateur, opérateur, mot clé du langage, variable, fonction, constante, ...). Ces systèmes se distinguent par leur possibilités d'intégration. Les thèmes intégrés aux IDE peuvent définir directement les couleurs pour chaque type de token. Pour un rendu web, une version HTML contenant des classes CSS spécifiques à chaque type de token peut être générée, permettant à des thèmes écrits en CSS de venir appliquer les couleurs. Les possibilités de génération pour le HTML pour le web implique parfois une génération dans le navigateur ou sur le serveur directement.
-
-Un système de surlignage est très différent d'un parseur. Même s'il traite du même langage, dans un cas, on cherche juste à découper le code en tokens et y définir un type de token. Ce qui s'apparente seulement à la premier étape du lexer/tokenizer généralement rencontré dans les parseurs.
-
-
-==== Textmate
-Textmate est un IDE pour MacOS qui a inventé un système de grammaire Textmate. Elles permettent de décrire comment tokeniser le code basée sur des expressions régulières. Ces expressions régulières viennent de la librairie C Oniguruma @textmateRegex. VSCode utilise ces grammaires Textmate @vscodeSyntaxHighlighting. Intellij IDEA l'utilise également pour les langages non supportés par Intellij IDEA comme Swift, C++ et Perl @ideaSyntaxHighlighting.
-
-Exemple de grammaire Textmate permettant de décrire un language nommé `untitled` avec 4 mots clés et des chaines de charactères entre guillemets, ceci matché avec des expressions régulières. Tiré de leur documentation @TextMateDocsLanguageGrammars.
-```
-{  scopeName = 'source.untitled';
-   fileTypes = ( );
-   foldingStartMarker = '\{\s*$';
-   foldingStopMarker = '^\s*\}';
-   patterns = (
-      {  name = 'keyword.control.untitled';
-         match = '\b(if|while|for|return)\b';
-      },
-      {  name = 'string.quoted.double.untitled';
-         begin = '"';
-         end = '"';
-         patterns = ( 
-            {  name = 'constant.character.escape.untitled';
-               match = '\\.';
-            }
-         );
-      },
-   );
-}
-```
-
-La documentation précise un choix important de conception: "A noter que ces regex sont matchées contre une seule ligne à la fois. Cela signifie qu'il n'est pas possible d'utiliser une pattern qui matche plusieurs lignes. La raison est technique: être capable de redémarrer le parseur à une ligne arbitraire et devoir reparser seulement un nombre minimal de lignes affectés par un changement. Dans la plupart des situations, il est possible d'utiliser le model `begin`/`end` pour dépasser cette limite." @TextMateDocsLanguageGrammars (Traduction personnelle, dernier paragraphe section 12.2).
-
-==== Tree-Sitter
-
-Tree-Sitter @TreeSitterWebsite se définit comme un "outil de génération de parser et une librairie de parsing incrémentale. Il peut construire un arbre de syntaxe concret (CST) pour depuis un fichier source et efficacement mettre à jour cet arbre quand le fichier source est modifié." @TreeSitterWebsite (Traduction personnelle)
-
-Rédiger une grammaire Tree-Sitter consiste en l'écriture d'une grammaire en Javascript dans un fichier `grammar.js`. Le cli `tree-sitter` va ensuite générer un parseur en C qui pourra être utilisé directement via le CLI `tree-sitter` durant le développement et être facilement embarquée comme librarie C sans dépendance dans n'importe quelle type d'application @TreeSitterCreatingParsers @TreeSitterWebsite.
-
-Tree-Sitter est supporté dans Neovim @neovimTSSupport, dans le nouvel éditeur Zed @zedTSSupport, ainsi que d'autres. Tree-Sitter a été inventé par l'équipe derrière Atom @atomTSSupport et est même utilisé sur GitHub, notamment pour la navigation du code pour trouver les définitions et références et lister tous les symboles (fonctions, classes, structs, etc) @TreeSitterUsageGithub.
-
-#figure(
-  image("imgs/tree-sitter-on-github.png", width: 100%),
-  caption: [Liste de symboles générées par Tree-Sitter, affichés à droite du code sur GitHub pour un exemple de code Rust de PLX],
-) <fig-tree-sitter-on-github>
-
-==== Semantic highlighting
-Le surlignage sémantique est une extension du surlignage syntaxique. Les serveurs de language peuvent ainsi fournir des tokens sémantiques qui apportent une classification plus fine du language, que les systèmes syntaxiques ne peuvent pas détecter. @VSCodeSemanticHighlighting
-
-#figure(
-  image("imgs/semantic-highlighting-example.png", width: 100%),
-  caption: [Exemple tiré de la documentation de VSCode, démontrant quelques améliorations dans le surglignage. Les paramètres `languageModes` et `document` sont colorisés différemment que les variables locales. `Range` et `Position` sont colorisées commes des classes.#linebreak() `getFoldingRanges` dans la condition est colorisée en tant que fonction ce qui la différencie des autres propriétés. @VSCodeSemanticHighlighting],
-) <fig-semantic-highlighting-example>
-
-En voyant la liste des tokens sémantiques possible dans la spécification LSP @LspSpecSemanticTokens, on comprend mieux l'intérêt et les possibilités de surlignage avancé. Par exemple, on trouve des tokens `macro`, `regexp`, `typeParameter`, `interface`,  `enum`, `enumMember`, qui seraient difficile de différencier durant la tokenisation mais qui peuvent être surligné différement pour mettre en avant leur différence sémantique.
-
-Sur cette exemple de C, surgligné ici uniquement grâce à Tree-Sitter, sans surlignage sémantique, on voit que les appels de `HEY` et `hi` dans le `main` ont les mêmes couleurs.
-```c
-#include <stdio.h>
-
-const char *HELLO = "Hey";
-#define HEY(name) printf("%s %s\n", HELLO, name)
-void hi(char *name) { printf("%s %s\n", HELLO, name); }
-
-int main(int argc, char *argv[]) {
-    hi("Samuel");
-    HEY("Samuel");
-    return 0;
-}
-```
-
-#pagebreak()
-Via la commande `:InspectTree` dans Neovim qui permet d'afficher l'arbre généré par Tree-Sitter, on voit que les 2 lignes `hi` et `HEY` sont catégorisés sans surprise comme des fonctions (noeuds `function`, `arguments`, ...).
-```
-(expression_statement ; [7, 4] - [7, 17]
-  (call_expression ; [7, 4] - [7, 16]
-    function: (identifier) ; [7, 4] - [7, 6]
-    arguments: (argument_list ; [7, 6] - [7, 16]
-      (string_literal ; [7, 7] - [7, 15]
-        (string_content))))) ; [7, 8] - [7, 14]
-(expression_statement ; [8, 4] - [8, 18]
-  (call_expression ; [8, 4] - [8, 17]
-    function: (identifier) ; [8, 4] - [8, 7]
-    arguments: (argument_list ; [8, 7] - [8, 17]
-      (string_literal ; [8, 8] - [8, 16]
-        (string_content))))) ; [8, 9] - [8, 15]
-```
-
-Extrait de la commande `:Inspect` dans Neovim avec le curseur sur le `HEY`, qui nous montre que le serveur de langage (`clangd` ici), a réussi à préciser la notion de macro au-delà simple appel de fonction.
-```
-Semantic Tokens
-  - @lsp.type.macro.c links to PreProc   priority: 125
-  - @lsp.mod.globalScope.c links to @lsp   priority: 126
-  - @lsp.typemod.macro.globalScope.c links to @lsp   priority: 127
-```
-Ainsi dans Neovim une fois `clangd` lancé, l'appel de `HEY` prend ainsi la même couleur que celle attribuée sur sa définition.
-
-TODO bouger partie lsp avant surlignage de code, pour que le sémantic highlighting soit plus clair ???
-
-==== Choix final
-L'auteur a ignoré l'option du système de SublimeText. pour la simple raison qu'il n'est supporté nativement que dans SublimeText, probablement parce que cet IDE est propriétaire @SublimeHQEULA. Ce système utilisent des fichiers `.sublime-syntax`, qui ressemble à TextMate @SublimeHQSyntax mais rédigé en YAML.
-
-Si le temps le permet, une grammaire développée avec Tree-Sitter permettra de supporter du surglignage dans Neovim. Le choix de ne pas explorer plus les grammaires Textmate sur le long terme se justifie également par la roadmap de VSCode: entre mars et mai 2025 @TSVSCodeWorkStart @TSVSCodeWorkNow, du travail d'investigation a été fait pour explorer les grammaires existantes et l'usage de surlignage de code @ExploreTSVSCodeCodeHighlight. Des premiers efforts d'exploration avait d'ailleurs déjà eu lieu en septembre 2022 @EarlyTSVSCodeExp. L'usage du Semantic highlighting n'est pas au programme de ce travail mais pourra être explorer dans le futur si certains éléments sémantiques pourraient en bénéficier.
-
-==== POC de Tree-Sitter
-Ce POC vise à prouver que l'usage de Tree-Sitter fonctionne pour coloriser les préfixes et les flags de @exo-dy-ts-poc pour ne pas avoir cette affichage noir sur blanc qui ne facilite pas la lecture.
-#figure(
-```
-// Basic MCQ exo
-exo Introduction
-
-opt .multiple
-- C is an interpreted language
-- .ok C is a compiled language
-- C is mostly used for web applications
-```,
-  caption: [Un exemple de question choix multiple dans un fichier `mcq.dy`, décrite avec la syntaxe DY. Les préfixes sont `exo` (titre) et `opt` (options). Les flags sont `.ok` et `.multiple`.]
-) <exo-dy-ts-poc>
-
-Une fois la grammaire mise en place avec la commande `tree-sitter init`, il suffit de remplir le fichier `grammar.js`, avec une ensemble de régle construites via des fonctions fournies par Tree-Sitter et des expressions régulières.
-
-```js
-module.exports = grammar({
-  name: "dy",
-  rules: {
-    source_file: ($) => repeat($._line),
-    _line: ($) =>
-      seq( choice($.commented_line, $.prefixed_line, $.list_line, $.content_line), "\n"),
-    prefixed_line: ($) =>
-      seq($.prefix, optional(repeat($.property)), optional(seq(" ", $.content))),
-    commented_line: (_) => token(seq(/\/\/ /, /.+/)),
-    list_line: ($) => seq($.dash, repeat($.property), optional(" "), optional($.content)),
-    dash: (_) => token(prec(2, /- /)),
-    prefix: (_) => token(prec(1, choice("exo", "opt"))),
-    property: (_) => token(prec(3, seq(".", choice("multiple", "ok")))),
-    content_line: ($) => $.content,
-    content: (_) => token(prec(0, /.+/)),
-  },
-});
-```
-
-On observe dans cet exemple un fichier source, découpé en une répétition de ligne. Il y a 4 types de lignes qui sont chacunes décrites avec des plus petits morceaux. `seq` indique une liste de tokens qui viendront en séquence, `choice` permet de tester plusieurs options à la même position. On remarque également la liste des préfixes et flags insérés dans les tokens de `prefix` et `property`. La documentation *The Grammar DSL* de la documentation explique toutes les options possibles en détails @TreeSitterGrammarDSL.
-
-Après avoir appelé `tree-sitter generate` pour générer le code du parser C et `tree-sitter build` pour le compiler, on peut demander au CLI de parser un fichier donné et afficher le CST. Dans cet arbre qui démarre avec son noeud racine `source_file`, on y voit les noeuds du même type que les règles définies précédemment, avec le texte extrait dans la plage de charactères associée au noeud. Par exemple, on voit que l'option `C is a compiled language` a bien été extraite à la ligne 5, entre le byte 6 et 30 (`5:6  - 5:30`) en tant que `content`. Elle suit un token de `property` avec notre flag `.ok` et le tiret de la règle `dash`.
-
-#figure(
-  image("imgs/tree-sitter-cst.svg", width: 70%),
-  caption: [Concrete Syntax Tree généré par la grammaire définie sur le fichier `mcq.dy`],
-)
-
-La tokenisation fonctionne bien pour cette exemple, chaque élément est correctement découpé et catégorisé. Pour voir ce snippet en couleurs, il nous reste deux choses à définir. La première consiste en un fichier `queries/highlighting.scm` qui décrit des requêtes de surlignage sur l'arbre (highlights query) permettant de sélectionner des noeuds de l'arbre et leur attribuer un nom de surlignage (highlighting name). Ces noms ressembles à `@variable`, `@constant`, `@function`, `@keyword`, `@string` etc... et des versions plus spécifiques comme `@string.regexp`, `@string.special.path`. Ces noms sont ensuite utilisés par les thèmes pour appliquer un style.
-
-```scm
-> cat queries/highlights.scm
-(prefix) @keyword
-(commented_line) @comment
-(content) @string
-(property) @property
-(dash) @operator
-```
-
-Le CLI supporte directement la configuration d'un thème via son fichier de configuration, on reprend simplement chaque nom de surlignage en lui donnant une couleur.
-```json
-> cat ~/.config/tree-sitter/config.json
-{
-    "parser-directories": [ "/home/sam/code/tree-sitter-grammars" ],
-    "theme": {
-        "property": "#1bb588",
-        "operator": "#20a8c3",
-        "string": "#1f2328",
-        "keyword": "#20a8c3",
-        "comment": "#737a7e"
-    }
-}
-```
-
-#figure(
-  box(image("./imgs/mcq.svg"), width:50%),
-  caption: [Screenshot du résultat de la commande #linebreak() `tree-sitter highlight mcq.dy` avec notre exercice surligné]
-)
-
-L'auteur de ce travail s'est inspiré de l'article *How to write a tree-sitter grammar in an afternoon* (Ben Siraphob) @SirabenTreeSitterTuto pour ce POC.
-// todo comment citer ??
-Le résultat de ce POC est encourageant, même s'il faudra probablement plus que quelques heures pour gérer les détails, comprendre, tester et documenter l'intégration dans Neovim, cette partie nice to have a des chances de pouvoir être réalisée dans ce travail au vu du résultat atteint avec ce POC.
-
-#pagebreak()
-
 === Les serveurs de language et librairies Rust existantes
 Une part importante du support d'un langage dans un éditeur, consiste en l'intégration des erreurs, l'auto-complétion, les propositions de corrections, des informations au survol... et de nombreuses fonctionnalités qui améliorent la compréhension ou l'interaction. L'avantage d'avoir les erreurs de compilation directement soulignées dans l'éditeur, permet de voir et corriger immédiatement les problèmes sans lancer une compilation manuelle dans une interface séparée.
 
@@ -609,6 +421,194 @@ Le code qui gère cette requête du type `GotoDefinition` se présente ainsi.
 )
 
 Cette communication permet de visualiser les échanges entre l'IDE et un serveur de langage. En pratique après avoir implémenté une logique de résolution des définitions un peu plus réaliste cette communication ne serait pas visible mais bénéficiera à l'intégration dans l'IDE. Si on l'intégrait dans VSCode, , la fonctionnalité du clic droit + Aller à la définition fonctionnerait.
+
+#pagebreak()
+
+=== Systèmes de surglignage de code
+Les IDEs modernes supportent possèdent des systèmes de surglignage de code (syntax highlighting en anglais) permettant de rendre le code plus lisible en colorisant les mots, charactères ou groupe de symboles de même type (séparateur, opérateur, mot clé du langage, variable, fonction, constante, ...). Ces systèmes se distinguent par leur possibilités d'intégration. Les thèmes intégrés aux IDE peuvent définir directement les couleurs pour chaque type de token. Pour un rendu web, une version HTML contenant des classes CSS spécifiques à chaque type de token peut être générée, permettant à des thèmes écrits en CSS de venir appliquer les couleurs. Les possibilités de génération pour le HTML pour le web implique parfois une génération dans le navigateur ou sur le serveur directement.
+
+Un système de surlignage est très différent d'un parseur. Même s'il traite du même langage, dans un cas, on cherche juste à découper le code en tokens et y définir un type de token. Ce qui s'apparente seulement à la premier étape du lexer/tokenizer généralement rencontré dans les parseurs.
+
+
+==== Textmate
+Textmate est un IDE pour MacOS qui a inventé un système de grammaire Textmate. Elles permettent de décrire comment tokeniser le code basée sur des expressions régulières. Ces expressions régulières viennent de la librairie C Oniguruma @textmateRegex. VSCode utilise ces grammaires Textmate @vscodeSyntaxHighlighting. Intellij IDEA l'utilise également pour les langages non supportés par Intellij IDEA comme Swift, C++ et Perl @ideaSyntaxHighlighting.
+
+Exemple de grammaire Textmate permettant de décrire un language nommé `untitled` avec 4 mots clés et des chaines de charactères entre guillemets, ceci matché avec des expressions régulières. Tiré de leur documentation @TextMateDocsLanguageGrammars.
+```
+{  scopeName = 'source.untitled';
+   fileTypes = ( );
+   foldingStartMarker = '\{\s*$';
+   foldingStopMarker = '^\s*\}';
+   patterns = (
+      {  name = 'keyword.control.untitled';
+         match = '\b(if|while|for|return)\b';
+      },
+      {  name = 'string.quoted.double.untitled';
+         begin = '"';
+         end = '"';
+         patterns = ( 
+            {  name = 'constant.character.escape.untitled';
+               match = '\\.';
+            }
+         );
+      },
+   );
+}
+```
+
+La documentation précise un choix important de conception: "A noter que ces regex sont matchées contre une seule ligne à la fois. Cela signifie qu'il n'est pas possible d'utiliser une pattern qui matche plusieurs lignes. La raison est technique: être capable de redémarrer le parseur à une ligne arbitraire et devoir reparser seulement un nombre minimal de lignes affectés par un changement. Dans la plupart des situations, il est possible d'utiliser le model `begin`/`end` pour dépasser cette limite." @TextMateDocsLanguageGrammars (Traduction personnelle, dernier paragraphe section 12.2).
+
+==== Tree-Sitter
+
+Tree-Sitter @TreeSitterWebsite se définit comme un "outil de génération de parser et une librairie de parsing incrémentale. Il peut construire un arbre de syntaxe concret (CST) pour depuis un fichier source et efficacement mettre à jour cet arbre quand le fichier source est modifié." @TreeSitterWebsite (Traduction personnelle)
+
+Rédiger une grammaire Tree-Sitter consiste en l'écriture d'une grammaire en Javascript dans un fichier `grammar.js`. Le cli `tree-sitter` va ensuite générer un parseur en C qui pourra être utilisé directement via le CLI `tree-sitter` durant le développement et être facilement embarquée comme librarie C sans dépendance dans n'importe quelle type d'application @TreeSitterCreatingParsers @TreeSitterWebsite.
+
+Tree-Sitter est supporté dans Neovim @neovimTSSupport, dans le nouvel éditeur Zed @zedTSSupport, ainsi que d'autres. Tree-Sitter a été inventé par l'équipe derrière Atom @atomTSSupport et est même utilisé sur GitHub, notamment pour la navigation du code pour trouver les définitions et références et lister tous les symboles (fonctions, classes, structs, etc) @TreeSitterUsageGithub.
+
+#figure(
+  image("imgs/tree-sitter-on-github.png", width: 100%),
+  caption: [Liste de symboles générées par Tree-Sitter, affichés à droite du code sur GitHub pour un exemple de code Rust de PLX],
+) <fig-tree-sitter-on-github>
+
+// todo: make sure enough info here after POC has moved below
+
+==== Semantic highlighting
+Le surlignage sémantique est une extension du surlignage syntaxique. Les serveurs de language peuvent ainsi fournir des tokens sémantiques qui apportent une classification plus fine du language, que les systèmes syntaxiques ne peuvent pas détecter. @VSCodeSemanticHighlighting
+
+#figure(
+  image("imgs/semantic-highlighting-example.png", width: 100%),
+  caption: [Exemple tiré de la documentation de VSCode, démontrant quelques améliorations dans le surglignage. Les paramètres `languageModes` et `document` sont colorisés différemment que les variables locales. `Range` et `Position` sont colorisées commes des classes.#linebreak() `getFoldingRanges` dans la condition est colorisée en tant que fonction ce qui la différencie des autres propriétés. @VSCodeSemanticHighlighting],
+) <fig-semantic-highlighting-example>
+
+En voyant la liste des tokens sémantiques possible dans la spécification LSP @LspSpecSemanticTokens, on comprend mieux l'intérêt et les possibilités de surlignage avancé. Par exemple, on trouve des tokens `macro`, `regexp`, `typeParameter`, `interface`,  `enum`, `enumMember`, qui seraient difficile de différencier durant la tokenisation mais qui peuvent être surligné différement pour mettre en avant leur différence sémantique.
+
+Sur cette exemple de C, surgligné ici uniquement grâce à Tree-Sitter, sans surlignage sémantique, on voit que les appels de `HEY` et `hi` dans le `main` ont les mêmes couleurs.
+```c
+#include <stdio.h>
+
+const char *HELLO = "Hey";
+#define HEY(name) printf("%s %s\n", HELLO, name)
+void hi(char *name) { printf("%s %s\n", HELLO, name); }
+
+int main(int argc, char *argv[]) {
+    hi("Samuel");
+    HEY("Samuel");
+    return 0;
+}
+```
+
+#pagebreak()
+Via la commande `:InspectTree` dans Neovim qui permet d'afficher l'arbre généré par Tree-Sitter, on voit que les 2 lignes `hi` et `HEY` sont catégorisés sans surprise comme des fonctions (noeuds `function`, `arguments`, ...).
+```
+(expression_statement ; [7, 4] - [7, 17]
+  (call_expression ; [7, 4] - [7, 16]
+    function: (identifier) ; [7, 4] - [7, 6]
+    arguments: (argument_list ; [7, 6] - [7, 16]
+      (string_literal ; [7, 7] - [7, 15]
+        (string_content))))) ; [7, 8] - [7, 14]
+(expression_statement ; [8, 4] - [8, 18]
+  (call_expression ; [8, 4] - [8, 17]
+    function: (identifier) ; [8, 4] - [8, 7]
+    arguments: (argument_list ; [8, 7] - [8, 17]
+      (string_literal ; [8, 8] - [8, 16]
+        (string_content))))) ; [8, 9] - [8, 15]
+```
+
+Extrait de la commande `:Inspect` dans Neovim avec le curseur sur le `HEY`, qui nous montre que le serveur de langage (`clangd` ici), a réussi à préciser la notion de macro au-delà simple appel de fonction.
+```
+Semantic Tokens
+  - @lsp.type.macro.c links to PreProc   priority: 125
+  - @lsp.mod.globalScope.c links to @lsp   priority: 126
+  - @lsp.typemod.macro.globalScope.c links to @lsp   priority: 127
+```
+Ainsi dans Neovim une fois `clangd` lancé, l'appel de `HEY` prend ainsi la même couleur que celle attribuée sur sa définition.
+
+==== Choix final
+L'auteur a ignoré l'option du système de SublimeText. pour la simple raison qu'il n'est supporté nativement que dans SublimeText, probablement parce que cet IDE est propriétaire @SublimeHQEULA. Ce système utilisent des fichiers `.sublime-syntax`, qui ressemble à TextMate @SublimeHQSyntax mais rédigé en YAML.
+
+Si le temps le permet, une grammaire développée avec Tree-Sitter permettra de supporter du surglignage dans Neovim. Le choix de ne pas explorer plus les grammaires Textmate sur le long terme se justifie également par la roadmap de VSCode: entre mars et mai 2025 @TSVSCodeWorkStart @TSVSCodeWorkNow, du travail d'investigation a été fait pour explorer les grammaires existantes et l'usage de surlignage de code @ExploreTSVSCodeCodeHighlight. Des premiers efforts d'exploration avait d'ailleurs déjà eu lieu en septembre 2022 @EarlyTSVSCodeExp. L'usage du Semantic highlighting n'est pas au programme de ce travail mais pourra être explorer dans le futur si certains éléments sémantiques pourraient en bénéficier.
+
+==== POC de Tree-Sitter
+Ce POC vise à prouver que l'usage de Tree-Sitter fonctionne pour coloriser les préfixes et les flags de @exo-dy-ts-poc pour ne pas avoir cette affichage noir sur blanc qui ne facilite pas la lecture.
+#figure(
+```
+// Basic MCQ exo
+exo Introduction
+
+opt .multiple
+- C is an interpreted language
+- .ok C is a compiled language
+- C is mostly used for web applications
+```,
+  caption: [Un exemple de question choix multiple dans un fichier `mcq.dy`, décrite avec la syntaxe DY. Les préfixes sont `exo` (titre) et `opt` (options). Les flags sont `.ok` et `.multiple`.]
+) <exo-dy-ts-poc>
+
+Une fois la grammaire mise en place avec la commande `tree-sitter init`, il suffit de remplir le fichier `grammar.js`, avec une ensemble de régle construites via des fonctions fournies par Tree-Sitter et des expressions régulières.
+
+```js
+module.exports = grammar({
+  name: "dy",
+  rules: {
+    source_file: ($) => repeat($._line),
+    _line: ($) =>
+      seq( choice($.commented_line, $.prefixed_line, $.list_line, $.content_line), "\n"),
+    prefixed_line: ($) =>
+      seq($.prefix, optional(repeat($.property)), optional(seq(" ", $.content))),
+    commented_line: (_) => token(seq(/\/\/ /, /.+/)),
+    list_line: ($) => seq($.dash, repeat($.property), optional(" "), optional($.content)),
+    dash: (_) => token(prec(2, /- /)),
+    prefix: (_) => token(prec(1, choice("exo", "opt"))),
+    property: (_) => token(prec(3, seq(".", choice("multiple", "ok")))),
+    content_line: ($) => $.content,
+    content: (_) => token(prec(0, /.+/)),
+  },
+});
+```
+
+On observe dans cet exemple un fichier source, découpé en une répétition de ligne. Il y a 4 types de lignes qui sont chacunes décrites avec des plus petits morceaux. `seq` indique une liste de tokens qui viendront en séquence, `choice` permet de tester plusieurs options à la même position. On remarque également la liste des préfixes et flags insérés dans les tokens de `prefix` et `property`. La documentation *The Grammar DSL* de la documentation explique toutes les options possibles en détails @TreeSitterGrammarDSL.
+
+Après avoir appelé `tree-sitter generate` pour générer le code du parser C et `tree-sitter build` pour le compiler, on peut demander au CLI de parser un fichier donné et afficher le CST. Dans cet arbre qui démarre avec son noeud racine `source_file`, on y voit les noeuds du même type que les règles définies précédemment, avec le texte extrait dans la plage de charactères associée au noeud. Par exemple, on voit que l'option `C is a compiled language` a bien été extraite à la ligne 5, entre le byte 6 et 30 (`5:6  - 5:30`) en tant que `content`. Elle suit un token de `property` avec notre flag `.ok` et le tiret de la règle `dash`.
+
+#figure(
+  image("imgs/tree-sitter-cst.svg", width: 70%),
+  caption: [Concrete Syntax Tree généré par la grammaire définie sur le fichier `mcq.dy`],
+)
+
+La tokenisation fonctionne bien pour cette exemple, chaque élément est correctement découpé et catégorisé. Pour voir ce snippet en couleurs, il nous reste deux choses à définir. La première consiste en un fichier `queries/highlighting.scm` qui décrit des requêtes de surlignage sur l'arbre (highlights query) permettant de sélectionner des noeuds de l'arbre et leur attribuer un nom de surlignage (highlighting name). Ces noms ressembles à `@variable`, `@constant`, `@function`, `@keyword`, `@string` etc... et des versions plus spécifiques comme `@string.regexp`, `@string.special.path`. Ces noms sont ensuite utilisés par les thèmes pour appliquer un style.
+
+```scm
+> cat queries/highlights.scm
+(prefix) @keyword
+(commented_line) @comment
+(content) @string
+(property) @property
+(dash) @operator
+```
+
+Le CLI supporte directement la configuration d'un thème via son fichier de configuration, on reprend simplement chaque nom de surlignage en lui donnant une couleur.
+```json
+> cat ~/.config/tree-sitter/config.json
+{
+    "parser-directories": [ "/home/sam/code/tree-sitter-grammars" ],
+    "theme": {
+        "property": "#1bb588",
+        "operator": "#20a8c3",
+        "string": "#1f2328",
+        "keyword": "#20a8c3",
+        "comment": "#737a7e"
+    }
+}
+```
+
+#figure(
+  box(image("./imgs/mcq.svg"), width:50%),
+  caption: [Screenshot du résultat de la commande #linebreak() `tree-sitter highlight mcq.dy` avec notre exercice surligné]
+)
+
+L'auteur de ce travail s'est inspiré de l'article *How to write a tree-sitter grammar in an afternoon* (Ben Siraphob) @SirabenTreeSitterTuto pour ce POC.
+// todo comment citer ??
+Le résultat de ce POC est encourageant, même s'il faudra probablement plus que quelques heures pour gérer les détails, comprendre, tester et documenter l'intégration dans Neovim, cette partie nice to have a des chances de pouvoir être réalisée dans ce travail au vu du résultat atteint avec ce POC.
 
 #pagebreak()
 
