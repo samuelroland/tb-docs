@@ -63,4 +63,3 @@
 */
 #include "chapters/outils.typ"
 
-#include "chapters/journal-de-travail.typ"

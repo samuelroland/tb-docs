@@ -34,11 +34,6 @@
       columns: (50%, 50%),
       [*Étudiant*], [*#TBauthor*],
       [*Enseignant responsable*], [#TBsupervisor],
-      [*Entreprise mandante*], [
-        #TBindustryContact \
-        #TBindustryName \
-        #TBindustryAddress
-      ],
       [*Année académique*], [#TBacademicYears]
     )
   ])])

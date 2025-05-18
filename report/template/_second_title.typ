@@ -19,12 +19,12 @@
   v(1%)
   hr()
 
-  v(5%)
-  [
-    Nom de l’entreprise/institution\
-    #v(1%)
-    #TBindustryName
-  ]
+  // v(5%)
+  // [
+  //   Nom de l’entreprise/institution\
+  //   #v(1%)
+  //   #TBindustryName
+  // ]
 
   v(3%)
   
@@ -53,13 +53,13 @@
     [Enseignant responsable :], [Date et lieu :], [Signature :],
     [#TBsupervisor], [#hr_dotted()], [#hr_dotted()]
   )
-  v(2%)
-  table(
-    stroke: none,
-    columns: (40%, 30%, 30%),
-    row-gutter: 1em,
-    align: bottom,
-    [Nom de l’entreprise/institution :], [Date et lieu :], [Signature :],
-    [#TBindustryName], [#hr_dotted()], [#hr_dotted()]
-  )
+  // v(2%)
+  // table(
+  //   stroke: none,
+  //   columns: (40%, 30%, 30%),
+  //   row-gutter: 1em,
+  //   align: bottom,
+  //   [Nom de l’entreprise/institution :], [Date et lieu :], [Signature :],
+  //   [#TBindustryName], [#hr_dotted()], [#hr_dotted()]
+  // )
 }

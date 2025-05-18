@@ -65,8 +65,10 @@
       }
     },
     margin: (
-      top: 150pt,
-      bottom: 150pt,
+      top: 50pt,
+      bottom: 50pt,
+      left: 50pt,
+      right: 50pt,
       x: 1in
     )
   )
