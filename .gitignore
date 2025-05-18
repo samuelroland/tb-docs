@@ -3,3 +3,4 @@ target
 # Ignore non optimized svg !
 schemas/*.svg
 !schemas/*.opti.svg
+report/main.pdf
