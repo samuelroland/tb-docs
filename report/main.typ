@@ -10,8 +10,9 @@
 */
 #import "template/macros.typ": *
 
-#import "template/style.typ": TBStyle
+#import "template/style.typ": TBStyle, MyStyle, MyGlobalStyle
 #show: TBStyle.with(TBauthor, confidential)
+#show: MyGlobalStyle
 
 /*
  Title and template
@@ -24,6 +25,8 @@
 #import "template/_authentification.typ": *
 #_authentification(TBauthor)
 
+
+#show: MyStyle
 /*
  Cahier des charges
 */
@@ -54,6 +57,11 @@
 /*
  Tables
 */
+
+// todo corriger encore tous les soucis avec cette bibliographie
+#set text(size: 0.9em);
+TODO: cette bibliographie ne respecte pas encore tous les standards de la HEIG-VD, encore en rôdage avec Typst et le guide de la bibliothèque sur la norme ISO-690...
+
 #include "template/_bibliography.typ"
 #include "template/_figures.typ"
 #include "template/_tables.typ"

@@ -1,4 +1,5 @@
 #import "macros.typ": *
+#import "@local/syntastica:0.1.1": syntastica, languages, themes, theme-bg, theme-fg
 
 #let TBStyle(TBauthor, confidential, body) = {
   set heading(numbering: none)
@@ -74,13 +75,67 @@
   )
 
   // LaTeX look and feel :)
-  set text(font: "New Computer Modern")
-  show raw: set text(font: "New Computer Modern Mono")
+  // show raw: set text(font: "New Computer Modern Mono")
   show heading: set block(above: 1.4em, below: 1em)
   
   show heading.where(level:1): set text(size: 25pt)
 
   show link: underline
 
+
+  body
+}
+
+// My global style
+#let MyGlobalStyle(body) = {
+
+  // Lora font released under OFL 1.1
+  // to install https://www.fontsquirrel.com/fonts/lora
+  set text(font: "Lora")
+  show raw: text.with(size: 0.95em, font: "Fira Code")
+  body
+}
+
+// My additionnal styling after the page title
+#let MyStyle(body) = {
+
+
+  // Use "Snippet" instead of Liste -> Snippet 1, Snippet 2, ...
+  show figure.where(kind: raw): set figure(
+    supplement: "Snippet"
+  )
+
+  set par(justify: true)
+  show link: underline
+
+  // todo only for svg !
+  show image: box.with(
+    // fill: rgb(249, 251, 254),
+    inset: 10pt,
+    outset: (y: 3pt),
+    radius: 2pt,
+    stroke: 1pt + luma(200)
+  )
+
+  // Disable syntastica as it is slow
+  let syntastica-enabled = true
+  show raw: it => if syntastica-enabled { align(left)[#syntastica(it, theme: "catppuccin::latte")]} else { it }
+
+  // Display inline code in a small box that retains the correct baseline.
+  show raw.where(block: false): box.with(
+    fill: luma(240),
+    inset: (x: 3pt, y: 0pt),
+    outset: (y: 3pt),
+    radius: 2pt,
+  )
+
+
+  // Display block code in a larger block with more padding.
+  show raw.where(block: true): block.with(
+    // fill: rgb(249, 251, 254),
+    inset: 10pt,
+    radius: 2pt,
+    stroke: 1pt + luma(200)
+  )
   body
 }
