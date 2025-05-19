@@ -365,6 +365,7 @@ Cette communication permet de visualiser les échanges entre l'IDE et un serveur
 
 == Systèmes de surglignage de code
 Les IDEs modernes supportent possèdent des systèmes de surglignage de code (syntax highlighting en anglais) permettant de rendre le code plus lisible en colorisant les mots, charactères ou groupe de symboles de même type (séparateur, opérateur, mot clé du langage, variable, fonction, constante, ...). Ces systèmes se distinguent par leur possibilités d'intégration. Les thèmes intégrés aux IDE peuvent définir directement les couleurs pour chaque type de token. Pour un rendu web, une version HTML contenant des classes CSS spécifiques à chaque type de token peut être générée, permettant à des thèmes écrits en CSS de venir appliquer les couleurs. Les possibilités de génération pour le HTML pour le web implique parfois une génération dans le navigateur ou sur le serveur directement.
+// todo note surglignage syntaxique !
 
 Un système de surlignage est très différent d'un parseur. Même s'il traite du même langage, dans un cas, on cherche juste à découper le code en tokens et y définir un type de token. Ce qui s'apparente seulement à la premier étape du lexer/tokenizer généralement rencontré dans les parseurs.
 
@@ -372,7 +373,8 @@ Un système de surlignage est très différent d'un parseur. Même s'il traite d
 === Textmate
 Textmate est un IDE pour MacOS qui a inventé un système de grammaire Textmate. Elles permettent de décrire comment tokeniser le code basée sur des expressions régulières. Ces expressions régulières viennent de la librairie C Oniguruma @textmateRegex. VSCode utilise ces grammaires Textmate @vscodeSyntaxHighlighting. Intellij IDEA l'utilise également pour les langages non supportés par Intellij IDEA comme Swift, C++ et Perl @ideaSyntaxHighlighting.
 
-Exemple de grammaire Textmate permettant de décrire un language nommé `untitled` avec 4 mots clés et des chaines de charactères entre guillemets, ceci matché avec des expressions régulières. Tiré de leur documentation @TextMateDocsLanguageGrammars.
+Exemple de grammaire Textmate permettant de décrire un language nommé `untitled` avec 4 mots clés et des chaines de charactères entre guillemets, ceci matché avec des expressions régulières.
+#figure(
 ```
 {  scopeName = 'source.untitled';
    fileTypes = ( );
@@ -393,7 +395,7 @@ Exemple de grammaire Textmate permettant de décrire un language nommé `untitle
       },
    );
 }
-```
+``` , caption: [Exemple de grammaire Textmate tiré de leur documentation @TextMateDocsLanguageGrammars.])
 
 La documentation précise un choix important de conception: "A noter que ces regex sont matchées contre une seule ligne à la fois. Cela signifie qu'il n'est pas possible d'utiliser une pattern qui matche plusieurs lignes. La raison est technique: être capable de redémarrer le parseur à une ligne arbitraire et devoir reparser seulement un nombre minimal de lignes affectés par un changement. Dans la plupart des situations, il est possible d'utiliser le model `begin`/`end` pour dépasser cette limite." @TextMateDocsLanguageGrammars (Traduction personnelle, dernier paragraphe section 12.2).
 
@@ -422,7 +424,8 @@ Le surlignage sémantique est une extension du surlignage syntaxique. Les serveu
 
 En voyant la liste des tokens sémantiques possible dans la spécification LSP @LspSpecSemanticTokens, on comprend mieux l'intérêt et les possibilités de surlignage avancé. Par exemple, on trouve des tokens `macro`, `regexp`, `typeParameter`, `interface`,  `enum`, `enumMember`, qui seraient difficile de différencier durant la tokenisation mais qui peuvent être surligné différement pour mettre en avant leur différence sémantique.
 
-Sur cette exemple de C, surgligné ici uniquement grâce à Tree-Sitter, sans surlignage sémantique, on voit que les appels de `HEY` et `hi` dans le `main` ont les mêmes couleurs.
+Sur le @example-c-colors surgligné ici uniquement grâce à Tree-Sitter (sans surlignage sémantique) on voit que les appels de `HEY` et `hi` dans le `main` ont les mêmes couleurs alors que l'un est une macro, l'autre une fonction. En effet, à l'appel, il n'est pas possible de les différencier, ce n'est que le contexte plus large que seul le serveur de langage possède, qu'on peut déterminer cette différence.
+#figure(
 ```c
 #include <stdio.h>
 
@@ -435,10 +438,14 @@ int main(int argc, char *argv[]) {
     HEY("Samuel");
     return 0;
 }
-```
+```    ,
+    caption: [Exemple de code C `hello.c`, avec macro et fonction surligné de la même manière à l'appel]
+
+) <example-c-colors>
 
 #pagebreak()
-Via la commande `:InspectTree` dans Neovim qui permet d'afficher l'arbre généré par Tree-Sitter, on voit que les 2 lignes `hi` et `HEY` sont catégorisés sans surprise comme des fonctions (noeuds `function`, `arguments`, ...).
+Sur le @ts-tree-c-code, on voit que les 2 lignes `hi` et `HEY` sont catégorisés sans surprise comme des fonctions (noeuds `function`, `arguments`, ...).
+#figure(
 ```
 (expression_statement ; [7, 4] - [7, 17]
   (call_expression ; [7, 4] - [7, 16]
@@ -452,15 +459,20 @@ Via la commande `:InspectTree` dans Neovim qui permet d'afficher l'arbre génér
     arguments: (argument_list ; [8, 7] - [8, 17]
       (string_literal ; [8, 8] - [8, 16]
         (string_content))))) ; [8, 9] - [8, 15]
-```
+``` , caption: [Aperçu de l'arbre syntaxique concret généré par Tree-Sitter#linebreak()récupéré via `tree-sitter parse hello.c`]
+) <ts-tree-c-code>
 
 Extrait de la commande `:Inspect` dans Neovim avec le curseur sur le `HEY`, qui nous montre que le serveur de langage (`clangd` ici), a réussi à préciser la notion de macro au-delà simple appel de fonction.
+#figure(
 ```
 Semantic Tokens
   - @lsp.type.macro.c links to PreProc   priority: 125
   - @lsp.mod.globalScope.c links to @lsp   priority: 126
   - @lsp.typemod.macro.globalScope.c links to @lsp   priority: 127
-```
+```    ,
+    caption: []
+
+)
 Ainsi dans Neovim une fois `clangd` lancé, l'appel de `HEY` prend ainsi la même couleur que celle attribuée sur sa définition.
 
 === Choix final
@@ -483,8 +495,9 @@ opt .multiple
   caption: [Un exemple de question choix multiple dans un fichier `mcq.dy`, décrite avec la syntaxe DY. Les préfixes sont `exo` (titre) et `opt` (options). Les flags sont `.ok` et `.multiple`.]
 ) <exo-dy-ts-poc>
 
-Une fois la grammaire mise en place avec la commande `tree-sitter init`, il suffit de remplir le fichier `grammar.js`, avec une ensemble de régle construites via des fonctions fournies par Tree-Sitter et des expressions régulières.
+Une fois la grammaire mise en place avec la commande `tree-sitter init`, il suffit de remplir le fichier `grammar.js`, avec une ensemble de régle construites via des fonctions fournies par Tree-Sitter et des expressions régulières. `seq` indique une liste de tokens qui viendront en séquence, `choice` permet de tester plusieurs options à la même position. On remarque également la liste des préfixes et flags insérés dans les tokens de `prefix` et `property`. La documentation *The Grammar DSL* de la documentation explique toutes les options possibles en détails @TreeSitterGrammarDSL.
 
+#figure(
 ```js
 module.exports = grammar({
   name: "dy",
@@ -495,7 +508,8 @@ module.exports = grammar({
     prefixed_line: ($) =>
       seq($.prefix, optional(repeat($.property)), optional(seq(" ", $.content))),
     commented_line: (_) => token(seq(/\/\/ /, /.+/)),
-    list_line: ($) => seq($.dash, repeat($.property), optional(" "), optional($.content)),
+    list_line: ($) =>
+      seq($.dash, repeat($.property), optional(" "), optional($.content)),
     dash: (_) => token(prec(2, /- /)),
     prefix: (_) => token(prec(1, choice("exo", "opt"))),
     property: (_) => token(prec(3, seq(".", choice("multiple", "ok")))),
@@ -503,9 +517,15 @@ module.exports = grammar({
     content: (_) => token(prec(0, /.+/)),
   },
 });
-```
+``` , caption: [Résultat de la grammaire minimaliste `grammar.js`, définissant un ensemble de règles sous `rules`.]
+) <grammar-js-poc>
 
-On observe dans cet exemple un fichier source, découpé en une répétition de ligne. Il y a 4 types de lignes qui sont chacunes décrites avec des plus petits morceaux. `seq` indique une liste de tokens qui viendront en séquence, `choice` permet de tester plusieurs options à la même position. On remarque également la liste des préfixes et flags insérés dans les tokens de `prefix` et `property`. La documentation *The Grammar DSL* de la documentation explique toutes les options possibles en détails @TreeSitterGrammarDSL.
+On observe dans le @grammar-js-poc plusieurs règles: 
+- `source_file`: décrit le point d'entrée d'un fichier source, défini comme une répétition de ligne.
+- `_line`: une ligne est une séquence d'un choix entre 4 types de lignes qui sont chacunes décrites en dessous et une retour à la ligne
+- `prefixed_line`: une ligne préfixée consiste en séquence de token composé d'un préfix, puis optionnellement d'un ou plusieurs propriétés. Elle se termine optionnellement par un contenu qui commence après un premier espace
+- `commented_line` définit les commentaires comme `//` puis un reste
+- `list_line`, `dash` et le reste des règles suivent la même logique de définition
 
 Après avoir appelé `tree-sitter generate` pour générer le code du parser C et `tree-sitter build` pour le compiler, on peut demander au CLI de parser un fichier donné et afficher le CST. Dans cet arbre qui démarre avec son noeud racine `source_file`, on y voit les noeuds du même type que les règles définies précédemment, avec le texte extrait dans la plage de charactères associée au noeud. Par exemple, on voit que l'option `C is a compiled language` a bien été extraite à la ligne 5, entre le byte 6 et 30 (`5:6  - 5:30`) en tant que `content`. Elle suit un token de `property` avec notre flag `.ok` et le tiret de la règle `dash`.
 
@@ -516,18 +536,18 @@ Après avoir appelé `tree-sitter generate` pour générer le code du parser C e
 
 La tokenisation fonctionne bien pour cette exemple, chaque élément est correctement découpé et catégorisé. Pour voir ce snippet en couleurs, il nous reste deux choses à définir. La première consiste en un fichier `queries/highlighting.scm` qui décrit des requêtes de surlignage sur l'arbre (highlights query) permettant de sélectionner des noeuds de l'arbre et leur attribuer un nom de surlignage (highlighting name). Ces noms ressembles à `@variable`, `@constant`, `@function`, `@keyword`, `@string` etc... et des versions plus spécifiques comme `@string.regexp`, `@string.special.path`. Ces noms sont ensuite utilisés par les thèmes pour appliquer un style.
 
+#figure(
 ```scm
-> cat queries/highlights.scm
 (prefix) @keyword
 (commented_line) @comment
 (content) @string
 (property) @property
 (dash) @operator
-```
+``` , caption: [Aperçu du fichier `queries/highlights.scm`])
 
 Le CLI supporte directement la configuration d'un thème via son fichier de configuration, on reprend simplement chaque nom de surlignage en lui donnant une couleur.
+#figure(
 ```json
-> cat ~/.config/tree-sitter/config.json
 {
     "parser-directories": [ "/home/sam/code/tree-sitter-grammars" ],
     "theme": {
@@ -538,7 +558,7 @@ Le CLI supporte directement la configuration d'un thème via son fichier de conf
         "comment": "#737a7e"
     }
 }
-```
+```, caption: [Contenu du fichier de configuration de Tree-Sitter#linebreak()présent sur Linux au chemin `~/.config/tree-sitter/config.json`])
 
 #figure(
   box(image("../imgs/mcq.svg"), width:50%),
@@ -558,7 +578,8 @@ Le serveur de gestion de sessions live a besoin d'un système de communication b
 Contrairement à toutes les critiques relevées précédemment sur le JSON et d'autres formats, dans leur usage en tant que format source, JSON est une option solide pour la communication entre clients-serveurs. Le format JSON est très populaire pour les APIs REST, les fichiers de configuration, et d'autres usages.
 // todo okay ces affirmations ? pas besoin de présenter plus ?
 
-En Rust, avec `serde_json`, il est plutôt facile de parser du JSON dans une `struct`. Exemple simplifié tiré de leur documentation @DocsRSSerdeJson. Une fois la macro `Deserialize` appliquée, on peut directement appeler `serde_json::from_str(json_data)`.
+En Rust, avec `serde_json`, il est plutôt facile de parser du JSON dans une `struct`. Une fois la macro `Deserialize` appliquée, on peut directement appeler `serde_json::from_str(json_data)`.
+#figure(
 ```rust
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
@@ -577,9 +598,9 @@ let data = r#" {
     }"#;
 let p: Person = serde_json::from_str(data).unwrap();
 println!("Please call {} at the number {}", p.name, p.phones[0]);
-```
+```, caption: [Exemple simplifié de parsing de JSON, tiré de leur documentation @DocsRSSerdeJson.])
 
-Autre exemple pour montrer qu'il est facile de générer un objet JSON de structure quelconque. Egalement tiré de leur documentation @DocsRSSerdeJsonConJsonVal.
+#figure(
 ```rust
 use serde_json::json;
 
@@ -594,11 +615,15 @@ fn main() {
     println!("{}", john.to_string());
 }
 ```
+    ,
+    caption: [Autre exemple de sérialisation vers JSON d'une structure arbitraire.#linebreak()Egalement tiré de leur documentation @DocsRSSerdeJsonConJsonVal.]
+
+)
 
 === Protocol Buffers - ProtoBuf
 Parmi les formats binaires, on trouve ProtoBuf, un format développé par Google pour sérialiser des données structurées, de manière compacte, rapide et simple. L'idée est de définir un schéma dans un style non spécifique à un langage de programmation, puis de génération automatiquement du code pour interagir avec ces structures depuis du C++, Java, Go, Ruby, C\# et d'autres. @ProtobufWebsite
 
-Un simple exemple de description d'une personne en ProtoBuf tiré de leur site web @ProtobufWebsite.
+#figure(
 ```proto
 edition = "2023";
 
@@ -607,9 +632,10 @@ message Person {
   int32 id = 2;
   string email = 3;
 }
-```
+```, caption: [Un simple exemple de description d'une personne en ProtoBuf#linebreak()tiré de leur site web @ProtobufWebsite.])
 
-Et son usage en Java avec les classes autogénérées à la compilation, exemple tiré de leur site web @ProtobufWebsite.
+
+#figure(
 ```java
 Person john = Person.newBuilder()
     .setId(1234)
@@ -618,7 +644,7 @@ Person john = Person.newBuilder()
     .build();
 output = new FileOutputStream(args[0]);
 john.writeTo(output);
-```
+``` , caption: [Et son usage en Java avec les classes autogénérées à la compilation#linebreak()tiré de leur site web @ProtobufWebsite.])
 
 Le langage Rust n'est pas officiellement supporté mais un projet du nom de PROST! existe @ProstGithub et permet de générer du code Rust depuis des fichiers Protobuf.
 
@@ -794,6 +820,7 @@ Teacher connected, saved associated socket.
 ``` , caption: [`teacher` est bien connecté au serveur])
 
 Dans S3, on lance finalement le rôle de l'étudiant:
+#figure(
 ```
 websockets-json> cargo run -q student
 Starting student process...
@@ -802,8 +829,12 @@ Starting to send check's result every 2000 ms
 Sending another check result
 {"path":"fake-exo/src/main.rs","status":{"IncorrectOutput":{"stdout":"Hello, world!\n"}},"code":"// Just print \"Hello <name> !\" where <name> comes from argument 1\nfn main() {\n    println!(\"Hello, world!\");\n}\n"}
 ```
+    ,
+    caption: [Le processus `student` compile et execute le check, afin d'envoyer le résultat, ici du type `IncorrectOutput`.]
 
-On y voit le message envoyé contient le résultat du check après compilation et exécution.
+)
+
+Le @check-result-details nous montre le détails de ce message.
 #figure(
 ```json
 {
@@ -818,7 +849,7 @@ On y voit le message envoyé contient le résultat du check après compilation e
 ```
     ,
     caption: [Le message envoyé avec un chemin de fichier, le code et le statut. Le statut est une enum définie à "output incorrect", puisque l'exercice n'est pas encore implémenté.]
-)
+) <check-result-details>
 
 Le serveur sur le S1, on ne voit que le `Forwarded one message to teacher`. Sur le S2, on voit immédiatement ceci:
 #figure(
