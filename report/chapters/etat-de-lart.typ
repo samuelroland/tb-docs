@@ -95,7 +95,12 @@ La partie quizzes du standard inclut des textes à trous, des questions à choix
 )
 Open Taskpool, projet qui met à disposition des exercices d'apprentissage de langues @openTaskpoolIntro, fournit une API JSON utilisant le Bitmark JSON data model.
 
-Demander à Open Taskpool des exercices d'allemand vers anglais autour du mot `school` de format `cloze` (texte à trou), se fait avec cette simple requête: `https://taskpool.taskbase.com/exercises?translationPair=de->en&word=school&exerciseType=bitmark.cloze`.
+#figure(
+text(size: 0.8em)[
+```sh
+curl "https://taskpool.taskbase.com/exercises?translationPair=de->en&word=school&exerciseType=bitmark.cloze"
+```
+] , caption: [Requête HTTP à Open Taskpool pour demander des exercices d'allemand vers anglais autour du mot `school` de format `cloze` (texte à trou)])
 
 #figure(
 ```json
@@ -462,23 +467,27 @@ Sur le @ts-tree-c-code, on voit que les 2 lignes `hi` et `HEY` sont catégorisé
 ``` , caption: [Aperçu de l'arbre syntaxique concret généré par Tree-Sitter#linebreak()récupéré via `tree-sitter parse hello.c`]
 ) <ts-tree-c-code>
 
-Extrait de la commande `:Inspect` dans Neovim avec le curseur sur le `HEY`, qui nous montre que le serveur de langage (`clangd` ici), a réussi à préciser la notion de macro au-delà simple appel de fonction.
+Si on inspecte l'état de l'éditeur, on peut voir qu'au dela des tokens générés par Tree-Sitter, le serveur de langage (`clangd` ici), a réussi à préciser la notion de macro au-delà du simple appel de fonction.
 #figure(
 ```
 Semantic Tokens
   - @lsp.type.macro.c links to PreProc   priority: 125
   - @lsp.mod.globalScope.c links to @lsp   priority: 126
   - @lsp.typemod.macro.globalScope.c links to @lsp   priority: 127
-```    ,
-    caption: []
+```, caption: [Extrait de la commande `:Inspect` dans Neovim avec le curseur sur le `HEY`])
 
-)
 Ainsi dans Neovim une fois `clangd` lancé, l'appel de `HEY` prend ainsi la même couleur que celle attribuée sur sa définition.
 
 === Choix final
 L'auteur a ignoré l'option du système de SublimeText. pour la simple raison qu'il n'est supporté nativement que dans SublimeText, probablement parce que cet IDE est propriétaire @SublimeHQEULA. Ce système utilisent des fichiers `.sublime-syntax`, qui ressemble à TextMate @SublimeHQSyntax mais rédigé en YAML.
 
-Si le temps le permet, une grammaire développée avec Tree-Sitter permettra de supporter du surglignage dans Neovim. Le choix de ne pas explorer plus les grammaires Textmate sur le long terme se justifie également par la roadmap de VSCode: entre mars et mai 2025 @TSVSCodeWorkStart @TSVSCodeWorkNow, du travail d'investigation a été fait pour explorer les grammaires existantes et l'usage de surlignage de code @ExploreTSVSCodeCodeHighlight. Des premiers efforts d'exploration avait d'ailleurs déjà eu lieu en septembre 2022 @EarlyTSVSCodeExp. L'usage du Semantic highlighting n'est pas au programme de ce travail mais pourra être explorer dans le futur si certains éléments sémantiques pourraient en bénéficier.
+*Si le temps le permet, une grammaire sera développée avec Tree-Sitter pour supporter du surglignage dans Neovim.*
+
+Le choix de ne pas explorer plus les grammaires Textmate, laisse penser que l'auteur du travail délaisse complètement VSCode. Ce qui parait étonnant comme VSCode est régulièrement utilisé par 73% des 65,437 répondants au sondage de StackOverflow 2024 @StackoverflowSurveyIDE.
+
+Cette décision se justifie notamment par la roadmap de VSCode: entre mars et mai 2025 @TSVSCodeWorkStart @TSVSCodeWorkNow, du travail d'investigation autour de Tree-Sitter a été fait pour explorer les grammaires existantes et l'usage de surlignage de code dans VSCode @ExploreTSVSCodeCodeHighlight. Des premiers efforts d'exploration avait d'ailleurs déjà eu lieu en septembre 2022 @EarlyTSVSCodeExp.
+
+L'usage du Semantic highlighting n'est pas au programme de ce travail mais pourra être exploré dans le futur si certains éléments sémantiques pourraient en bénéficier.
 
 === POC de Tree-Sitter
 Ce POC vise à prouver que l'usage de Tree-Sitter fonctionne pour coloriser les préfixes et les flags de @exo-dy-ts-poc pour ne pas avoir cette affichage noir sur blanc qui ne facilite pas la lecture.
@@ -568,6 +577,13 @@ Le CLI supporte directement la configuration d'un thème via son fichier de conf
 L'auteur de ce travail s'est inspiré de l'article *How to write a tree-sitter grammar in an afternoon* (Ben Siraphob) @SirabenTreeSitterTuto pour ce POC.
 // todo comment citer ??
 Le résultat de ce POC est encourageant, même s'il faudra probablement plus que quelques heures pour gérer les détails, comprendre, tester et documenter l'intégration dans Neovim, cette partie nice to have a des chances de pouvoir être réalisée dans ce travail au vu du résultat atteint avec ce POC.
+
+Le semantic highlighting pourrait être utile en attendant l'intégration de Tree-Sitter dans VSCode. L'extension `tree-sitter-vscode` en fait déjà une intégration avec cette approche, qui est beaucoup plus lente qu'une intégration native mais qui fonctionne. A noter que l'extension n'est pas triviale à installer et configurer, qu'on peut considérer son usage encore expérimental. Elle nécessite d'avoir un build WASM de notre parser Tree-Sitter @TreeSitterVscodeGithub.
+
+#figure(
+  image("../imgs/tree-sitter-vscode-ext-demo.png", width: 60%),
+  caption: [Screenshot dans VSCode une fois l'extension `tree-sitter-vscode` configuré, le surlignage est fait via notre syntaxe Tree-Sitter via ],
+) <fig-tree-sitter-vscode-ext-demo>
 
 #pagebreak()
 
