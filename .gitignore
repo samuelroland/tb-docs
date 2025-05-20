@@ -1,6 +1,8 @@
 target
 
 # Ignore non optimized svg !
-schemas/*.svg
-!schemas/*.opti.svg
+report/schemas/*.svg
+!report/schemas/*.opti.svg
+
+# Ignore default PDF name
 report/main.pdf

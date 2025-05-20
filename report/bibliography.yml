@@ -691,3 +691,10 @@ CodebergZiglings:
   date: 2025
   title: "ziglings/exercises: Learn the ⚡Zig programming language by fixing tiny broken programs. - Codeberg.org"
   author: Contributeurs de ziglings
+
+JonasloosBibtexToHayagrivaWebapp:
+  type: Web
+  url: https://jonasloos.github.io/bibtex-to-hayagriva-webapp/
+  date: 2025
+  title: BibTeX to Hayagriva
+  author: jonasloos
