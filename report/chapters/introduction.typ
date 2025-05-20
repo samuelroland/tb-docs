@@ -76,13 +76,6 @@ Chaque projet se concentre sur un language et créer des exercices dédiés. PLX
 
 // todo solution existantes de review en live de code
 
-== Déroulement <déroulement>
-Le travail commence le 17 février 2025 et se termine le 24 juillet 2025. Sur les 16 premières semaines, soit du 17 février 2025 au 15 juin 2025, la charge de travail représente 12h par semaine. Les 6 dernières semaines, soit du 16 juin 2025 au 24 juillet 2024, ce travail sera réalisé à plein temps.
-
-Un rendu intermédiaire noté est demandé le 23 mai 2025 avant 17h et le rendu final est prévu pour le 24 juillet 2025 avant 17h.
-
-La défense sera organisée entre le 25 août 2025 et le 12 septembre 2025.
-
 // todo move that somewhere useful
 == Glossaire
 - `Cargo.toml`, fichier dans un projet Rust définit les dépendances (les crates) et leur versions minimum à inclure dans le projet, équivalent du `package.json` de NPM
