@@ -3,12 +3,15 @@
 == Contexte
 Ce travail de Bachelor vise à développer le projet PLX (voir #link("https://plx.rs")[plx.rs], Terminal User Interface (TUI) écrite en Rust, permettant de faciliter la pratique intense sur des exercices de programmation en retirant un maximum de friction. PLX vise également à apporter le plus vite possible un feedback automatique et riche, dans le but d'appliquer les principes de la pratique délibérée à l'informatique. PLX peut à terme aider de nombreux cours à la HEIG-VD (tels que PRG1, PRG2, PCO, SYE, ...) à passer de long moments de théorie en session d'entrainement dynamique et très interactive. En réfinissant l'expérience des étudiants et des enseignants sur les exercices et laboratoires, l'ambition est qu'à terme, cela génère un apprentissage plus profond de modèles mentaux solides chez les étudiants. Cela aidera les étudiants qui ont beaucoup de peine à s'approprier la programmation à avoir moins de difficultés avec ces cours. Et ceux qui sont plus à l'aise pourront développer des compétences encore plus avancées.
 
+// todo mentionner la pratique délibérée et le bouquin Peak
+// todo yatil des études scientifiques dans l'état de l'art à mentionner ? peut-être qui soutient les défaut du YAML ou d'autres formats ?
+
 == Problème
 
 Le projet est inspiré de Rustlings (TUI pour apprendre le Rust), permettant de s'habituer aux erreurs du compilateur Rust et de prendre en main la syntaxe @RustlingsWebsite. PLX fournit actuellement une expérience locale similaire pour le C et C++. Les étudiants clonent un repos Git et travaillent localement sur des exercices afin de faire passer des checks automatisés. À chaque sauvegarde, le programme est compilé et les checks sont lancés. Cependant, faire passer les checks n'est que la 1ère étape. Faire du code qualitatif, modulaire, lisible et performant demande des retours humains pour pouvoir progresser. De plus, les exercices existants étant stockés dans des PDF ou des fichiers Markdown, cela nécessite de les migrer à PLX.
 
 #figure(
-  image("../imgs/plx-preview-home.png", width: 100%),
+  image("../imgs/plx-preview-home.png", width: 80%),
   caption: [Aperçu de la page d'accueil de PLX dans le terminal @PlxDocsStatus],
 ) <fig-plx-preview-home>
 
@@ -19,9 +22,18 @@ Le projet est inspiré de Rustlings (TUI pour apprendre le Rust), permettant de 
 
 == Défis
 
+=== Comment les enseignants peuvent voir les résultats en temps réel ?
 Ce TB aimerait pousser l'expérience en classe plus loin pour permettre aux étudiants de recevoir des feedbacks sur leur réponse en live, sur des sessions hautement interactives. Cela aide aussi les enseignants à mesurer l'état de compréhension et les compétences des étudiants tout au long du semestre, et à adapter leur cours en fonction des incompréhensions et des lacunes.
 
-Pour faciliter l'adoption de ces outils et la rapidité de création/transcription d'exercices, on souhaiterait avoir une syntaxe épurée, humainement lisible et éditable, facilement versionnable dans Git. Pour cette raison, nous introduisons une nouvelle syntaxe appelée DY. Elle sera adaptée pour PLX afin de remplacer le format TOML actuel.
+#figure(
+  image("../schemas/high-level-arch.opti.svg", width:100%),
+  caption: [Architecture haut niveau décrivant les interactions entre les clients PLX et le serveur de session live],
+) <high-level-arch>
+
+Une fois une session live démarrée par un enseignant et les étudiants ayant rejoint la session, l'enseignant peut choisir de faire un exercice l'un après l'autre en définissant son propre rythme. L'exercice en cours est affichés sur tous les clients PLX. A chaque sauvegarde d'un fichier de code, le code est compilé et les checks sont lancés comme en dehors d'une session live. La différence est que les résultats des checks et le code modifié sera envoyé à l'enseignant de la session, pour qu'il puisse directement dans PLX. L'enseignant pourra ainsi avoir un aperçu global de l'avancement et des checks qui ne passent pas, d'aller inspecter le code de certaines soumissions et au final de faire des feedbacks à la classe en live ou à la fin de l'exercice.
+
+=== Comment faciliter la rédaction et la maintenance des exercices ?
+Pour faciliter la productivité dans la rédaction et maintenance d'exercices ainsi que leur première transcription, on souhaiterait avoir une syntaxe épurée, humainement lisible et éditable, facilement versionnable dans Git. Pour cette raison, nous introduisons une nouvelle syntaxe appelée DY. Elle sera adaptée pour PLX afin de remplacer le format TOML actuel.
 
 Voyons maintenant un exemple concret d'exercice de programmation, très inspiré d'un laboratoire du cours Système d'exploitation (SYE) à la HEIG-VD.
 
@@ -31,7 +43,13 @@ Cet exercice en @exemple-dy-md-start est adapté à l'affichage et l'export PDF 
 
 Nous avons besoin d'une syntaxe qui permet de décrire le démarrage du shell, ce que l'étudiant tape à la main dans son terminal, la vérification des outputs à différement endroits et finalement la terminaison du shell.
 
-Voyons maintenant à quoi pourrait ressembler cette syntaxe pour décrire le même exercice de manière structurée.
+L'option la plus rapide et facile à ce problème serait de rédiger en format JSON.
+
+#figure(raw(block: true, lang: "json", read("../schemas/plx-dy-all.json")), caption: [Equivalent JSON de l'exercice défini sur le @exemple-dy-md-start]) <exemple-dy-json>
+
+Dans cet équivalent JSON, on voit bien que rédiger du contenu Markdown ou l'output sur plusieurs lignes en remplaçant les retours à la ligne `\n` à la main est fastidieux et complique la lisibilité, en plus de tous les guillements, deux points et accolades nécessaires au-delà du texte.
+
+Voyons maintenant à quoi pourrait ressembler cette nouvelle syntaxe DY beaucoup plus légère pour l'exercice précédent:
 
 #figure(
   image("../schemas/plx-dy-all.svg", width:80%),
@@ -40,13 +58,15 @@ Voyons maintenant à quoi pourrait ressembler cette syntaxe pour décrire le mê
 
 // Dans le @exemple-dy, on définit un exercice de programmation avec un petit programme qui doit dire bonjour à l'utilisateur, en lui demandant son prénom puis son nom. Elle contient 2 checks (vérifications automatiques) pour vérifier le comportement attendu. Le premier check décrit une situation de succès et le deuxième décrit une situation d'erreur.
 
-Ce système de préfixe (en bleu du début des lignes) et de propriétés (après un point, définissant des propriétés supplémentaire) permet de structurer le contenu de l'exercice tout en gardant un style de rédaction proche du Markdown. 
+Ce système de préfixe (en bleu du début des lignes) et de propriétés (après un point) permet de structurer le contenu de l'exercice tout en gardant un style de rédaction proche du Markdown.
+
+// todo les variantes de DY ??
 
 Le préfixe `exo` introduit un exercice, avec un titre sur la même ligne et le reste de la consigne en Markdown sur les lignes suivantes. `check` introduit le début d'un check avec un titre, en Markdown également. `run` donne la commande de démarrage du programme. Le préfixe `skip` avec la propriété `.until` permet de cacher toutes les lignes d'output jusqu'à voir la ligne donnée. `see` demande à voir une ou plusieurs ligne en sortie standard. `type` simule une entrée au clavier et finalement `kill` indique comment arrêter le programme, ici en envoyant le `.signal` `9` sur le processus `qemu-system-arm` (qui a été lancé par notre script `./st`).
 
-Cette deuxième partie demande ainsi d'écrire un parseur de cette nouvelle syntaxe et un support des différents IDE.
+ Les fins de ligne définissent la fin du contenu pour les préfixes sur une seul ligne. Le préfixe `exo` supporte plusieurs ligne, son contenu se termine ainsi dès qu'un autre préfixe valide est détecté (ici `check`). La hiéarchie est implicite dans la sémantique, un exercice contient un ou plusieurs checks, sans qu'il y ait besoin d'indentation ou d'accolades pour indiquer les relations de parents et enfants. De même, un check contient une séquence d'action à effectuer (`run`, `see`, `type` et `kill`), ces préfixes n'ont de sens qu'à l'intérieur la définition d'un check (que après une ligne préfixée par `check`).
 
-Voici un aperçu de l'expérience imaginée durant la rédaction de cette syntaxe.
+Cette deuxième partie demande ainsi d'écrire un parseur de cette nouvelle syntaxe et un support des différents IDE. Voici un aperçu de l'expérience imaginée des enseigants pour la rédaction des exercices dans cette syntaxe.
 
 #figure(
   image("../schemas/ide-experience-mental-model.png", width:100%),
