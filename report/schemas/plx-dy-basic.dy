@@ -1,0 +1,15 @@
+exo Just greet me
+
+check Can enter the full name and be greeted
+see What is your firstname ?
+type John
+see Hello John, what's your lastname ?
+type Doe
+see Have a nice day John Doe !
+exit 0
+
+check Stops if the name contains number
+see What is your firstname ?
+type Alice23
+see Firstname cannot contain digits.
+exit 1

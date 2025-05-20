@@ -1,0 +1,27 @@
+exo Pipe implementation in our custom shell
+A pipe in system programming is a way to forward the standard output
+of a program to the standard input of another one.
+
+When running this command in our custom shell using this symbol `|`,
+we want the output of `echo` to be used as the input of `toupper`
+which is just going to print the text in uppercase.
+```sh
+echo hello | toupper
+```
+
+check Output sent through a pipe reaches `toupper`
+run ./st
+skip .until SO3: starting the initial process (shell)
+see .timeout 2s so3%
+type echo hello | toupper
+see HELLO
+see so3%
+type ls | toupper
+see
+CAT.ELF
+ECHO.ELF
+LN.ELF
+LS.ELF
+SH.ELF
+see so3%
+kill .signal 9 qemu-system-arm
