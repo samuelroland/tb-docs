@@ -8,7 +8,8 @@
   show heading.where(
     level: 1
   ): it => [
-    #pagebreak(weak: true, to: "odd")
+    #pagebreak(weak: true)
+    // #pagebreak(weak: true, to: "odd")
     #v(2.5em)
     #it
     \
@@ -96,7 +97,7 @@
   body
 }
 
-// My additionnal styling after the page title
+// My additionnal styling starting at etat de l'art
 #let MyStyle(body) = {
 
 
@@ -104,6 +105,7 @@
   show figure.where(kind: raw): set figure(
     supplement: "Snippet"
   )
+  // todo extend that to image in SVG, considered as snippet also
 
   set par(justify: true)
   show link: underline

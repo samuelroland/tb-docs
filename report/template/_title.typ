@@ -18,13 +18,16 @@
   v(1%)
   align(center, [#text(size: 16pt, [#TBsubtitle])])
 
-  v(8%)
+  v(10%)
+  align(center)[#image("../imgs/plx-logo.svg", width: 40%)]
+  // todo faut il citer le logo fait en PDG ?
+  v(10%)
   if confidential{
     align(center, [#text(size: 14pt, [*Confidentiel*])])
+    v(8%)
   }else{
     v(14pt)
   }
-  v(8%)
 
   align(left, [#block(width: 70%, [
     #table(
