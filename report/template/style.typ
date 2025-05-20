@@ -39,22 +39,12 @@
     paper: "a4",
     numbering: "1",
     header: context{
-      if not isfirsttwopages(page){
-        if isevenpage(page){
-          columns(2, [
-            #align(left)[#smallcaps([#currentH()])]
-            #colbreak()
-            #align(right)[#confidentialText]
-          ])
-        } else {
-          columns(2, [
-            #align(left)[#confidentialText]
-            #colbreak()
-            #align(right)[#TBauthor]
-          ])
-        }
-        hr()
-      }
+      columns(2, [
+        #align(left)[#smallcaps([#currentH()])]
+        #colbreak()
+        #align(right)[#TBauthor]
+      ])
+      hr()
     },
     footer: context{
       if not isfirsttwopages(page){
@@ -111,13 +101,13 @@
   show link: underline
 
   // todo only for svg !
-  show image: box.with(
-    // fill: rgb(249, 251, 254),
-    inset: 10pt,
-    outset: (y: 3pt),
-    radius: 2pt,
-    stroke: 1pt + luma(200)
-  )
+  // show image: box.with(
+  //   // fill: rgb(249, 251, 254),
+  //   inset: 10pt,
+  //   outset: (y: 3pt),
+  //   radius: 2pt,
+  //   stroke: 1pt + luma(200)
+  // )
 
   // Disable syntastica as it is slow
   let syntastica-enabled = true
