@@ -650,3 +650,44 @@ TreeSitterVscodeGithub:
   title: "GitHub - AlecGhost/tree-sitter-vscode: Bring the power of Tree-sitter to VSCode"
   author: AlecGhost et contributeurs
 
+PlxDocsStatus:
+  type: Web
+  url: https://plx.rs/book/status.html
+  date: 2025
+  title: Project status - PLX docs
+  author: Contributeurs de PLX
+
+RustlingsWebsite:
+  type: Web
+  url: https://rustlings.rust-lang.org/
+  date: 2025
+  title: rustlings
+  author: Contributeurs de rustlings
+
+ClingsGithub:
+  type: Web
+  url: https://github.com/danwritecode/clings
+  date: 2025
+  title: "GitHub - danwritecode/clings: rustlings for C....clings"
+  author: Dan et contributeurs
+
+HaskellingsGithub:
+  type: Web
+  url: https://github.com/MondayMorningHaskell/haskellings
+  date: 2025
+  title: "GitHub - MondayMorningHaskell/haskellings: An automated tutorial to teach you about Haskell!"
+  author: MondayMorningHaskell et contributeurs
+
+GolingsGithub:
+  type: Web
+  url: https://github.com/mauricioabreu/golings
+  date: 2025
+  title: GitHub - mauricioabreu/golings":" rustlings but for golang this time
+  author: mauricioabreu organisation et contributeurs
+
+CodebergZiglings:
+  type: Web
+  url: https://codeberg.org/ziglings/exercises
+  date: 2025
+  title: "ziglings/exercises: Learn the ⚡Zig programming language by fixing tiny broken programs. - Codeberg.org"
+  author: Contributeurs de ziglings
