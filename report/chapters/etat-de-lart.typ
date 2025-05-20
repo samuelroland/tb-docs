@@ -224,11 +224,12 @@ Après quelques recherches avec le tag `parser` sur crates.io @cratesIoParserTag
 - `combine` @combineCratesio
 - `chumsky` @chumskyCratesio
 
+// todo ajouter la mention de quel parseur pour 2-3 autres syntaxes du dessus
 
 A noter aussi l'existance de la crate `serde`, un framework de sérialisation et desérialisation très populaire dans l'écosystème Rust (selon lib.rs @librsMostPopular). Il est notamment utilisé pour les parseurs JSON et TOML. Ce n'est pas une librairie de parsing mais un modèle de donnée basée sur les traits de Rust pour faciliter son travail. Au vu du modèle de données de Serde @serdersDatamodel, qui supporte 29 types de données, ce projet paraît à l'auteur apporter plus de complexités qu'autre chose pour trois raisons:
 - Seulement les strings, listes et structs sont utiles pour PLX. Par exemple, les 12 types de nombres sont inutiles à différencier et seront propre au besoin de la variante.
 - La sérialisation (struct Rust vers syntaxe DY) n'est pas prévue, seulement la desérialisation est utile.
-- Le mappage des préfixes et flags par rapport aux attributs des structs Rust qui seront générées, n'est pas du 1:1, cela dépendra de la structure définie pour la variante de PLX.
+- Le mappage des préfixes et propriétés par rapport aux attributs des structs Rust qui seront générées, n'est pas du 1:1, cela dépendra de la structure définie pour la variante de PLX.
 
 Après ces recherches et quelques essais avec `winnow`, l'auteur a finalement décidé qu'utiliser une librairie était trop compliqué pour le projet et que l'écriture manuelle d'un parseur ferait mieux l'affaire. La syntaxe DY est relativement petite à parser, et sa structure légère et souvent implicite rend compliqué l'usage de librairies pensées pour des langages de programmation très structuré.
 
@@ -479,7 +480,7 @@ Cette décision se justifie notamment par la roadmap de VSCode: entre mars et ma
 L'usage du Semantic highlighting n'est pas au programme de ce travail mais pourra être exploré dans le futur si certains éléments sémantiques pourraient en bénéficier.
 
 === POC de Tree-Sitter
-Ce POC vise à prouver que l'usage de Tree-Sitter fonctionne pour coloriser les préfixes et les flags de @exo-dy-ts-poc pour ne pas avoir cette affichage noir sur blanc qui ne facilite pas la lecture.
+Ce POC vise à prouver que l'usage de Tree-Sitter fonctionne pour coloriser les préfixes et les propriétés de @exo-dy-ts-poc pour ne pas avoir cette affichage noir sur blanc qui ne facilite pas la lecture.
 #figure(
 ```
 // Basic MCQ exo
@@ -490,10 +491,10 @@ opt .multiple
 - .ok C is a compiled language
 - C is mostly used for web applications
 ```,
-  caption: [Un exemple de question choix multiple dans un fichier `mcq.dy`, décrite avec la syntaxe DY. Les préfixes sont `exo` (titre) et `opt` (options). Les flags sont `.ok` et `.multiple`.]
+  caption: [Un exemple de question choix multiple dans un fichier `mcq.dy`, décrite avec la syntaxe DY. Les préfixes sont `exo` (titre) et `opt` (options). Les propriétés sont `.ok` et `.multiple`.]
 ) <exo-dy-ts-poc>
 
-Une fois la grammaire mise en place avec la commande `tree-sitter init`, il suffit de remplir le fichier `grammar.js`, avec une ensemble de régle construites via des fonctions fournies par Tree-Sitter et des expressions régulières. `seq` indique une liste de tokens qui viendront en séquence, `choice` permet de tester plusieurs options à la même position. On remarque également la liste des préfixes et flags insérés dans les tokens de `prefix` et `property`. La documentation *The Grammar DSL* de la documentation explique toutes les options possibles en détails @TreeSitterGrammarDSL.
+Une fois la grammaire mise en place avec la commande `tree-sitter init`, il suffit de remplir le fichier `grammar.js`, avec une ensemble de régle construites via des fonctions fournies par Tree-Sitter et des expressions régulières. `seq` indique une liste de tokens qui viendront en séquence, `choice` permet de tester plusieurs options à la même position. On remarque également la liste des préfixes et propriétés insérés dans les tokens de `prefix` et `property`. La documentation *The Grammar DSL* de la documentation explique toutes les options possibles en détails @TreeSitterGrammarDSL.
 
 #figure(
 ```js

@@ -1,2 +1,2 @@
 = Implémentation <implementation>
-#lorem(100)
+TODO

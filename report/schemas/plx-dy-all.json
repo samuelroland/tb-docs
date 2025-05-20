@@ -1,0 +1,22 @@
+{
+    "exo": "Pipe implementation in our custom shell",
+    "instruction": "A pipe in system programming is a way to forward the standard output\nof a program to the standard input of another one.\n\nWhen running this command in our custom shell using this symbol `|`,\nwe want the output of `echo` to be used as the input of `toupper`\nwhich is just going to print the text in uppercase.\n```sh\necho hello | toupper\n```",
+    "checks": [
+        {
+            "name": "Output sent through a pipe reaches `toupper`",
+            "run": "./st",
+            "skip": { "mode": "until", "line": "SO3: starting the initial process (shell)" },
+            "sequence": [
+                { "type": "see", "timeout": "2s", "value": "so3%" },
+                { "type": "type", "value": "echo hello | toupper" },
+                { "type": "see", "value": "HELLO" },
+                { "type": "see", "value": "so3%" },
+                { "type": "type", "value": "ls | toupper" },
+                { "type": "see",
+                    "value": "CAT.ELF\nECHO.ELF\nLN.ELF\nLS.ELF\nSH.ELF\n" },
+                { "type": "see", "value": "so3%" },
+                { "type": "kill", "signal": 9, "value": "qemu-system-arm" }
+            ]
+        }
+    ]
+}
