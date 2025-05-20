@@ -53,14 +53,14 @@ pub fn parse_exo(raw: &str) -> ParseResult {
 
         if line.starts_with("- ") && options_started {
             let mut item = line.strip_prefix("- ").unwrap().trim();
-            if item.starts_with("#ok ") {
+            if item.starts_with(".ok ") {
                 if correct_option_found {
                     errors.push(ParseError::TooMuchCorrectOptions(range_at(idx, 2, 3)));
                 } else {
                     correct_option_found = true;
                     correct_option_index = current_option_index;
                 }
-                item = item.strip_prefix("#ok ").unwrap();
+                item = item.strip_prefix(".ok ").unwrap();
             }
             options.push(item.to_string());
             current_option_index += 1;
@@ -105,7 +105,7 @@ fn test_parse_fish_mcq_question() {
 exo What is Fish ?
 opt
 - An animal in water
-- #ok Friendly Interactive Shell
+- .ok Friendly Interactive Shell
 - Yet another geek joke";
 
     let fish_exo = McqExo {
@@ -128,11 +128,11 @@ fn test_can_parse_more_complex_valid_exo() {
 exo  A good question
 // A few options
 opt
-- #ok a    \t
+- .ok a    \t
 -     bbbbbbb
 - c - and - and f
-- #okayguys !
-// That's done here #ok ! exo opt are ignored here
+- .okayguys !
+// That's done here .ok ! exo opt are ignored here
 ";
 
     let rnd_exo = McqExo {
@@ -141,7 +141,7 @@ opt
             "a".to_string(),
             "bbbbbbb".to_string(),
             "c - and - and f".to_string(),
-            "#okayguys !".to_string(),
+            ".okayguys !".to_string(),
         ],
         correct_option_index: 0,
     };
@@ -190,9 +190,9 @@ oups";
 #[test]
 fn test_can_detect_some_advanced_errors() {
     let raw = "opt
-- #ok Friendly Interactive Shell
-- #ok Yet another geek joke
-- #ok something
+- .ok Friendly Interactive Shell
+- .ok Yet another geek joke
+- .ok something
 ";
 
     let fish_exo_wrong = McqExo {

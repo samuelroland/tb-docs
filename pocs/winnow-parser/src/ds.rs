@@ -1,11 +1,11 @@
 use std::fmt::Display;
 
-struct Flag<'a>(&'a str);
+struct Property<'a>(&'a str);
 
 struct ListItem<'a> {
     line: usize,
     content: &'a str,
-    flags: Vec<Flag<'a>>,
+    properties: Vec<Property<'a>>,
 }
 
 pub enum Block<'a> {
@@ -25,7 +25,7 @@ pub enum Block<'a> {
         line: usize,
         prefix: &'a str,
         items: Vec<ListItem<'a>>,
-    }, // line index + prefix + list of tuple (line index + content + list of flags)
+    }, // line index + prefix + list of tuple (line index + content + list of property)
     Comment(usize, &'a str), // line index + comment content
 }
 
@@ -35,7 +35,7 @@ pub enum Block<'a> {
 // exo What is Fish ?
 // opt
 // - An animal in water
-// - #ok Friendly Interactive Shell
+// - .ok Friendly Interactive Shell
 // - Yet another geek joke
 // exp because we are geeks
 fn build() {
@@ -54,17 +54,17 @@ fn build() {
                         ListItem {
                             line: 3,
                             content: "An animal in water",
-                            flags: vec![],
+                            properties: vec![],
                         },
                         ListItem {
                             line: 3,
                             content: "Friendly Interactive Shell",
-                            flags: vec![Flag("ok")],
+                            properties: vec![Property("ok")],
                         },
                         ListItem {
                             line: 3,
                             content: "Yet another geek joke",
-                            flags: vec![],
+                            properties: vec![],
                         },
                     ],
                 },
@@ -76,15 +76,6 @@ fn build() {
             ],
         },
     ];
-}
-
-// Just a random POC, not used
-enum Token<'a> {
-    Prefix(Position, &'a str),
-    Text(Position, &'a str),
-    ListPrefix(Position, &'a str),
-    ListItem(Position, &'a str),
-    ListFlag(Position, &'a str),
 }
 
 // Data structures
@@ -117,7 +108,7 @@ pub enum ParseError {
     EmptyLine(Position),
     TitleMissing(Position),
     TitleEmpty(Range),            // range of "exo" prefix
-    TooMuchCorrectOptions(Range), // range of the second option flag "#ok"
+    TooMuchCorrectOptions(Range), // range of the second option property ".ok"
     NoCorrectOption(Range),       // range of the "opt" prefix
     InvalidLine(Range),           // range of the whole line
 }
@@ -132,7 +123,7 @@ impl Display for ParseError {
                 "Found too much correct options, only one can be correct."
             }
             ParseError::NoCorrectOption(_) => {
-                "No correct option found, please add `#ok` between the dash and the correct option text"
+                "No correct option found, please add `.ok` between the dash and the correct option text"
             }
             ParseError::InvalidLine(_) => {
                 "This lines seems to be invalid, considering its position and start text."

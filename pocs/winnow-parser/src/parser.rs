@@ -70,7 +70,7 @@ fn test_parse_fish_mcq_question() {
 exo What is Fish ?
 opt
 - An animal in water
-- #ok Friendly Interactive Shell
+- .ok Friendly Interactive Shell
 - Yet another geek joke";
 
     let fish_exo = McqExo {

@@ -4,12 +4,13 @@
 Experimenting with different libraries and technologies around parsing, LSP, syntax highlighting, IDE integration. The quality of code is not the priority, speed and experimentation is more important.
 
 ## POCs overview
-1. Define a very basic syntax that has a 2 prefixes, 2 type of values (same line + list values), comment support, and a single boolean flag. Only one object is defined, no blank lines authorized. File name `fish.dy`.
+1. Define a very basic syntax that has a 2 prefixes, 2 type of values (same line + list values), comment support, and a single boolean property. Only one object is defined, no blank lines authorized. File name `fish.dy`.
 1. `naive-parser`: Create a very basic hand-made parser in Rust (without any syntax abstractions, searching for literal prefixes) to parse this syntax into a Rust struct
-1. Create another parser with chumsky, reuse tests suite, same features that `naive-parser`
-1. Create another parser with Winnow, reuse tests suite, same features that `naive-parser`
-1. Create a basic Language server to develop a few autocompletions, error diagnostics, hover prefixes definitions, a code action.
-1. Write a TreeSitter grammar to support syntax highlighting, without any abstraction, straight to the point and install it in Neovim. See how it can be used via the tree-sitter CLI.
+1. [`winnow-parser`](winnow-parser): Create another parser with Winnow, reuse tests suite, same features that `naive-parser`
+I had the idea at the start to create another POC with `chumsky`, but I gave up after deciding I was going to write a hand-made parser.
+1. `basic-ls`: Create a basic Language server to develop a few autocompletions, error diagnostics, hover prefixes definitions, a code action.
+    - tower-lsp
+1. [`tree-sitter-poc-dy`](tree-sitter-poc-dy) A TreeSitter grammar to support syntax highlighting, without any abstraction, straight to the point and install it in Neovim. See how it can be used via the tree-sitter CLI.
 
 If I have the time
 1. Try to integrate the Language server into VSCode
@@ -24,10 +25,10 @@ We would like to describe basic MCQ exos, this is inspired by current Delibay ne
 exo What is Fish ?
 opt
 - An animal in water
-- #ok Friendly Interactive Shell
+- .ok Friendly Interactive Shell
 - Yet another geek joke
 ```
-We have a comment line starting with `//`. The keyword `exo` introduces a new exercise, it is followed by the title. Then `opt` introduces a list of options for this question. This list contains 3 string values starting with a `-`, the correct option is defined by a flag `#ok`, it must be present after the dash.
+We have a comment line starting with `//`. The keyword `exo` introduces a new exercise, it is followed by the title. Then `opt` introduces a list of options for this question. This list contains 3 string values starting with a `-`, the correct option is defined by a property `.ok`, it must be present after the dash.
 
 This MCQ exo must be parsed as this following Rust struct
 ```rust

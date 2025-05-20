@@ -30,7 +30,7 @@ pub enum ParseError {
     EmptyLine(Position),
     TitleMissing(Position),
     TitleEmpty(Range),            // range of "exo" prefix
-    TooMuchCorrectOptions(Range), // range of the second option flag "#ok"
+    TooMuchCorrectOptions(Range), // range of the second option property ".ok"
     NoCorrectOption(Range),       // range of the "opt" prefix
     InvalidLine(Range),           // range of the whole line
 }
@@ -45,7 +45,7 @@ impl Display for ParseError {
                 "Found too much correct options, only one can be correct."
             }
             ParseError::NoCorrectOption(_) => {
-                "No correct option found, please add `#ok` between the dash and the correct option text"
+                "No correct option found, please add `.ok` between the dash and the correct option text"
             }
             ParseError::InvalidLine(_) => {
                 "This lines seems to be invalid, considering its position and start text."
