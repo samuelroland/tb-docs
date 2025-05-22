@@ -1,0 +1,35 @@
+{
+    "exo": "Just greet me",
+    "instruction": "A simple hello program that asks your firstname and lastname and greets you.",
+    "checks": [
+        {
+            "name": "Can enter the full name and be greeted",
+            "sequence": [
+                {
+                    "type": "see",
+                    "value": "What is your firstname ?"
+                },
+                {
+                    "type": "type",
+                    "value": "John"
+                },
+                {
+                    "type": "see",
+                    "value": "Hello John, what's your lastname ?"
+                },
+                {
+                    "type": "type",
+                    "value": "Doe"
+                },
+                {
+                    "type": "see",
+                    "value": "Have a nice day John Doe !"
+                },
+                {
+                    "type": "exit",
+                    "code": 0
+                }
+            ]
+        }
+    ]
+}

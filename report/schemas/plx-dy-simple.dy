@@ -1,0 +1,10 @@
+exo Just greet me
+A simple hello program that asks your firstname and lastname and greets you.
+
+check Can enter the full name and be greeted
+see What is your firstname ?
+type John
+see Hello John, what's your lastname ?
+type Doe
+see Have a nice day John Doe !
+exit 0
