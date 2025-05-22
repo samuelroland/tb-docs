@@ -90,7 +90,6 @@
 // My additionnal styling starting at etat de l'art
 #let MyStyle(body) = {
 
-
   // Use "Snippet" instead of Liste -> Snippet 1, Snippet 2, ...
   show figure.where(kind: raw): set figure(
     supplement: "Snippet"
@@ -100,14 +99,19 @@
   set par(justify: true)
   show link: underline
 
-  // todo only for svg !
-  // show image: box.with(
-  //   // fill: rgb(249, 251, 254),
-  //   inset: 10pt,
-  //   outset: (y: 3pt),
-  //   radius: 2pt,
-  //   stroke: 1pt + luma(200)
-  // )
+  show image: it => {
+    if str.ends-with(it.source, "svg") {
+      box(
+        inset: 10pt,
+        outset: (y: 3pt),
+        radius: 2pt,
+        stroke: 1pt + luma(200),
+        it
+      )
+    } else {
+      it
+    }
+  }
 
   // Disable syntastica as it is slow
   let syntastica-enabled = true
