@@ -12,9 +12,8 @@ Have a nice day John Doe !
 >
 ```
 
-Check that you're program has finished with the exit code 0, by running this
+Check that your program has finished with the exit code 0 by running this command
 ```sh
 echo $?
 0
 ```
-
