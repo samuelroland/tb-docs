@@ -31,7 +31,7 @@ Ce TB aimerait pousser l'expérience en classe plus loin pour permettre aux étu
 
 #figure(
   image("../schemas/live-sessions-flow.png", width:100%),
-  caption: [Interactions entre les clients PLX entre l'enseignant et les étudiants, le code est synchronisé via un serveur central],
+  caption: [Interactions entre les clients PLX entre l'enseignant et les étudiants, le code est synchronisé via un serveur central, le cours PRG2 a un repository Git publique],
 ) <live-sessions-flow>
 
 Sur la @live-sessions-flow, on voit qu'avant de commencer, les étudiants ont du cloner le repository Git du cours sur leur machine pour accéder aux exercices. Une fois une session live démarrée par un enseignant et les étudiants ayant rejoint la session, l'enseignant peut choisir de faire un exercice l'un après l'autre en définissant son propre rythme.
@@ -73,7 +73,7 @@ Si on oublie un instant d'autres formats moins verbeux que le JSON (tel que le Y
 
 // Dans le @exemple-dy, on définit un exercice de programmation avec un petit programme qui doit dire bonjour à l'utilisateur, en lui demandant son prénom puis son nom. Elle contient 2 checks (vérifications automatiques) pour vérifier le comportement attendu. Le premier check décrit une situation de succès et le deuxième décrit une situation d'erreur.
 
-Ce système de préfixe (en bleu du début des lignes) et de propriétés (après un point) permet de structurer le contenu de l'exercice tout en gardant un style de rédaction proche du Markdown.
+On retrouve dans @exemple-dy les mêmes informations que définie précédemment, délimitée par un système de préfixe (en bleu du début des lignes) qui permet de structurer le contenu de l'exercice.
 
 // todo les variantes de DY ??
 
@@ -82,13 +82,13 @@ Ce 2ème défi demande ainsi d'écrire un parseur de cette nouvelle syntaxe. Une
 Voici un aperçu de l'expérience imaginée des enseignants pour la rédaction des exercices dans cette syntaxe en @ide-xp.
 
 #figure(
-  image("../schemas/ide-experience-mental-model.png", width:100%),
+  image("../schemas/ide-experience-mental-model-simple.png", width:100%),
   caption: [Aperçu de l'expérience de rédaction imaginée dans un IDE],
 ) <ide-xp>
 
 On voit dans la @ide-xp que l'intégration se fait sur 2 points majeures
 - le surlignage de code, qui permet de coloriser les préfixes et les propriétés, afin de bien distinguer le contenu des éléments propres à la syntaxe
-- intégration avancée de la connaissance et des erreurs du parseur à l'éditeur: comme en ligne 4 avec l'erreur de la commande manquante après le préfixe `run`, et comme en ligne 19 avec une auto-complétion qui propose les préfixes valides à cette position du curseur.
+- intégration avancée de la connaissance et des erreurs du parseur à l'éditeur: comme en ligne 4 avec l'erreur du nom de check manquant après le préfixe `check`, et comme en ligne 19 avec une auto-complétion qui propose les préfixes valides à cette position du curseur.
 
 Cette nouvelle syntaxe, son parseur et support d'IDE permettront de remplacer le format TOML actuellement utilisé dans PLX.
 
