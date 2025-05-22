@@ -28,18 +28,18 @@ Le projet est inspiré de Rustlings (TUI pour apprendre le Rust), permettant de 
 Ce TB aimerait pousser l'expérience en classe plus loin pour permettre aux étudiants de recevoir des feedbacks sur leur réponse en live, sur des sessions hautement interactives. Cela aide aussi les enseignants à mesurer l'état de compréhension et les compétences des étudiants tout au long du semestre, et à adapter leur cours en fonction des incompréhensions et des lacunes.
 
 #figure(
-  image("../schemas/high-level-arch.opti.svg", width:100%),
-  caption: [Architecture haut niveau décrivant les interactions entre les clients PLX et le serveur de session live],
-) <high-level-arch>
+  image("../schemas/live-sessions-flow.png", width:100%),
+  caption: [Interactions entre les clients PLX entre l'enseignant et les étudiants, le code est synchronisé via un serveur central],
+) <live-sessions-flow>
 
-Une fois une session live démarrée par un enseignant et les étudiants ayant rejoint la session, l'enseignant peut choisir de faire un exercice l'un après l'autre en définissant son propre rythme. L'exercice en cours est affichés sur tous les clients PLX. A chaque sauvegarde d'un fichier de code, le code est compilé et les checks sont lancés comme en dehors d'une session live. La différence est que les résultats des checks et le code modifié sera envoyé à l'enseignant de la session, pour qu'il puisse directement dans PLX. L'enseignant pourra ainsi avoir un aperçu global de l'avancement et des checks qui ne passent pas, d'aller inspecter le code de certaines soumissions et au final de faire des feedbacks à la classe en live ou à la fin de l'exercice.
+Sur la @live-sessions-flow, on voit une fois une session live démarrée par un enseignant et les étudiants ayant rejoint la session, l'enseignant peut choisir de faire un exercice l'un après l'autre en définissant son propre rythme. L'exercice en cours est affichés sur tous les clients PLX. A chaque sauvegarde d'un fichier de code, le code est compilé et les checks sont lancés comme en dehors d'une session live. La différence est que les résultats des checks et le code modifié sera envoyé à l'enseignant de la session, pour qu'il puisse directement dans PLX. L'enseignant pourra ainsi avoir un aperçu global de l'avancement et des checks qui ne passent pas, d'aller inspecter le code de certaines soumissions et au final de faire des feedbacks à la classe en live ou à la fin de l'exercice.
 
 === Comment faciliter la rédaction et la maintenance des exercices ?
 Pour faciliter la productivité dans la rédaction et maintenance d'exercices ainsi que leur première transcription, on souhaiterait avoir une syntaxe épurée, humainement lisible et éditable, facilement versionnable dans Git. Pour cette raison, nous introduisons une nouvelle syntaxe appelée DY. Elle sera adaptée pour PLX afin de remplacer le format TOML actuel.
 
-Voyons maintenant un exemple concret d'exercice de programmation, très inspiré d'un laboratoire du cours Système d'exploitation (SYE) à la HEIG-VD.
+Voyons maintenant un exemple concret d'exercice de programmation, pour un exercice de gestion d'entrées/sorties dans le terminal d'un petit CLI.
 
-#figure(raw(block: true, lang: "markdown", read("../schemas/plx-dy-all.md")), caption: [Exemple d'exercice de programmation, rédigé en Markdown, avec une implémentation du pipe dans un shell]) <exemple-dy-md-start>
+#figure(raw(block: true, lang: "markdown", read("../schemas/plx-dy-simple.md")), caption: [Exemple d'exercice de programmation, rédigé en Markdown]) <exemple-dy-md-start>
 
 Cet exercice en @exemple-dy-md-start est adapté à l'affichage et l'export PDF pour être distribué dans un recueil d'exercices ou dans une consigne de laboratoire. Cependant, ce format n'est pas adapté à être parsé par un outil qui aimerait automatiser la vérification du code. En effet, les 2 exemples de commandes à lancer ne pourront être que lancées à la main par l'étudiant, ce qui crée de la friction autour de l'exercice et ralentit l'étudiant dans son apprentissage.
 
@@ -47,14 +47,14 @@ Nous avons besoin d'une syntaxe qui permet de décrire le démarrage du shell, c
 
 L'option la plus rapide et facile à ce problème serait de rédiger en format JSON.
 
-#figure(raw(block: true, lang: "json", read("../schemas/plx-dy-all.json")), caption: [Equivalent JSON de l'exercice défini sur le @exemple-dy-md-start]) <exemple-dy-json>
+#figure(raw(block: true, lang: "json", read("../schemas/plx-dy-simple.json")), caption: [Equivalent JSON de l'exercice défini sur le @exemple-dy-md-start]) <exemple-dy-json>
 
 Dans cet équivalent JSON, on voit bien que rédiger du contenu Markdown ou l'output sur plusieurs lignes en remplaçant les retours à la ligne `\n` à la main est fastidieux et complique la lisibilité, en plus de tous les guillements, deux points et accolades nécessaires au-delà du texte.
 
 Voyons maintenant à quoi pourrait ressembler cette nouvelle syntaxe DY beaucoup plus légère pour l'exercice précédent:
 
 #figure(
-  image("../schemas/plx-dy-all.svg", width:80%),
+  image("../schemas/plx-dy-simple.svg", width:100%),
   caption: [Equivalent dans une version préliminaire de la syntaxe DY de l'exercice défini sur le @exemple-dy-md-start],
 ) <exemple-dy>
 
