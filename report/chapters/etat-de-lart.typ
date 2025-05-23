@@ -319,9 +319,8 @@ Les 2 projets les plus utilisés (en termes de _reverse dependencies_ sur crates
 Cette partie est un nice-to-have, l'auteur espère avoir le temps de l'intégrer dans ce travail. Après quelques heures sur le POC suivant, on voit cela semble être assez facile et la possibilité d'ajouter progressivement le support de fonctionnalités est aussi un atout.
 
 === POC sur lsp-server
-TODO: bien d'avoir cette section séparée pour ce POC ?
 
-L'auteur a modifié et exécuté l'exemple de `goto_def.rs` fourni par la crate `lsp-server` @gotodefLspserver. Il a aussi créé un script `demo.fish` permettant de lancer la communication en stdin et attendre entre chaque requête. Cet exemple minimaliste mais clair démontre la communication qui se produit quand on clique sur un `Aller à la définition` dans un IDE. L'IDE va lancer le serveur de langage associé au fichier édité en lancant simplement le processus et en communication via les flux standards. Il y a d'abord une phase d'initialisation et d'annonces des capacités puis l'IDE peut envoyer des requêtes.
+L'auteur a modifié et exécuté l'exemple de `goto_def.rs` fourni par la crate `lsp-server` @gotodefLspserver. Il a aussi créé un script `demo.fish` permettant de lancer la communication en stdin et attendre entre chaque requête. Cet exemple démontre la communication qui se produit quand on clique sur un `Aller à la définition` dans un IDE. L'IDE va lancer le serveur de langage associé au fichier édité en lançant simplement le processus et en communication via les flux standards. Il y a d'abord une phase d'initialisation et d'annonces des capacités puis l'IDE peut envoyer des requêtes.
 
 #figure(
   box(image("../imgs/lsp-demo.svg"), width:90%),
@@ -329,9 +328,9 @@ L'auteur a modifié et exécuté l'exemple de `goto_def.rs` fourni par la crate 
 )
 // todo comment citer les dossiers de POCs à coté ??
 
-L'initialisation nous montre que le serveur se présente comme supportant uniquement les "aller à la définition" (go to definition) puisque `definitionProvider` est à `true`. Le client envoie ensuite une demande de `textDocument/definition`, en précisant que celle-ci doit être donnée sur le symbole dans fichier `/tmp/test.rs` sur la ligne 7 au charactère 23.
+L'initialisation nous montre que le serveur se présente comme supportant uniquement les "aller à la définition" (_Go to definition_) puisque `definitionProvider` est à `true`. Le client envoie ensuite une demande de `textDocument/definition`, en précisant que celle-ci doit être donnée sur le symbole dans un fichier `/tmp/test.rs` sur la ligne 7 au caractère 23.
 
-L'auteur a codé en dur une liste de `Location` (positions dans le code pour cette définition), dans `/tmp/another.rs` sur la `Range` de la ligne 3 du charactère 12 à 25. Une fois la réponse envoyée, le client demande au serveur de s'arrêter.
+L'auteur a codé en dur une liste de `Location` (positions dans le code pour cette définition), dans `/tmp/another.rs` sur la plage (`Range`) sur ligne 3 entre les caractères 12 et 25. Une fois la réponse envoyée, le client demande au serveur de s'arrêter.
 
 Le code qui gère cette requête du type `GotoDefinition` se présente ainsi.
 #figure(
@@ -354,21 +353,20 @@ Le code qui gère cette requête du type `GotoDefinition` se présente ainsi.
   caption: [Extrait de `goto_def.rs` modifié pour retourner un `Location` dans la réponse `GotoDefinitionResponse`],
 )
 
-Cette communication permet de visualiser les échanges entre l'IDE et un serveur de langage. En pratique après avoir implémenté une logique de résolution des définitions un peu plus réaliste cette communication ne serait pas visible mais bénéficiera à l'intégration dans l'IDE. Si on l'intégrait dans VSCode, , la fonctionnalité du clic droit + Aller à la définition fonctionnerait.
+Cette communication permet de visualiser les échanges entre l'IDE et un serveur de langage. En pratique après avoir implémenté une logique de résolution des définitions un peu plus réaliste cette communication ne serait pas visible, mais profitera à l'intégration dans l'IDE. Si on l'intégrait dans VSCode, la fonctionnalité du clic droit + Aller à la définition fonctionnerait.
 
 #pagebreak()
 
 == Systèmes de surglignage de code
-Les IDEs modernes supportent possèdent des systèmes de surglignage de code (syntax highlighting en anglais) permettant de rendre le code plus lisible en colorisant les mots, charactères ou groupe de symboles de même type (séparateur, opérateur, mot clé du langage, variable, fonction, constante, ...). Ces systèmes se distinguent par leur possibilités d'intégration. Les thèmes intégrés aux IDE peuvent définir directement les couleurs pour chaque type de token. Pour un rendu web, une version HTML contenant des classes CSS spécifiques à chaque type de token peut être générée, permettant à des thèmes écrits en CSS de venir appliquer les couleurs. Les possibilités de génération pour le HTML pour le web implique parfois une génération dans le navigateur ou sur le serveur directement.
+Les IDE modernes supportent possèdent des systèmes de surlignage de code (_syntax highlighting_) permettant de rendre le code plus lisible en colorisant les mots, caractères ou groupe de symboles de même type (séparateur, opérateur, mot clé du langage, variable, fonction, constante...). Ces systèmes se distinguent par leurs possibilités d'intégration. Les thèmes intégrés aux IDE peuvent définir directement les couleurs pour chaque type de token. Pour un rendu web, une version HTML contenant des classes CSS spécifiques à chaque type de token peut être générée, permettant à des thèmes écrits en CSS de venir appliquer les couleurs. Les possibilités de génération pour le HTML pour le web impliquent parfois une génération dans le navigateur ou sur le serveur directement.
 // todo note surglignage syntaxique !
 
-Un système de surlignage est très différent d'un parseur. Même s'il traite du même langage, dans un cas, on cherche juste à découper le code en tokens et y définir un type de token. Ce qui s'apparente seulement à la premier étape du lexer/tokenizer généralement rencontré dans les parseurs.
-
+Un système de surlignage est très différent d'un parseur. Même s'il traite du même langage, dans un cas, on cherche juste à découper le code en tokens et y définir un type de token. Ce processus est très similaire à la première étape du lexer/tokenizer généralement rencontré dans les parseurs.
 
 === Textmate
 Textmate est un IDE pour MacOS qui a inventé un système de grammaire Textmate. Elles permettent de décrire comment tokeniser le code basée sur des expressions régulières. Ces expressions régulières viennent de la librairie C Oniguruma @textmateRegex. VSCode utilise ces grammaires Textmate @vscodeSyntaxHighlighting. Intellij IDEA l'utilise également pour les langages non supportés par Intellij IDEA comme Swift, C++ et Perl @ideaSyntaxHighlighting.
 
-Exemple de grammaire Textmate permettant de décrire un language nommé `untitled` avec 4 mots clés et des chaines de charactères entre guillemets, ceci matché avec des expressions régulières.
+Exemple de grammaire Textmate permettant de décrire un langage nommé `untitled` avec 4 mots clés et des chaines de caractères entre guillemets, ceci matché avec des expressions régulières.
 #figure(
 ```
 {  scopeName = 'source.untitled';

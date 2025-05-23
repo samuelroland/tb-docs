@@ -110,6 +110,7 @@ Chaque projet se concentre sur un langage de programmation et crée des exercice
 == Glossaire
 L'auteur de ce travail se permet un certain nombre d'anglicismes quand un équivalent français n'existe pas ou n'est pas couramment utilisé. Certaines constructions de programmations bien connues comme les `strings` au lieu d'écrire `chaînes de caractères` sont également utilisées. Certaines sont spécifiques à certains langages et sont décrites ci-dessous pour aider à la lecture.
 
+- `exo`: abréviation familière de `exercice`. Elle est utilisée dans la syntaxe DY pour rendre plus concis la rédaction.
 - `Cargo.toml`, fichier dans un projet Rust définit les dépendances (les crates) et leurs versions minimum à inclure dans le projet, équivalent du `package.json` de NPM
 - `crate`: la plus petite unité de compilation avec cargo, concrètement chaque projet contient un ou plusieurs dossiers avec un `Cargo.toml`
 - `crates.io`: le registre officiel des crates publiée pour l'écosystème Rust, l'équivalent de `npmjs.com` pour l'écosystème JavaScript ou `mvnrepository.com` pour Java
@@ -118,6 +119,7 @@ L'auteur de ce travail se permet un certain nombre d'anglicismes quand un équiv
 - `struct`: structure de données regroupant plusieurs champs, disponible en C, en Rust et d'autres langages inspirés
 - `backtick`: caractère accent grave utilisé sans lettre, délimiteur fréquent de mention de variable ou fonction dans un rapport en Markdown
 - `README` ou `README.md`: Point d'entrée de la documentation d'un repository Git, généralement écrit en Markdown, affiché directement sur la plupart des hébergeurs de repository Git
+- `regex`, raccourcis pour les expressions régulières
 
 // todo check ces définitions
 
