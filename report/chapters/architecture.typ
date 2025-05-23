@@ -8,8 +8,6 @@
 
 *Avertissement: Le protocole détaillé de synchronisation n'a pas encore été défini.*
 
-==== Les préfixes
-
 #pagebreak()
 == Syntaxe DY
 

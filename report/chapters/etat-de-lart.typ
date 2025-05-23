@@ -359,7 +359,7 @@ Cette communication permet de visualiser les échanges entre l'IDE et un serveur
 #pagebreak()
 
 == Systèmes de surglignage de code
-Les IDE modernes supportent possèdent des systèmes de surlignage de code (_syntax highlighting_) permettant de rendre le code plus lisible en colorisant les mots, caractères ou groupe de symboles de même type (séparateur, opérateur, mot clé du langage, variable, fonction, constante...). Ces systèmes se distinguent par leurs possibilités d'intégration. Les thèmes intégrés aux IDE peuvent définir directement les couleurs pour chaque type de token. Pour un rendu web, une version HTML contenant des classes CSS spécifiques à chaque type de token peut être générée, permettant à des thèmes écrits en CSS de venir appliquer les couleurs. Les possibilités de génération pour le HTML pour le web impliquent parfois une génération dans le navigateur ou sur le serveur directement.
+Les IDE modernes supportent possèdent des systèmes de surlignage de code (ou surlignage syntaxique - _syntax highlighting_) permettant de rendre le code plus lisible en colorisant les mots, caractères ou groupe de symboles de même type (séparateur, opérateur, mot clé du langage, variable, fonction, constante...). Ces systèmes se distinguent par leurs possibilités d'intégration. Les thèmes intégrés aux IDE peuvent définir directement les couleurs pour chaque type de token. Pour un rendu web, une version HTML contenant des classes CSS spécifiques à chaque type de token peut être générée, permettant à des thèmes écrits en CSS de venir appliquer les couleurs. Les possibilités de génération pour le HTML pour le web impliquent parfois une génération dans le navigateur ou sur le serveur directement.
 // todo note surglignage syntaxique !
 
 Un système de surlignage est très différent d'un parseur. Même s'il traite du même langage, dans un cas, on cherche juste à découper le code en tokens et y définir un type de token. Ce processus est très similaire à la première étape du lexer/tokenizer généralement rencontré dans les parseurs.
@@ -407,6 +407,8 @@ Tree-Sitter est supporté dans Neovim @neovimTSSupport, dans le nouvel éditeur 
 ) <fig-tree-sitter-on-github>
 
 // todo: make sure enough info here after POC has moved below
+
+#pagebreak()
 
 === Surlignage sémantique
 Le surlignage sémantique (_Semantic highlighting_) est une extension du surlignage syntaxique. Les serveurs de langage peuvent ainsi fournir des tokens sémantiques qui apportent une classification plus fine du langage, que les systèmes syntaxiques ne peuvent pas détecter. @VSCodeSemanticHighlighting

@@ -110,6 +110,7 @@ Chaque projet se concentre sur un langage de programmation et crée des exercice
 
 // todo solution existantes de review en live de code
 
+#pagebreak()
 // todo move that somewhere useful once we have bottom page notes
 == Glossaire
 L'auteur de ce travail se permet un certain nombre d'anglicismes quand un équivalent français n'existe pas ou n'est pas couramment utilisé. Certaines constructions de programmations bien connues comme les `strings` au lieu d'écrire `chaînes de caractères` sont également utilisées. Certaines sont spécifiques à certains langages et sont décrites ci-dessous pour aider à la lecture.
