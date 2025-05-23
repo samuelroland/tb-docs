@@ -89,10 +89,12 @@ Voici un aperçu de l'expérience imaginée des enseignants pour la rédaction d
 ) <ide-xp>
 
 On voit dans la @ide-xp que l'intégration se fait sur 2 points majeurs
-- le surlignage de code, qui permet de coloriser les préfixes et les propriétés, afin de bien distinguer le contenu des éléments propres à la syntaxe
-- intégration avancée de la connaissance et des erreurs du parseur à l'éditeur: comme en ligne 4 avec l'erreur du nom de check manquant après le préfixe `check`, et comme en ligne 19 avec une auto-complétion qui propose les préfixes valides à cette position du curseur.
++ le surlignage de code, qui permet de coloriser les préfixes et les propriétés, afin de bien distinguer le contenu des éléments propres à la syntaxe
++ intégration avancée de la connaissance et des erreurs du parseur à l'éditeur: comme en ligne 4 avec l'erreur du nom de check manquant après le préfixe `check`, et comme en ligne 19 avec une auto-complétion qui propose les préfixes valides à cette position du curseur.
 
 Cette nouvelle syntaxe, son parseur et support d'IDE permettront de remplacer le format TOML actuellement utilisé dans PLX.
+
+#pagebreak()
 
 == Solutions existantes <solutions-existantes>
 
@@ -108,7 +110,7 @@ Chaque projet se concentre sur un langage de programmation et crée des exercice
 
 // todo solution existantes de review en live de code
 
-// todo move that somewhere useful
+// todo move that somewhere useful once we have bottom page notes
 == Glossaire
 L'auteur de ce travail se permet un certain nombre d'anglicismes quand un équivalent français n'existe pas ou n'est pas couramment utilisé. Certaines constructions de programmations bien connues comme les `strings` au lieu d'écrire `chaînes de caractères` sont également utilisées. Certaines sont spécifiques à certains langages et sont décrites ci-dessous pour aider à la lecture.
 

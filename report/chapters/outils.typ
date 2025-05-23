@@ -1,4 +1,4 @@
-= Outils utilisés <tools>
+== Outils utilisés <tools>
 
 // todo toutes les dépendances listées dans les Cargo.toml ???
 
@@ -10,8 +10,11 @@ L'auteur de ce travail a utilisé l'IA
 - avec LanguageTool pour trouver les fautes d'orthographes ou de frappe et les corriger, basé sur des règles logiques et sur l'IA @languagetoolWebsite
 // todo compléter au fur et à mesure
 
+
 === Outils techniques
 - Neovim pour l'édition du rapport et l'écriture du code
 - Template Typst `HEIG-VD typst template for TB` @HEIGVDTypstTemplateForTBGithub
 - Convertisseur de BibTex vers Hayagriva @JonasloosBibtexToHayagrivaWebapp
 
+=== Logo
+Le logo de PLX utilisé sur la page de titre a été créé par l'auteur de ce travail au commencement du projet PLX, bien avant ce travail de Bachelor @PlxBookLogo.
