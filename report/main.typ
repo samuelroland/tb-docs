@@ -27,10 +27,6 @@
 
 
 #show: MyStyle
-/*
- Cahier des charges
-*/
-#include "chapters/cdc.typ"
 
 /*
  Table of Content
@@ -66,4 +62,9 @@
  Annexes
 */
 #include "chapters/outils.typ"
+
+/*
+ Cahier des charges
+*/
+#include "chapters/cdc.typ"
 
