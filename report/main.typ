@@ -19,8 +19,9 @@
 */
 #import "template/_title.typ": *
 #_title(TBtitle, TBsubtitle, TBacademicYears, TBdpt, TBfiliere, TBorient, TBauthor, TBsupervisor, TBindustryContact, TBindustryName, TBindustryAddress, confidential)
-#import "template/_second_title.typ": *
-#_second_title(TBtitle, TBacademicYears, TBdpt, TBfiliere, TBorient, TBauthor, TBsupervisor, TBindustryName, TBresumePubliable)
+// TODO renable this at the end
+// #import "template/_second_title.typ": *
+// #_second_title(TBtitle, TBacademicYears, TBdpt, TBfiliere, TBorient, TBauthor, TBsupervisor, TBindustryName, TBresumePubliable)
 #include "template/_preambule.typ"
 #import "template/_authentification.typ": *
 #_authentification(TBauthor)
@@ -61,10 +62,8 @@
 /*
  Annexes
 */
+= Annexes
 #include "chapters/outils.typ"
-
-/*
- Cahier des charges
-*/
-#include "chapters/cdc.typ"
+#pagebreak()
+#include "chapters/cdc.typ" // CDC original
 

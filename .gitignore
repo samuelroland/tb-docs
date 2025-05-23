@@ -6,3 +6,9 @@ report/schemas/*.svg
 
 # Ignore default PDF name
 report/main.pdf
+
+bibliography-tofix.bib
+report/rapport-intermediaire-tb-plx_v1.pdf
+report/.vscode/ltex.dictionary.fr.txt
+report/.vscode/ltex.disabledRules.fr.txt
+report/todos.md

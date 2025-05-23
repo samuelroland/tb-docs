@@ -16,7 +16,7 @@
 #let TBorient = "Informatique logicielle"
 
 #let TBauthor = studentFirstname + " " + studentLastname
-#let TBsupervisor = "Prof. Bertil Chapuis"
+#let TBsupervisor = "Bertil Chapuis"
 #let TBindustryContact = ""
 #let TBindustryName = ""
 #let TBindustryAddress = [
