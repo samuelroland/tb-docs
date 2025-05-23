@@ -1,7 +1,7 @@
 = Introduction <introduction>
 
 == Contexte
-Ce travail de Bachelor vise à développer le projet PLX (voir #link("https://plx.rs")[plx.rs], Terminal User Interface (TUI) écrite en Rust, permettant de faciliter la pratique intense sur des exercices de programmation. Les étudiants sont constamment ralentis par la friction de la création du fichier de départ, la gestion de la compilation, l'exécution de différents scénarios de vérifications du fonctionnement, taper les entrées utilisateur et la comparaison avec l'output attendu. Toutes ces étapes prennent du temps inutilement et empêchent les étudiants de se concentrer pleinement sur l'écriture du code et la revue des résultats des scénarios pour identifier les bugs et corriger au fur et à mesure.
+Ce travail de Bachelor vise à développer le projet PLX @plxWebsite, Terminal User Interface (TUI) écrite en Rust, permettant de faciliter la pratique intense sur des exercices de programmation. Les étudiants sont constamment ralentis par la friction de la création du fichier de départ, la gestion de la compilation, l'exécution de différents scénarios de vérifications du fonctionnement, taper les entrées utilisateur et la comparaison avec l'output attendu. Toutes ces étapes prennent du temps inutilement et empêchent les étudiants de se concentrer pleinement sur l'écriture du code et la revue des résultats des scénarios pour identifier les bugs et corriger au fur et à mesure.
 
 PLX vise également à apporter le plus vite possible un feedback automatique et riche, dans le but d'appliquer les principes de la pratique délibérée à l'informatique. PLX peut à terme aider de nombreux cours à la HEIG-VD (tels que PRG1, PRG2, PCO, SYE, ...) à passer de long moments de théorie en session d'entrainement dynamique et très interactive. En redéfinissant l'expérience des étudiants et des enseignants sur les exercices et laboratoires, l'ambition est qu'à terme, cela génère un apprentissage plus profond de modèles mentaux solides chez les étudiants. Cela aidera les étudiants qui ont beaucoup de peine à s'approprier la programmation à avoir moins de difficultés avec ces cours. Et ceux qui sont plus à l'aise pourront développer des compétences encore plus avancées.
 
@@ -38,7 +38,7 @@ Sur la @live-sessions-flow, on voit qu'avant de commencer, les étudiants ont d�
 
 L'exercice en cours est affiché sur tous les clients PLX. A chaque sauvegarde d'un fichier de code, le code est compilé et les checks sont lancés comme en dehors d'une session live. La différence est que les résultats des checks et le code modifié seront envoyés à l'enseignant de la session. L'enseignant pourra ainsi avoir un aperçu global de l'avancement et des checks qui ne passent pas, éventuellement d'inspecter le code de certaines soumissions dans le but final de faire des feedbacks à la classe en durant ou à la fin de l'exercice.
 
-Cette première partie nécessite le développement d'un protocole de synchronisation des différents éléments et d'utiliser des protocoles de communication temps-réel pour rendre cette composante live/instantanée possible.
+Cette première partie nécessite le développement d'un protocole de synchronisation des différents éléments. Elle implique aussi l'utilisation de protocoles de communication temps-réel pour permettre cette expérience live en classe.
 
 #pagebreak()
 
