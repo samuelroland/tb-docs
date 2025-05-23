@@ -1,3 +1,10 @@
+plxWebsite:
+  type: Web
+  url: https://plx.rs
+  date: 2025
+  title: PLX
+  author: Contributeurs de PLX
+
 UDLCratesio:
   type: misc
   title: udl v0.3.1 - Parser for UDL (Universal Data Language)
@@ -20,16 +27,14 @@ bitmarkAssociation:
   type: misc
   title: bitmark Association website
   author:
-    name: Association
-    prefix: bitmark
+    name: bitmark Association
   date: 2025
   url: https://www.bitmark-association.org/
 bitmarkAssociationHackaton:
-  type: misc
+  type: Web
   title: bitmark Hackathon
   author:
-    name: Association
-    prefix: bitmark
+    name: bitmark Association
   date: 2025
   url: https://www.bitmark-association.org/bitmarkhackathon
 bitmarkDocs:
@@ -50,16 +55,14 @@ bitmarkDocsMcqSpec:
   type: misc
   title: Quizzes - .multiple-choice, .multiple-choice-1
   author:
-    name: Association
-    prefix: bitmark
+    name: bitmark Association
   date: 2025
   url: https://docs.bitmark.cloud/quizzes/#multiple-choice-multiple-choice-1
 bitmarkDocsClozeSpec:
   type: misc
   title: Quizzes - .cloze (gap text)
   author:
-    name: Association
-    prefix: bitmark
+    name: bitmark Association
   date: 2025
   url: https://docs.bitmark.cloud/quizzes/#cloze-gap-text
 openTaskpoolIntro:
