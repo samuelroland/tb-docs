@@ -8,19 +8,19 @@ Un rendu intermédiaire noté est demandé le 23 mai 2025 avant 17h et le rendu 
 La défense sera organisée entre le 25 août 2025 et le 12 septembre 2025.
 
 == Planification initiale <planification-initiale>
-_Note: cette planification est reprise du cahier des charges original_
+_Note: cette planification est reprise du cahier des charges original en annexe, avec quelques corrections mineures._
 
 En se basant sur le calendrier des travaux de Bachelor, voici un aperçu du découpage du projet pour les différents rendus.
 
 ==== Rendu 1 - 10 avril 2025 - Cahier des charges
 - Rédaction du cahier des charges.
-- Analyse de l'état de l'art des parsers, des formats existants de données humainement éditables, du syntax highlighting et des languages servers.
-- Analyse de l'état de l'art des protocoles bidirectionnels temps réel (websockets, gRPC, ...) et des formats de sérialisation (JSON, protobuf, ...).
-- Prototype avec les librairies disponibles de parsing et de language servers en Rust, choix du niveau d'abstraction espéré et réutilisation possible.
+- Analyse de l'état de l'art des parsers, des formats existants de données humainement éditables, du syntax highlighting et des serveurs de langages.
+- Analyse de l'état de l'art des protocoles bidirectionnels temps réel (Websocket, gRPC...) et des formats de sérialisation (JSON, Protobuf, ...).
+- Prototype avec les librairies disponibles de parsing et de serveurs de langages en Rust, choix du niveau d'abstraction espéré et réutilisation possible.
 
 ==== Rendu 2 - 23 mai 2025 - Rapport intermédiaire
 - Rédaction du rapport intermédiaire.
-- Définition de la syntaxe DY à parser, des préfixes et flags liés à PLX, et la liste des vérifications et des erreurs associées.
+- Définition de la syntaxe DY à parser, des préfixes et propriétés liés à PLX, et la liste des vérifications et des erreurs associées.
 - Définition d'un protocole de synchronisation du code entre les participants d'une session.
 - Prototype d'implémentation de cette synchronisation.
 - Prototype des tests automatisés sur le serveur PLX.
