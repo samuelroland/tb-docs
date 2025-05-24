@@ -3,13 +3,13 @@ Ce dossier contient tout le contenu du rapport, écrit en Typst, pour ce travail
 
 Il a été exporté en 2 versions:
 - [Le rapport intermédiaire](rapport-intermediaire-tb-plx.pdf): dans l'état du rendu intermédiaire du 2025-05-23 à 17h
-- [Le rapport final](rapport-final-tb-plx.pdf): dans l'état du rendu final le 
+- [**Le rapport final**](rapport-final-tb-plx.pdf): **en cours de rédaction**, sera rendu le 2025-07-24
 
 ## Export en PDF
 
 1. Installer le [CLI de Typst](https://github.com/typst/typst)
 1. Installer le plugin [`syntastica`](https://github.com/RubixDev/syntastica-typst) localement
-1. Lancer `typst compile main.typ`, cela peut prendre une minute à cause de la coloration avancée de `syntatica`
+1. Lancer `typst compile main.typ`, cela peut prendre une minute à cause de la coloration avancée de `syntastica`
 
 ## Template utilisé
 
