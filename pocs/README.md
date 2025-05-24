@@ -1,25 +1,44 @@
-# Proof of Concepts for a simplified DY syntax
+# Proof of Concepts
 
 ## Goal
-Experimenting with different libraries and technologies around parsing, LSP, syntax highlighting, IDE integration. The quality of code is not the priority, speed and experimentation is more important.
+Experimenting with different libraries and technologies around parsing, LSP, syntax highlighting, IDE integration and live communication. The quality of code is not the priority, speed and experimentation is the goal.
 
 ## POCs overview
-1. Define a very basic syntax that has a 2 prefixes, 2 type of values (same line + list values), comment support, and a single boolean property. Only one object is defined, no blank lines authorized. File name `fish.dy`.
-1. `naive-parser`: Create a very basic hand-made parser in Rust (without any syntax abstractions, searching for literal prefixes) to parse this syntax into a Rust struct
-1. [`winnow-parser`](winnow-parser): Create another parser with Winnow, reuse tests suite, same features that `naive-parser`
-I had the idea at the start to create another POC with `chumsky`, but I gave up after deciding I was going to write a hand-made parser.
-1. `basic-ls`: Create a basic Language server to develop a few autocompletions, error diagnostics, hover prefixes definitions, a code action.
-    - tower-lsp
-1. [`tree-sitter-poc-dy`](tree-sitter-poc-dy) A TreeSitter grammar to support syntax highlighting, without any abstraction, straight to the point and install it in Neovim. See how it can be used via the tree-sitter CLI.
+1. **Parsers**
+    1. Define a very basic syntax that has a 2 prefixes, 2 type of values (same line + list values), comment support, and a single boolean property. Only one object is defined, no blank lines authorized. File name `fish.dy`.
+    1. [`naive-parser`](naive-parser/): Create a very basic hand-made parser in Rust (without any syntax abstractions, searching for literal prefixes) to parse this syntax into a Rust struct
+    1. [`winnow-parser`](winnow-parser): Create another parser with Winnow, reuse tests suite, same features that `naive-parser`
+    1. I had the idea at the start to create another POC with `chumsky`, but I gave up after deciding I was going to write a hand-made parser.
+1. **Language server**: [`lsp-server-demo`](lsp-server-demo/) - A basic language server implementation with the create `lsp-server` that implement the "Go to definition"
+1. **Syntax highlighting**: [`tree-sitter-poc-dy`](tree-sitter-poc-dy) A TreeSitter grammar to support syntax highlighting, without any abstraction, straight to the point and install it in Neovim. See how it can be used via the tree-sitter CLI.
+1. **Live server**: [`websockets-json`](websockets-json) A live server POC that just allows to send code via a JSON message from a `student` to a `teacher` via a websocket server in the middle.
 
-If I have the time
-1. Try to integrate the Language server into VSCode
-1. Try to do abstractions for other syntaxes
-1. Try to generate TreeSitter syntaxes from abstractions without writing them by hand
-1. Experiment with semantic highlighting
+## Quick overview of the results
+You can see way more details in the report, but here is a quick overview
+- `naive-parser`:
+    ```
+    [src/main.rs:15:5] &result = ParseResult {
+        exo: McqExo {
+            title: "What is Fish ?",
+            options: [
+                "An animal in water",
+                "Friendly Interactive Shell",
+                "Yet another geek joke",
+            ],
+            correct_option_index: 1,
+        },
+        errors: [],
+    }
+    ```
+- `winnow-parser` not finished
+- `lsp-server-demo`
+    ![](../report/imgs/lsp-demo.svg)
+- `tree-sitter-poc-dy`  
+    <img src="../report/imgs/mcq.svg" height="180" />
+- `websockets-json`: see report
 
-## Syntax
-We would like to describe basic MCQ exos, this is inspired by current Delibay needs. This is not the definitive syntax ! In a file called `fish.dy`, we write this
+## Simplified DY syntax
+Instead of using the whole syntax with lot's of prefixes, we would like to describe basic MCQ exos (inspired by Delibay, another project which is the origin of this syntax). This is not the definitive syntax ! In a file called `fish.dy`, we write this
 ```
 // Basic warmup exo
 exo What is Fish ?
@@ -74,6 +93,3 @@ If we wanted to export it in JSON, it would be
 1. Double prefixes is incorrect
 1. A line that starts with something else that a known prefix or a dash or `//` is invalid
 
-## Retrospective of on naive-parser implementation
-1. Basic parsing was very naive and very fast to implement
-1. 
