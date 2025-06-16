@@ -5,17 +5,17 @@
 
 == Contexte
 
-Etat actuel de l'enseignement en informatique (sans jugement)
+// Etat actuel de l'enseignement en informatique (sans jugement)
+//
+// - Enseignement sous forme de cours magistraux.
+// - Besoin de pratique délibérée et définition de la pratique délibérée.
+// - Laboratoires et des exercices (angle étudiants): motivation, responsabilisation, feedback, suivi.
+// - Laboratoires et exercices (angle technique): friction lors de la mise en place des laboratoires (copie des fichiers, compilation, etc.)
 
-- Enseignement sous forme de cours magistraux.
-- Besoin de pratique délibérée et définition de la pratique délibérée.
-- Laboratoires et des exercices (angle étudiants): motivation, responsabilisation, feedback, suivi.
-- Laboratoires et exercices (angle technique): friction lors de la mise en place des laboratoires (copie des fichiers, compilation, etc.)
+L'informatique et particulièrement la programmation, sont des domaines abstraits et complexes à apprendre. Dans la majorité des Universités, l'enseignement de l'informatique se fait à travers des cours composés d'une partie théorique, dispensée par un professeur, et d'une partie pratique, sous forme de laboratoires, encadrée par des assistants.
+Les session théoriques sont souvent données sous forme magistrale: des slides sur différents concepts, morceaux de code et cas d'études sont présentées durant 2 périodes. Les étudiants ont rarement la possibilité d'être actif, ce qui limite fortement la concentration et la rétention de l'information. Une grande partie de l'auditoire décroche et préfère travailler sur des laboratoires ou réviser pour d'autres cours.
 
-Dans la majorité des Universités, l'enseignement de l'informatique est donné sous forme de cours magistraux. 
-Ces cours magistraux sont généralement composés d'une partie théorique, dispensée par un professeur, et d'une partie pratique, sous forme de laboratoires, encadrée par des assistants.
-Lors des sessions théoriques, les étudiants ont rarement la possibilité d'être actif, ce qui limite l'engagement et la concentration.
-Lors des sessions pratiques, un temps important est passé à mettre en place les exercices, c'est à dire: copier des fichiers, effectuer une première compilation, et résoudre des problèmes de reproductibilité.
+Lors des sessions d'exercice en classe, un temps important est passé à mettre en place les exercices, c'est à dire: copier des fichiers, effectuer une première compilation, et résoudre des problèmes de reproductibilité.
 Ce processus fastidieux se fait au détriment de ce que l'on appelle communément la pratique délibérée [], qui consiste à travailler de manière ciblée et structurée sur des problèmes directement liés aux objectifs pédagogiques de l'enseignement.
 Ce travail de bachelor s'inscrit dans ce contexte et vise à faciliter la pratique intense sur des exercices de programmation.
 
@@ -25,15 +25,21 @@ Pour mieux comprendre à quel point le processus actuel d'entrainement est fasti
 
 #roundedbox()[#include "../schemas/plx-dy-simple.typ"]
 
-Un titre, une consigne, un code de départ sont présentés. Un scénario à lancer est donné pour tester le bon fonctionnement. A première vue, rien de bien ardu à développer, à part le temps alloué de 10 minutes. Une fois la consigne récupérée et lue par l'étudiant, la première étape est de prendre le code de départ et de créer un nouveau fichier dans ses fichiers personnels. L'étudiant peut ensuite ouvrir son IDE favori dans le dossier de l'exercice et configurer la compilation pour GCC.
+// Problème de la friction pour les étudiants sur un exercice
+
+Un titre, une consigne et un code de départ sont présentés. Un scénario à lancer est donné pour tester le bon fonctionnement. A première vue, rien de bien ardu à développer, à part le temps alloué de 10 minutes. Une fois la consigne récupérée et lue par l'étudiant, la première étape est de prendre le code de départ et de créer un nouveau fichier dans ses fichiers personnels. L'étudiant peut ensuite ouvrir son IDE favori dans le dossier de l'exercice et configurer la compilation pour GCC.
 
 Déjà 3 minutes sont passées, l'étudiant peut enfin commencer à coder. Une première solution est développée et est prête à être testée après 2 minutes. L'étudiant lance un terminal, compile le code, rentre `John` et `Doe` et s'assure du résultat. Après relecture de la sortie générée, il se rend compte d'une erreur sur `Have a nice day Doe !`: seul le nom de famille s'affiche, le prénom a été oublié. 2 minutes de plus sont écoulées. Après une minute de correction, l'étudiant retourne dans son terminal et recommence le processus de validation. Le code est terminé juste à la fin du temps alloué et l'étudiant peut suivre la correction.
 
 En résumé, sur les dix minutes seulement 3 ont été utilisées pour de l'écriture de code. Tout le reste a été perdu sur des tâches "administratives" autour de l'exercice.
 
-Durant la correction, l'enseignant va présenter sa solution point par point et demander s'il y a des questions ou incompréhensions. Certains étudiants les plus avancés poseront peut-être des questions sur l'approche ou une fonction spécifique. Les étudiants qui n'auront pas terminé l'exercice ne savent pas s'ils partaient dans la bonne direction. Les solutions qui ont choisi une approche complètement différente de celle de l'enseignant n'auront pas d'occasion d'être commentée sur leurs différences.
+// Problème du manque d'accès aux solutions en live et manque de feedback -> coté étudiants et enseignants
 
-Côté de l'enseignant, en comptant uniquement sur les questions des étudiants, la vision générale de la compréhension de la classe restera très faible. Peut-être que 10 minutes était trop court et qu'il aurait fallu 5 minutes de plus? Comment le savoir de manière globale ? Pour avoir accès aux solutions, pour les relire directement ou plus tard, demande à ce que les étudiants rendent sur un serveur le code développé. Ce rendu prend à nouveau du temps et ne peut-être fait qu'une fois manuellement à la fin de l'exercice. Le temps de les récupérer, ouvrir et fermer 40 fichiers.
+Durant la correction, l'enseignant va présenter sa solution et demander s'il y a des questions ou incompréhensions. Certains étudiants les plus avancés poseront peut-être des questions sur l'approche ou une fonction spécifique. Les étudiants qui n'auront pas terminé l'exercice ne savent pas s'ils partaient dans la bonne direction et n'auront pas de questions précises en tête. Les étudiants qui ont choisi une approche complètement différente de celle de l'enseignant, n'auront pas l'occasion d'être commentée sur leurs différences. Quelques semaines plus tard seulement ils se rendront compte durant les évaluations, si leur approches était correcte.
+
+Côté de l'enseignant, en comptant uniquement sur les questions des étudiants, la vision générale de la compréhension de la classe restera très faible. Peut-être que 10 minutes était trop court et qu'il aurait fallu 5 minutes de plus? Comment le savoir de manière globale ? Pour avoir accès aux solutions, pour les relire directement ou plus tard, demande à ce que les étudiants rendent sur un serveur le code développé. Ce rendu prend à nouveau du temps et ne peut-être fait qu'une fois manuellement à la fin de l'exercice. Le temps de les récupérer, ouvrir et fermer 40 fichiers, simplement pour avoir un aperçu des différentes approches, prendrait trop de temps en classe.
+
+Une autre approche qui permettrait de visualiser et les parcourir le code en temps réel durant l'exercice, serait de coder dans un fichier Google docs partagé à toute la classe. L'enseignant a maintenant un moyen de relire au fur et à mesure, trouver les incompréhensions et voir l'état d'avancement, mais les étudiants ont perdu toute l'expérience du travail local. Dans Google docs, il n'y a plus de couleurs, plus d'auto-complétion, plus d'erreurs de compilation intégrée dans le code. Tous les raccourcis, configuratons, formattage automatique, informations au survol manquent terriblement.
 
 // description brève de probessus fastidieux qui empêche la pratique délibérée:
 // - décrire le processus actuel avec un exemple d'exercice (C de type hello)
