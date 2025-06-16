@@ -1,3 +1,4 @@
+#import "../template/style.typ": roundedbox
 = Introduction <introduction>
 
 // TODO restructurer avec problème d'abord puis PLX, puis changement à faire dans PLX
@@ -18,20 +19,36 @@ Lors des sessions pratiques, un temps important est passé à mettre en place le
 Ce processus fastidieux se fait au détriment de ce que l'on appelle communément la pratique délibérée [], qui consiste à travailler de manière ciblée et structurée sur des problèmes directement liés aux objectifs pédagogiques de l'enseignement.
 Ce travail de bachelor s'inscrit dans ce contexte et vise à faciliter la pratique intense sur des exercices de programmation.
 
+#pagebreak()
 == Problème
+Pour mieux comprendre à quel point le processus actuel d'entrainement est fastidieux, regardons un exercice concret de C pour débutant. L'enseignant qui suit une classe de 40 étudiants, fournit la consigne suivante sur un serveur.
 
-description brève de probessus fastidieux qui empêche la pratique délibérée:
-- décrire le processus actuel avec un exemple d'exercice (C de type hello)
-- décrire les frictions de ce processus
-  - Le professeur met les fichiers à disposition sur un serveur
-  - Les étudiants copient les fichiers
-  - Configuration de l'environnement
-  - 
+#roundedbox()[#include "../schemas/plx-dy-simple.typ"]
+
+Un titre, une consigne, un code de départ sont présentés. Un scénario à lancer est donné pour tester le bon fonctionnement. A première vue, rien de bien ardu à développer, à part le temps alloué de 10 minutes. Une fois la consigne récupérée et lue par l'étudiant, la première étape est de prendre le code de départ et de créer un nouveau fichier dans ses fichiers personnels. L'étudiant peut ensuite ouvrir son IDE favori dans le dossier de l'exercice et configurer la compilation pour GCC.
+
+Déjà 3 minutes sont passées, l'étudiant peut enfin commencer à coder. Une première solution est développée et est prête à être testée après 2 minutes. L'étudiant lance un terminal, compile le code, rentre `John` et `Doe` et s'assure du résultat. Après relecture de la sortie générée, il se rend compte d'une erreur sur `Have a nice day Doe !`: seul le nom de famille s'affiche, le prénom a été oublié. 2 minutes de plus sont écoulées. Après une minute de correction, l'étudiant retourne dans son terminal et recommence le processus de validation. Le code est terminé juste à la fin du temps alloué et l'étudiant peut suivre la correction.
+
+En résumé, sur les dix minutes seulement 3 ont été utilisées pour de l'écriture de code. Tout le reste a été perdu sur des tâches "administratives" autour de l'exercice.
+
+Durant la correction, l'enseignant va présenter sa solution point par point et demander s'il y a des questions ou incompréhensions. Certains étudiants les plus avancés poseront peut-être des questions sur l'approche ou une fonction spécifique. Les étudiants qui n'auront pas terminé l'exercice ne savent pas s'ils partaient dans la bonne direction. Les solutions qui ont choisi une approche complètement différente de celle de l'enseignant n'auront pas d'occasion d'être commentée sur leurs différences.
+
+Côté de l'enseignant, en comptant uniquement sur les questions des étudiants, la vision générale de la compréhension de la classe restera très faible. Peut-être que 10 minutes était trop court et qu'il aurait fallu 5 minutes de plus? Comment le savoir de manière globale ? Pour avoir accès aux solutions, pour les relire directement ou plus tard, demande à ce que les étudiants rendent sur un serveur le code développé. Ce rendu prend à nouveau du temps et ne peut-être fait qu'une fois manuellement à la fin de l'exercice. Le temps de les récupérer, ouvrir et fermer 40 fichiers.
+
+// description brève de probessus fastidieux qui empêche la pratique délibérée:
+// - décrire le processus actuel avec un exemple d'exercice (C de type hello)
+// - décrire les frictions de ce processus
+//   - Le professeur met les fichiers à disposition sur un serveur
+//   - Les étudiants copient les fichiers
+//   - Configuration de l'environnement
+//   - 
 
 faire le lien avec le sous titr problème
 le coeur de ce que PLX va automatiser sans parler de PLX sans parler de solution
 
-exemple de temps
+// exemple de temps
+
+bien s'imaginer comment se passe des exercices en classe.
 
 Ce travail de Bachelor vise à développer le projet PLX @plxWebsite, Terminal User Interface (TUI) écrite en Rust, permettant de faciliter la pratique intense sur des exercices de programmation. Les étudiants sont constamment ralentis par la friction de la création du fichier de départ, la gestion de la compilation, l'exécution de différents scénarios de vérifications du fonctionnement, taper les entrées utilisateur et la comparaison avec l'output attendu. Toutes ces étapes prennent du temps inutilement et empêchent les étudiants de se concentrer pleinement sur l'écriture du code et la revue des résultats des scénarios pour identifier les bugs et corriger au fur et à mesure.
 

@@ -88,6 +88,15 @@
 }
 
 // My additionnal styling starting at etat de l'art
+#let roundedbox(body) = {
+    box(
+      inset: 10pt,
+      outset: (y: 3pt),
+      radius: 2pt,
+      stroke: 1pt + luma(200),
+    )[#body]
+}
+
 #let MyStyle(body) = {
 
   // Use "Snippet" instead of Liste -> Snippet 1, Snippet 2, ...
@@ -101,13 +110,7 @@
 
   show image: it => {
     if str.ends-with(it.source, "svg") {
-      box(
-        inset: 10pt,
-        outset: (y: 3pt),
-        radius: 2pt,
-        stroke: 1pt + luma(200),
-        it
-      )
+      roundedbox(it)
     } else {
       it
     }

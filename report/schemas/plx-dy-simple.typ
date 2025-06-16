@@ -1,4 +1,4 @@
-# Just greet me
+==== Just greet me
 A simple program that greets you with your fullname.
 
 Make sure you have the same output as is in this scenario, with typing `John` and `Doe` manually
