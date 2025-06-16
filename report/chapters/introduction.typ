@@ -3,6 +3,36 @@
 // TODO restructurer avec problème d'abord puis PLX, puis changement à faire dans PLX
 
 == Contexte
+
+Etat actuel de l'enseignement en informatique (sans jugement)
+
+- Enseignement sous forme de cours magistraux.
+- Besoin de pratique délibérée et définition de la pratique délibérée.
+- Laboratoires et des exercices (angle étudiants): motivation, responsabilisation, feedback, suivi.
+- Laboratoires et exercices (angle technique): friction lors de la mise en place des laboratoires (copie des fichiers, compilation, etc.)
+
+Dans la majorité des Universités, l'enseignement de l'informatique est donné sous forme de cours magistraux. 
+Ces cours magistraux sont généralement composés d'une partie théorique, dispensée par un professeur, et d'une partie pratique, sous forme de laboratoires, encadrée par des assistants.
+Lors des sessions théoriques, les étudiants ont rarement la possibilité d'être actif, ce qui limite l'engagement et la concentration.
+Lors des sessions pratiques, un temps important est passé à mettre en place les exercices, c'est à dire: copier des fichiers, effectuer une première compilation, et résoudre des problèmes de reproductibilité.
+Ce processus fastidieux se fait au détriment de ce que l'on appelle communément la pratique délibérée [], qui consiste à travailler de manière ciblée et structurée sur des problèmes directement liés aux objectifs pédagogiques de l'enseignement.
+Ce travail de bachelor s'inscrit dans ce contexte et vise à faciliter la pratique intense sur des exercices de programmation.
+
+== Problème
+
+description brève de probessus fastidieux qui empêche la pratique délibérée:
+- décrire le processus actuel avec un exemple d'exercice (C de type hello)
+- décrire les frictions de ce processus
+  - Le professeur met les fichiers à disposition sur un serveur
+  - Les étudiants copient les fichiers
+  - Configuration de l'environnement
+  - 
+
+faire le lien avec le sous titr problème
+le coeur de ce que PLX va automatiser sans parler de PLX sans parler de solution
+
+exemple de temps
+
 Ce travail de Bachelor vise à développer le projet PLX @plxWebsite, Terminal User Interface (TUI) écrite en Rust, permettant de faciliter la pratique intense sur des exercices de programmation. Les étudiants sont constamment ralentis par la friction de la création du fichier de départ, la gestion de la compilation, l'exécution de différents scénarios de vérifications du fonctionnement, taper les entrées utilisateur et la comparaison avec l'output attendu. Toutes ces étapes prennent du temps inutilement et empêchent les étudiants de se concentrer pleinement sur l'écriture du code et la revue des résultats des scénarios pour identifier les bugs et corriger au fur et à mesure.
 
 PLX vise également à apporter le plus vite possible un feedback automatique et riche, dans le but d'appliquer les principes de la pratique délibérée à l'informatique. PLX peut à terme aider de nombreux cours à la HEIG-VD (tels que PRG1, PRG2, PCO, SYE...) à passer de longs moments de théorie en session d'entrainement dynamique et très interactive. En redéfinissant l'expérience des étudiants et des enseignants sur les exercices et laboratoires, l'ambition est qu'à terme, cela génère un apprentissage plus profond de modèles mentaux solides chez les étudiants. Cela aidera les étudiants qui ont beaucoup de peine à s'approprier la programmation à avoir moins de difficultés avec ces cours. Et ceux qui sont plus à l'aise pourront développer des compétences encore plus avancées.
