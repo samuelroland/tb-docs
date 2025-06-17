@@ -12,34 +12,37 @@
 // - Laboratoires et des exercices (angle étudiants): motivation, responsabilisation, feedback, suivi.
 // - Laboratoires et exercices (angle technique): friction lors de la mise en place des laboratoires (copie des fichiers, compilation, etc.)
 
-L'informatique et particulièrement la programmation, sont des domaines abstraits et complexes à apprendre. Dans la majorité des Universités, l'enseignement de l'informatique se fait à travers des cours composés d'une partie théorique, dispensée par un professeur, et d'une partie pratique, sous forme de laboratoires, encadrée par des assistants.
-Les session théoriques sont souvent données sous forme magistrale: des slides sur différents concepts, morceaux de code et cas d'études sont présentées durant 2 périodes. Les étudiants ont rarement la possibilité d'être actif, ce qui limite fortement la concentration et la rétention de l'information. Une grande partie de l'auditoire décroche et préfère travailler sur des laboratoires ou réviser pour d'autres cours.
+L'informatique et particulièrement la programmation, sont des domaines abstraits et complexes à apprendre. Dans la majorité des universités, l'informatique est enseignée sur des cours composés d'une partie théorique, dispensée par un professeur, et d'une partie pratique, sous forme de laboratoires, encadrée par des assistants.
+Les sessions théoriques sont souvent données sous forme magistrale: des slides sont présentées durant 2 périodes pour présenter différents concepts, morceaux de code et études de cas. Les étudiant·es ont rarement la possibilité d'être actifs, ce qui limite fortement la concentration et la rétention de l'information. Une grande partie de l'auditoire décroche et préfère travailler sur des laboratoires ou réviser pour d'autres cours.
 
-Lors des sessions d'exercice en classe, un temps important est passé à mettre en place les exercices, c'est à dire: copier des fichiers, effectuer une première compilation, et résoudre des problèmes de reproductibilité.
-Ce processus fastidieux se fait au détriment de ce que l'on appelle communément la pratique délibérée [], qui consiste à travailler de manière ciblée et structurée sur des problèmes directement liés aux objectifs pédagogiques de l'enseignement.
-Ce travail de bachelor s'inscrit dans ce contexte et vise à faciliter la pratique intense sur des exercices de programmation.
+Lors des rares sessions d'exercice en classe, et durant la révision en dehors des cours, un temps important est perdu à mettre en place les exercices et les vérifications manuelles de sa solution.
+// garder ? c'est à dire: copier des fichiers, effectuer une première compilation, et résoudre des problèmes de reproductibilité.
+Ce processus fastidieux se fait au détriment de la pratique délibérée, concept popularisé par le psychologue Anders Ericsson dans ses recherches en expertise @peakBook. Cette méthode consiste à travailler de manière concentrée sur des sous-compétences spécifiques. Afin de constamment corriger et affiner son modèle mental, elle demande de recevoir un feedback rapide et régulier. La solidité du modèle mental, construit par l'expérience permet d'attendre un niveau d'expertise. #linebreak()
+Ce travail de Bachelor s'inscrit dans ce contexte et vise à redéfinir l'expérience d'apprentissage et d'enseignement de la programmation en s'inspirant de cette méthode.
 
 #pagebreak()
 == Problème
-Pour mieux comprendre à quel point le processus actuel d'entrainement est fastidieux, regardons un exercice concret de C pour débutant. L'enseignant qui suit une classe de 40 étudiants, fournit la consigne suivante sur un serveur.
+Pour mieux comprendre à quel point le processus actuel d'entrainement est fastidieux, regardons un exercice concret de C pour débutant. Une enseignante qui suit une classe de 40 étudiant·es, fournit la consigne suivante sur un serveur.
+
+// TODO en français l'exo ??
 
 #roundedbox()[#include "../schemas/plx-dy-simple.typ"]
 
 // Problème de la friction pour les étudiants sur un exercice
 
-Un titre, une consigne et un code de départ sont présentés. Un scénario à lancer est donné pour tester le bon fonctionnement. A première vue, rien de bien ardu à développer, à part le temps alloué de 10 minutes. Une fois la consigne récupérée et lue par l'étudiant, la première étape est de prendre le code de départ et de créer un nouveau fichier dans ses fichiers personnels. L'étudiant peut ensuite ouvrir son IDE favori dans le dossier de l'exercice et configurer la compilation pour GCC.
+Un titre, une consigne et un scénario pour tester le bon fonctionnement sont fournis. L'enseignante annonce un temps alloué de 10 minutes. Une fois la consigne récupérée et lue par un des étudiant·es, la première étape est de prendre le code de départ et de créer un nouveau fichier dans ses fichiers personnels. L'étudiant ouvre ensuite son IDE favori dans le dossier de l'exercice et configure la compilation avec CMake. Déjà 3 minutes sont passées, l'étudiant peut enfin commencer à coder.
 
-Déjà 3 minutes sont passées, l'étudiant peut enfin commencer à coder. Une première solution est développée et est prête à être testée après 2 minutes. L'étudiant lance un terminal, compile le code, rentre `John` et `Doe` et s'assure du résultat. Après relecture de la sortie générée, il se rend compte d'une erreur sur `Have a nice day Doe !`: seul le nom de famille s'affiche, le prénom a été oublié. 2 minutes de plus sont écoulées. Après une minute de correction, l'étudiant retourne dans son terminal et recommence le processus de validation. Le code est terminé juste à la fin du temps alloué et l'étudiant peut suivre la correction.
+Une première solution est développée et est prête à être testée après 2 minutes. L'étudiant lance un terminal, compile le code, rentre `John` et `Doe` et s'assure du résultat. Après relecture de la sortie générée, il se rend compte d'une erreur sur `Passe une belle journée Doe !`: seul le nom de famille s'affiche, le prénom a été oublié. Encore 2 minutes pour tester son code se sont écoulées. Après une minute de correction, l'étudiant retourne dans son terminal et recommence le processus de validation. Le code est terminé juste à la fin du temps alloué et l'étudiant peut suivre la correction. S'il avait eu une erreur de plus, cela aurait été trop court. Certain·es étudiant·es à ses côtés n'ont pas eu le temps de finir et doivent s'arrêter.
 
-En résumé, sur les dix minutes seulement 3 ont été utilisées pour de l'écriture de code. Tout le reste a été perdu sur des tâches "administratives" autour de l'exercice.
+En résumé, sur les dix minutes seulement trois ont été utilisées pour de l'écriture de code. Tout le reste a été perdu sur des tâches "administratives" autour de l'exercice.
 
 // Problème du manque d'accès aux solutions en live et manque de feedback -> coté étudiants et enseignants
 
-Durant la correction, l'enseignant va présenter sa solution et demander s'il y a des questions ou incompréhensions. Certains étudiants les plus avancés poseront peut-être des questions sur l'approche ou une fonction spécifique. Les étudiants qui n'auront pas terminé l'exercice ne savent pas s'ils partaient dans la bonne direction et n'auront pas de questions précises en tête. Les étudiants qui ont choisi une approche complètement différente de celle de l'enseignant, n'auront pas l'occasion d'être commentée sur leurs différences. Quelques semaines plus tard seulement ils se rendront compte durant les évaluations, si leur approches était correcte.
+Durant la correction, l'enseignante va présenter sa solution et demander s'il y a des questions. Certain·es étudiant·es les plus avancés poseront peut-être des questions sur l'approche ou une fonction spécifique. Il est très rare d'entendre une question du type "Je suis complètement paumé, vous pouvez réexpliquer ?" ou encore "Je ne n'ai pas ce qui est flou mais je n'ai vraiment pas compris votre solution". D'autres qui n'ont pas pu terminer l'exercice ne savent pas si le début partait dans la bonne direction même si la solution était bien expliquée. Une partie des étudiant·es moins expérimenté·es se rendront seulement compte durant les évaluations plusieurs semaines plus tard, si la compétence derrière l'exerice était vraiment acquise.
 
-Côté de l'enseignant, en comptant uniquement sur les questions des étudiants, la vision générale de la compréhension de la classe restera très faible. Peut-être que 10 minutes était trop court et qu'il aurait fallu 5 minutes de plus? Comment le savoir de manière globale ? Pour avoir accès aux solutions, pour les relire directement ou plus tard, demande à ce que les étudiants rendent sur un serveur le code développé. Ce rendu prend à nouveau du temps et ne peut-être fait qu'une fois manuellement à la fin de l'exercice. Le temps de les récupérer, ouvrir et fermer 40 fichiers, simplement pour avoir un aperçu des différentes approches, prendrait trop de temps en classe.
+Côté de l'enseignante, en comptant uniquement sur les questions des étudiant·es, savoir si le message de l'exercice est passé reste un challenge. Il est difficile aussi de savoir quand l'exercice doit se terminer. Peut-être qu'il aurait fallu 5 minutes de plus pour qu'une majorité ait le temps de finir ? Pour avoir accès aux réponses, elles doivent être manuellement rendues sur un serveur. Ce rendu prend à nouveau du temps et ne sera fait qu'un fois à la fin de l'exercice. Le temps de les récupérer, ouvrir et fermer 40 fichiers, pour évaluer à l'oeil l'état d'avancement et comprendre les différentes approches, prendrait trop de temps en classe.
 
-Une autre approche qui permettrait de visualiser et les parcourir le code en temps réel durant l'exercice, serait de coder dans un fichier Google docs partagé à toute la classe. L'enseignant a maintenant un moyen de relire au fur et à mesure, trouver les incompréhensions et voir l'état d'avancement, mais les étudiants ont perdu toute l'expérience du travail local. Dans Google docs, il n'y a plus de couleurs, plus d'auto-complétion, plus d'erreurs de compilation intégrée dans le code. Tous les raccourcis, configuratons, formattage automatique, informations au survol manquent terriblement.
+Une autre approche qui permettrait de visualiser et les parcourir le code en temps réel durant l'exercice, serait de coder dans un fichier Google docs partagé à toute la classe. L'enseignante a maintenant un moyen de relire au fur et à mesure, trouver les incompréhensions et voir l'état d'avancement, mais les étudiant·es ont perdu toute l'expérience du travail local. Dans Google docs, il n'y a plus de couleurs, plus d'auto-complétion, plus d'erreurs de compilation intégrée dans le code. Tous les raccourcis, configuratons, formattage automatique, informations au survol manquent terriblement. Pour tester leur code, les étudiant·es devraient constamment copier dans un fichier local pour pouvoir le compiler et lancer.
 
 // description brève de probessus fastidieux qui empêche la pratique délibérée:
 // - décrire le processus actuel avec un exemple d'exercice (C de type hello)
@@ -49,12 +52,12 @@ Une autre approche qui permettrait de visualiser et les parcourir le code en tem
 //   - Configuration de l'environnement
 //   - 
 
-faire le lien avec le sous titr problème
-le coeur de ce que PLX va automatiser sans parler de PLX sans parler de solution
+// faire le lien avec le sous titr problème
+// le coeur de ce que PLX va automatiser sans parler de PLX sans parler de solution
 
 // exemple de temps
 
-bien s'imaginer comment se passe des exercices en classe.
+// bien s'imaginer comment se passe des exercices en classe.
 
 Ce travail de Bachelor vise à développer le projet PLX @plxWebsite, Terminal User Interface (TUI) écrite en Rust, permettant de faciliter la pratique intense sur des exercices de programmation. Les étudiants sont constamment ralentis par la friction de la création du fichier de départ, la gestion de la compilation, l'exécution de différents scénarios de vérifications du fonctionnement, taper les entrées utilisateur et la comparaison avec l'output attendu. Toutes ces étapes prennent du temps inutilement et empêchent les étudiants de se concentrer pleinement sur l'écriture du code et la revue des résultats des scénarios pour identifier les bugs et corriger au fur et à mesure.
 

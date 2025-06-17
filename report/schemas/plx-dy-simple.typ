@@ -1,25 +1,23 @@
-==== Just greet me
-A simple program that greets you with your fullname.
+==== Salue-moi
+Un petit programme qui te salue avec ton nom complet.
 
-Make sure you have the same output as is in this scenario, with typing `John` and `Doe` manually
+Assure toi d'avoir la même sortie dans ce scénario, en répondant `John` et `Doe` manuellement.
 ```
 > ./main
-What is your firstname ?
-John
-Hello John, what's your lastname ?
-Doe
-Have a nice day John Doe !
+Quel est ton prénom ? John
+Salut John, qu'est est ton nom de famille ? Doe
+Passe une belle journée John Doe !
 >
 ```
 
-Start with the following code
+Démarre avec ce bout de code.
 ```c
 int main(int argc, char *argv[]) {
     // ???
 }
 ```
 
-Check that your program has finished with the exit code 0 by running this command
+Vérifie que ton programme ait terminé avec le code de fin 0, en lançant cette commande.
 ```sh
 > echo $?
 0
