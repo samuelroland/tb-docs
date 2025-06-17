@@ -81,16 +81,7 @@ En conclusion, le problème c'est que l'entrainement est fastidieux pour les ét
 // TODO "poursuivre" au lieu de "développer", okay ?
 
 // l'existant
-Ce travail de Bachelor vise à poursuivre le développement du projet PLX @plxWebsite, Terminal User Interface (TUI) écrite en Rust. Cette application permet aux étudiant·es de se concentrer pleinement sur l'écriture du code. Les scénarios de vérifications, exécutés auparavant manuellement, sont lancés automatiquement à chaque sauvegarde de fichier, afin d'apporter le plus rapidement possible un feedback automatique et riche. Au lieu de perdre 7 minutes sur 10 sur des tâches "administratives", PLX permet à l'étudiant·e de réduire ce temps à 1 minute. En plus, les étudiant·es clonent un repository Git et travaillent localement dans leur IDE favori.
-
-PLX est inspiré de Rustlings (TUI pour apprendre le Rust), permettant de s'habituer aux erreurs du compilateur Rust et de prendre en main la syntaxe @RustlingsWebsite. PLX fournit actuellement une expérience locale similaire pour le C et C++.  afin de faire passer des checks automatisés. À chaque sauvegarde, le programme est compilé et les checks sont lancés.
-
-
-// le nouveau
-Ce travail développera deux nouvelles fonctionnalités majeures, visant à aider les enseignants  TODO
-
-// potentiel
-PLX peut à terme aider de nombreux cours à la HEIG-VD (tels que PRG1, PRG2, PCO, SYE...) à passer de longs moments de théorie en session d'entrainement dynamique et très interactive. L'ambition est qu'à terme, cela génère un apprentissage plus profond de modèles mentaux solides chez les étudiants. Cela aidera les étudiants qui ont beaucoup de peine à s'approprier la programmation à avoir moins de difficultés avec ces cours. Et ceux qui sont plus à l'aise pourront développer des compétences encore plus avancées.
+Ce travail de Bachelor vise à poursuivre le développement du projet PLX @plxWebsite, Terminal User Interface (TUI) écrite en Rust. Cette application permet aux étudiant·es de se concentrer pleinement sur l'écriture du code. PLX est inspiré de Rustlings (TUI pour apprendre le Rust), permettant de s'habituer aux erreurs du compilateur Rust et de prendre en main la syntaxe @RustlingsWebsite. PLX fournit actuellement une expérience locale similaire pour le C et C++. Pour commencer à s'entrainer, les étudiant·es clonent un repository Git et travaillent localement dans leur IDE favori qui s'exécute en parallèle de PLX. Les scénarios de vérifications, exécutés auparavant manuellement, sont lancés automatiquement à chaque sauvegarde de fichier. Ces suites de tests automatisées, appelées des "checks", permettent d'apporter un feedback automatisé rapide, continu et riche. Au lieu de perdre 7 minutes sur 10 sur des tâches "administratives", PLX permet à l'étudiant·e de réduire ce temps à 1 minute.
 
 // todo yatil des études scientifiques dans l'état de l'art à mentionner ? peut-être qui soutient les défaut du YAML ou d'autres formats ?
 
@@ -104,17 +95,28 @@ PLX peut à terme aider de nombreux cours à la HEIG-VD (tels que PRG1, PRG2, PC
   caption: [Aperçu d'un exercice dans PLX, avec un check qui échoue et les 2 suivants qui passent @PlxDocsStatus],
 ) <fig-plx-preview-checks>
 
+
 #pagebreak()
 
 == Nouveaux défis
+Le problème du besoin de feedbacks humains pour les étudiant·es et celui de permettre aux enseignant·es d'accéder aux réponses, ne sont pas encore résolus par PLX. Ces nouveaux défis sont à la base des deux extensions majeures qui seront développées dans le cadre de ce travail.
 
+// potentiel utile ?
+// PLX peut à terme aider de nombreux cours à la HEIG-VD (tels que PRG1, PRG2, PCO, SYE...) à passer de longs moments de théorie en session d'entrainement dynamique et très interactive. L'ambition est qu'à terme, cela génère un apprentissage plus profond de modèles mentaux solides chez les étudiants. Cela aidera les étudiants qui ont beaucoup de peine à s'approprier la programmation à avoir moins de difficultés avec ces cours. Et ceux qui sont plus à l'aise pourront développer des compétences encore plus avancées.
 
-=== Comment les enseignants peuvent voir les résultats en temps réel ?
-Ce TB aimerait pousser l'expérience en classe plus loin pour permettre aux étudiants de recevoir des feedbacks sur leur réponse en live, sur des sessions hautement interactives. Cela aide aussi les enseignants à mesurer l'état de compréhension et les compétences des étudiants tout au long du semestre, et à adapter leur cours en fonction des incompréhensions et des lacunes.
+=== Comment les enseignants peuvent voir le code et les résultats en temps réel ?
+
+// todo mix de permet et permettra et permettrait ? que faire ?
+
+Comme mentionné précédemment, le rendu manuel d'exercices prend un peu de temps et ne sera pas fait fréquemment durant un entrainement. De plus, avoir accès à une archive de fichiers de code, demanderait encore du travail avant de pouvoir construire des statistiques de l'état des checks.
+
+Comme l'application fonctionne localement et s'exécute à chaque sauvegarde, le code et les résultats des checks sont déjà connus par PLX. Il suffirait d'avoir un serveur central, utilisé uniquement durant les sessions d'entrainement en classe (nommées "les sessions live"), vers lequel PLX envoie le code et l'état des checks en continu. Ces informations peuvent ensuite être affichées sur l'interface PLX de l'enseignant·e.
+
+La visualisation sur une échelle globale ou plus zoomée, permettra aux enseignant·es de rapidement comprendre les lacunes des étudiant·es, en relisant les différentes réponses affichées. Il sera possible de sélectionner certaines réponses particulières pour les afficher au beamer, les commenter spécifiquement ou apporter des feedbacks généraux à l'oral.
 
 #figure(
   image("../schemas/live-sessions-flow.png", width:100%),
-  caption: [Interactions entre les clients PLX entre l'enseignant et les étudiants, le code est synchronisé via un serveur central, le cours PRG2 a un repository Git publique],
+  caption: [Interactions entre les clients PLX chez l'enseignant·e et les étudiant·es, le code est synchronisé via un serveur central, le cours "PRG2" a un repository Git publique],
 ) <live-sessions-flow>
 
 Sur la @live-sessions-flow, on voit qu'avant de commencer, les étudiants ont dû cloner le repository Git du cours sur leur machine pour accéder aux exercices. Une fois une session live démarrée par un enseignant et les étudiants ayant rejoint la session, l'enseignant peut choisir de faire un exercice l'un après l'autre en définissant son propre rythme.
