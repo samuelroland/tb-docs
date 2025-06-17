@@ -21,7 +21,7 @@ Ce processus fastidieux se fait au détriment de la pratique délibérée, conce
 Ce travail de Bachelor s'inscrit dans ce contexte et vise à redéfinir l'expérience d'apprentissage et d'enseignement de la programmation en s'inspirant de cette méthode.
 
 #pagebreak()
-== Problème
+== Problème de l'expérience originale
 Pour mieux comprendre à quel point le processus actuel d'entrainement est fastidieux, regardons un exercice concret de C pour débutant. Une enseignante qui suit une classe de 40 étudiant·es, fournit la consigne suivante sur un serveur.
 
 // TODO en français l'exo ??
@@ -37,12 +37,19 @@ Une première solution est développée et est prête à être testée après 2 
 En résumé, sur les dix minutes seulement trois ont été utilisées pour de l'écriture de code. Tout le reste a été perdu sur des tâches "administratives" autour de l'exercice.
 
 // Problème du manque d'accès aux solutions en live et manque de feedback -> coté étudiants et enseignants
+// perte de l'expérience locale sur des services en ligne
 
-Durant la correction, l'enseignante va présenter sa solution et demander s'il y a des questions. Certain·es étudiant·es les plus avancés poseront peut-être des questions sur l'approche ou une fonction spécifique. Il est très rare d'entendre une question du type "Je suis complètement paumé, vous pouvez réexpliquer ?" ou encore "Je ne n'ai pas ce qui est flou mais je n'ai vraiment pas compris votre solution". D'autres qui n'ont pas pu terminer l'exercice ne savent pas si le début partait dans la bonne direction même si la solution était bien expliquée. Une partie des étudiant·es moins expérimenté·es se rendront seulement compte durant les évaluations plusieurs semaines plus tard, si la compétence derrière l'exerice était vraiment acquise.
+Durant la correction, l'enseignante va présenter sa solution et demander s'il y a des questions. Certain·es étudiant·es les plus avancés poseront peut-être des questions sur l'approche ou une fonction spécifique. Il est très rare d'entendre une question du type "Je suis complètement paumé, vous pouvez réexpliquer ce que fait cette fonction ?" ou encore "Je ne n'ai pas ce qui est flou mais je n'ai vraiment pas compris votre solution". D'autres qui n'ont pas pu terminer l'exercice ne savent pas si le début partait dans la bonne direction même si la solution était bien expliquée.
 
-Côté de l'enseignante, en comptant uniquement sur les questions des étudiant·es, savoir si le message de l'exercice est passé reste un challenge. Il est difficile aussi de savoir quand l'exercice doit se terminer. Peut-être qu'il aurait fallu 5 minutes de plus pour qu'une majorité ait le temps de finir ? Pour avoir accès aux réponses, elles doivent être manuellement rendues sur un serveur. Ce rendu prend à nouveau du temps et ne sera fait qu'un fois à la fin de l'exercice. Le temps de les récupérer, ouvrir et fermer 40 fichiers, pour évaluer à l'oeil l'état d'avancement et comprendre les différentes approches, prendrait trop de temps en classe.
+Faire fonctionner le programme n'est que la première étape. Faire du code robuste, modulaire, lisible et performant demande des retours humains pour pouvoir progresser. Par manque de retour sur leurs réponses, les étudiant·es moins expérimenté·es se rendront seulement compte durant les évaluations plusieurs semaines plus tard, si la compétence derrière l'exerice était vraiment acquise.
 
-Une autre approche qui permettrait de visualiser et les parcourir le code en temps réel durant l'exercice, serait de coder dans un fichier Google docs partagé à toute la classe. L'enseignante a maintenant un moyen de relire au fur et à mesure, trouver les incompréhensions et voir l'état d'avancement, mais les étudiant·es ont perdu toute l'expérience du travail local. Dans Google docs, il n'y a plus de couleurs, plus d'auto-complétion, plus d'erreurs de compilation intégrée dans le code. Tous les raccourcis, configuratons, formattage automatique, informations au survol manquent terriblement. Pour tester leur code, les étudiant·es devraient constamment copier dans un fichier local pour pouvoir le compiler et lancer.
+Côté de l'enseignante, en comptant uniquement sur les questions des étudiant·es, savoir si le message de l'exercice est passé reste un challenge. Il est difficile aussi de savoir quand l'exercice doit se terminer. Peut-être qu'il aurait fallu 5 minutes de plus pour qu'une majorité ait le temps de finir ? Pour avoir accès aux réponses, elles doivent être manuellement rendues sur un serveur. Ce rendu prend à nouveau du temps et ne sera fait qu'une fois à la fin de l'exercice. Le temps de les récupérer, ouvrir et fermer 40 fichiers, pour évaluer à l'oeil l'état d'avancement et comprendre les différentes approches, prendrait trop de temps en classe.
+
+Une autre approche serait de coder dans un fichier Google docs partagé à toute la classe. L'enseignante a maintenant un moyen de relire au fur et à mesure, détecter les incompréhensions, mais les étudiant·es ont perdu toute l'expérience du développement en local. Dans Google docs, il n'y a plus de couleurs, plus d'auto-complétion, plus d'erreurs de compilation intégrée dans le code. Tous les raccourcis, le formattage automatique et les informations au survol manquent terriblement. Pour tester leur code, les étudiant·es devraient constamment copier dans un fichier local.
+
+En conclusion, le problème c'est que l'entrainement est fastidieux pour les étudiants, ce qui ralentit l'apprentissage en profondeur de la programmation. Leurs enseignant·es n'ont pas accès aux solutions et ne peuvent pas donner des feedbacks.
+
+// reste evtl le problème de rédiger des tests automatisés pas toujours évident à mettre en place, teste stdin et stdout pas du tout facile
 
 // description brève de probessus fastidieux qui empêche la pratique délibérée:
 // - décrire le processus actuel avec un exemple d'exercice (C de type hello)
@@ -59,16 +66,33 @@ Une autre approche qui permettrait de visualiser et les parcourir le code en tem
 
 // bien s'imaginer comment se passe des exercices en classe.
 
-Ce travail de Bachelor vise à développer le projet PLX @plxWebsite, Terminal User Interface (TUI) écrite en Rust, permettant de faciliter la pratique intense sur des exercices de programmation. Les étudiants sont constamment ralentis par la friction de la création du fichier de départ, la gestion de la compilation, l'exécution de différents scénarios de vérifications du fonctionnement, taper les entrées utilisateur et la comparaison avec l'output attendu. Toutes ces étapes prennent du temps inutilement et empêchent les étudiants de se concentrer pleinement sur l'écriture du code et la revue des résultats des scénarios pour identifier les bugs et corriger au fur et à mesure.
+== L'approche de PLX
 
-PLX vise également à apporter le plus vite possible un feedback automatique et riche, dans le but d'appliquer les principes de la pratique délibérée à l'informatique. PLX peut à terme aider de nombreux cours à la HEIG-VD (tels que PRG1, PRG2, PCO, SYE...) à passer de longs moments de théorie en session d'entrainement dynamique et très interactive. En redéfinissant l'expérience des étudiants et des enseignants sur les exercices et laboratoires, l'ambition est qu'à terme, cela génère un apprentissage plus profond de modèles mentaux solides chez les étudiants. Cela aidera les étudiants qui ont beaucoup de peine à s'approprier la programmation à avoir moins de difficultés avec ces cours. Et ceux qui sont plus à l'aise pourront développer des compétences encore plus avancées.
+// l'existant
+// - concentrer sur l'écriture de code plutot que les étapes administratives qui peuvent etre automatisées
+// - fournir un feedback riche et immédiat grâce à des suites de tests automatisés
+// - bénéficier de l'environnement local pour la puissance des IDE et la vitesse de compilation
 
-// todo mentionner la pratique délibérée et le bouquin Peak
+// le nouveau
+// - faire des exercices en classe ensemble de la partie live tout en restant en local
+// - une interface de visualisation du code et des checks en temps réel pour les profs
+// - permet de faire des feedbacks, générer des discussions et voir l'avancement global par l'état des checks
+
+// TODO "poursuivre" au lieu de "développer", okay ?
+
+// l'existant
+Ce travail de Bachelor vise à poursuivre le développement du projet PLX @plxWebsite, Terminal User Interface (TUI) écrite en Rust. Cette application permet aux étudiant·es de se concentrer pleinement sur l'écriture du code. Les scénarios de vérifications, exécutés auparavant manuellement, sont lancés automatiquement à chaque sauvegarde de fichier, afin d'apporter le plus rapidement possible un feedback automatique et riche. Au lieu de perdre 7 minutes sur 10 sur des tâches "administratives", PLX permet à l'étudiant·e de réduire ce temps à 1 minute. En plus, les étudiant·es clonent un repository Git et travaillent localement dans leur IDE favori.
+
+PLX est inspiré de Rustlings (TUI pour apprendre le Rust), permettant de s'habituer aux erreurs du compilateur Rust et de prendre en main la syntaxe @RustlingsWebsite. PLX fournit actuellement une expérience locale similaire pour le C et C++.  afin de faire passer des checks automatisés. À chaque sauvegarde, le programme est compilé et les checks sont lancés.
+
+
+// le nouveau
+Ce travail développera deux nouvelles fonctionnalités majeures, visant à aider les enseignants  TODO
+
+// potentiel
+PLX peut à terme aider de nombreux cours à la HEIG-VD (tels que PRG1, PRG2, PCO, SYE...) à passer de longs moments de théorie en session d'entrainement dynamique et très interactive. L'ambition est qu'à terme, cela génère un apprentissage plus profond de modèles mentaux solides chez les étudiants. Cela aidera les étudiants qui ont beaucoup de peine à s'approprier la programmation à avoir moins de difficultés avec ces cours. Et ceux qui sont plus à l'aise pourront développer des compétences encore plus avancées.
+
 // todo yatil des études scientifiques dans l'état de l'art à mentionner ? peut-être qui soutient les défaut du YAML ou d'autres formats ?
-
-== Problème
-
-Le projet est inspiré de Rustlings (TUI pour apprendre le Rust), permettant de s'habituer aux erreurs du compilateur Rust et de prendre en main la syntaxe @RustlingsWebsite. PLX fournit actuellement une expérience locale similaire pour le C et C++. Les étudiants clonent un repository Git et travaillent localement sur des exercices afin de faire passer des checks automatisés. À chaque sauvegarde, le programme est compilé et les checks sont lancés. Cependant, faire passer les checks n'est que la première étape. Faire du code qualitatif, modulaire, lisible et performant demande des retours humains pour pouvoir progresser. De plus, les exercices existants étant stockés dans des PDF ou des fichiers Markdown, cela nécessite de les migrer à PLX.
 
 #figure(
   image("../imgs/plx-preview-home.png", width: 80%),
@@ -82,7 +106,8 @@ Le projet est inspiré de Rustlings (TUI pour apprendre le Rust), permettant de 
 
 #pagebreak()
 
-== Défis
+== Nouveaux défis
+
 
 === Comment les enseignants peuvent voir les résultats en temps réel ?
 Ce TB aimerait pousser l'expérience en classe plus loin pour permettre aux étudiants de recevoir des feedbacks sur leur réponse en live, sur des sessions hautement interactives. Cela aide aussi les enseignants à mesurer l'état de compréhension et les compétences des étudiants tout au long du semestre, et à adapter leur cours en fonction des incompréhensions et des lacunes.
