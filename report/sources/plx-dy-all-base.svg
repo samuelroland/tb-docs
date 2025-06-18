@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" viewBox="0 0 960.43 833.24" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+    <style>
+        * {
+            font-family: Fira Code, monospace;
+            font-size: 23px;
+        }
+        tspan, text {
+            font-variant-ligatures: none;
+            dominant-baseline: central;
+            white-space: pre;
+        }
+        .bg {
+            stroke-width: "0.5px";
+        }
+        
+        .fa0 { fill: #e9e9ed; }
+        .f4 { fill: #2e7de9; }
+        .f6 { fill: #007197; }
+        
+        .fc0 { fill: #20a8c3; font-weight: bold;}
+        .fc1 { fill: #1bb588; }
+    </style>
+<text x="-0.10615385" y="42.484871"><tspan class="fa0"/><tspan/><tspan class="fc0">exo </tspan><tspan>Pipe implementation in our custom shell
+</tspan></text>
+<text x="-0.10615385" y="72.484871"><tspan>A pipe in system programming is a way to forward the standard output
+</tspan></text>
+<text x="-0.10615385" y="102.48487"><tspan>of a program to the standard input of another one.
+</tspan></text>
+<text x="-0.10615385" y="162.48488"><tspan>When running this command in our custom shell using this symbol `|`,
+</tspan></text>
+<text x="-0.10615385" y="192.48488"><tspan>we want the output of `echo` to be used as the input of `toupper`
+</tspan></text>
+<text x="-0.10615385" y="222.48488"><tspan>which is just going to print the text in uppercase.
+</tspan></text>
+<text x="-0.10615385" y="252.48488"><tspan>```sh
+</tspan></text>
+<text x="-0.10615385" y="282.48486"><tspan>echo hello | toupper
+</tspan></text>
+<text x="-0.10615385" y="312.48486"><tspan>```
+</tspan></text>
+<text x="-0.10615385" y="372.48486"><tspan class="fc0">check </tspan><tspan>Output sent through a pipe reaches `toupper`
+</tspan></text>
+<text x="-0.10615385" y="402.48486"><tspan class="fc0">run </tspan><tspan>./st
+</tspan></text>
+<text x="-0.10615385" y="432.48486"><tspan class="fc0">skip </tspan><tspan class="fc1">.until </tspan><tspan>SO3: starting the initial process (shell)
+</tspan></text>
+<text x="-0.10615385" y="462.48486"><tspan class="fc0">see </tspan><tspan class="fc1">.timeout </tspan><tspan>2s so3%
+</tspan></text>
+<text x="-0.10615385" y="492.48486"><tspan class="fc0">type </tspan><tspan>echo hello | toupper
+</tspan></text>
+<text x="-0.10615385" y="522.48486"><tspan class="fc0">see </tspan><tspan>HELLO
+</tspan></text>
+<text x="-0.10615385" y="552.48486"><tspan class="fc0">see </tspan><tspan>so3%
+</tspan></text>
+<text x="-0.10615385" y="582.48486"><tspan class="fc0">type </tspan><tspan>ls | toupper
+</tspan></text>
+<text x="-0.10615385" y="612.48486"><tspan class="fc0">see
+</tspan></text>
+<text x="-0.10615385" y="642.48486"><tspan>CAT.ELF
+</tspan></text>
+<text x="-0.10615385" y="672.48486"><tspan>ECHO.ELF
+</tspan></text>
+<text x="-0.10615385" y="702.48486"><tspan>LN.ELF
+</tspan></text>
+<text x="-0.10615385" y="732.48486"><tspan>LS.ELF
+</tspan></text>
+<text x="-0.10615385" y="762.48486"><tspan>SH.ELF
+</tspan></text>
+<text x="-0.10615385" y="792.48486"><tspan class="fc0">see </tspan><tspan>so3%
+</tspan></text>
+<text x="-0.10615385" y="822.48486"><tspan class="fc0">kill </tspan><tspan class="fc1">.signal </tspan><tspan>9 qemu-system-arm
+</tspan></text>
+<text x="-0.10615385" y="852.48486"><tspan/></text>
+</svg>

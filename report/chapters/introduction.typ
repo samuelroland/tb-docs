@@ -28,7 +28,7 @@ Pour mieux comprendre à quel point le processus actuel d'entrainement est fasti
 
 // TODO en français l'exo ??
 
-#roundedbox()[#include "../schemas/plx-dy-simple.typ"]
+#roundedbox()[#include "../sources/plx-dy-simple.typ"]
 
 // Problème de la friction pour les étudiants sur un exercice
 
@@ -135,6 +135,8 @@ L'exercice en cours est affiché sur tous les clients PLX. À chaque sauvegarde 
 Ce premier défi nécessite le développement d'un protocole de synchronisation et du développement d'un serveur central. Elle implique aussi l'utilisation de protocoles de communication temps-réel pour permettre cette expérience en direct en classe.
 
 === Défi 2: Comment faciliter la rédaction et la maintenance des exercices ?
+
+
 La gestion des exercices dans un format textuel dans son IDE favori est largement plus productive qu'utiliser des interfaces web parfois lentes avec des dizaines de champs de formulaires. La possibilité de versionner ces fichiers textuels dans Git et facilement collaborer dans des pull requests est un avantage majeur que de nombreux enseignants apprécient. Une partie d'entre eux gèrent leur slides, exercices et évaluations, en utilisant le Markdown, Latex, Typst ou encore AsciiDoc.
 
 Le défi maintenant est de permettre de rédiger des exercices de programmation en format textuel, tout en y incluant une partie d'interactivité et d'automatisation d'un outil comme PLX à côté de l'éditeur de code.
@@ -143,7 +145,7 @@ Le défi maintenant est de permettre de rédiger des exercices de programmation 
 
 Prenons un exemple concret d'exercice de programmation, pour entrainer la gestion d'entrées/sorties dans le terminal d'un petit CLI.
 
-#figure(raw(block: true, lang: "markdown", read("../schemas/plx-dy-simple.md")), caption: [Exemple d'exercice de programmation, rédigé en Markdown]) <exemple-dy-md-start>
+#figure(raw(block: true, lang: "markdown", read("../sources/plx-dy-simple.md")), caption: [Exemple d'exercice de programmation, rédigé en Markdown]) <exemple-dy-md-start>
 
 Cet exercice en @exemple-dy-md-start est adapté à l'affichage et l'export PDF pour être distribué dans un recueil d'exercices. Si un outil tel que PLX voulait automatiser l'exécution du code et des étapes manuelles de rentrer prénom et nom et de vérifier l'output, il n'est pas vraiment possible de parser de manière non ambigüe. En effet, comment savoir exactement sans comprendre le langage naturel que `John` et `Doe` doivent être rentrés à la main et ne font pas partie de l'output ? Comment le parseur peut détecter qu'on parle du code d'exit du programme et que ce code doit valoir zéro ?
 
@@ -152,14 +154,14 @@ Nous avons besoin de définir de manière structurée ces assertions et ce qu'il
 #pagebreak()
 Cette définition JSON pourrait ressembler à celle présentée sur le @exemple-dy-json
 
-#figure(raw(block: true, lang: "json", read("../schemas/plx-dy-simple.json")), caption: [Equivalent JSON de l'exercice défini sur le @exemple-dy-md-start]) <exemple-dy-json>
+#figure(raw(block: true, lang: "json", read("../sources/plx-dy-simple.json")), caption: [Equivalent JSON de l'exercice défini sur le @exemple-dy-md-start]) <exemple-dy-json>
 
 Cet exemple d'exercice est minimal, mais le @exemple-dy-json montre bien que rédiger dans ce format serait fastidieux. Si on avait eu besoin de rédiger du Markdown dans la consigne sur plusieurs lignes, on aurait eu besoin de remplacer les retours à la ligne par des `\n` à la main. Ces transformations compliquent la lisibilité, en plus de tous les guillemets, deux points et accolades nécessaires au-delà du texte brut qui demande un effort de rédaction important.
 
 Si on oubliait un instant d'autres formats populaires moins verbeux que le JSON (tel que le YAML) et qu'on inventait de zéro une toute nouvelle syntaxe qui reprend les idées de `see`, `type`, et `exit`. Une syntaxe qui permettrait de rédiger ce même exercice de manière concise, compacte et avec très peu de caractères additionnels au contenu brut, tout en gardant une structure qui peut être parsée. Voici en @exemple-dy à quoi cela pourrait ressembler.
 
 #figure(
-  image("../schemas/plx-dy-simple.svg", width:100%),
+  image("../sources/plx-dy-simple.svg", width:100%),
   caption: [Equivalent dans une version préliminaire de la syntaxe DY de l'exercice défini sur le @exemple-dy-md-start],
 ) <exemple-dy>
 

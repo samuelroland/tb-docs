@@ -41,7 +41,7 @@ TODO
 
 === Exemple d'usage dans PLX
 #figure(
-  image("../schemas/plx-dy-all.svg", width:100%),
+  image("../sources/plx-dy-all.svg", width:100%),
   caption: [Aperçu des possibilités de DY sur un exercice plus complexe],
 ) <exemple-dy-all>
 
