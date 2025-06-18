@@ -1,10 +1,10 @@
-exo Just greet me
-A simple hello program that asks your firstname and lastname and greets you.
+exo Salue-moi
+Un petit programme qui te salue avec ton nom complet.
 
-check Can enter the full name and be greeted
-see What is your firstname ?
+check Il est possible d'être salué avec son nom complet
+see Quel est ton prénom ?
 type John
-see Hello John, what's your lastname ?
+see Salut John, qu'est est ton nom de famille ?
 type Doe
-see Have a nice day John Doe !
+see Passe une belle journée John Doe !
 exit 0
