@@ -168,34 +168,33 @@ Cet exemple d'exercice en @exemple-dy-json est minimal, mais montre clairement q
 
 Un autre format plus léger à rédiger est le YAML, voici l'équivalent de la version JSON précédente.
 
-#figure(raw(block: true, lang: "json", read("../sources/plx-dy-simple.yaml")), caption: [Equivalent YAML de l'exercice défini sur le @exemple-dy-md-start]) <exemple-dy-yaml>
+#figure(raw(block: true, lang: "yaml", read("../sources/plx-dy-simple.yaml")), caption: [Equivalent YAML de l'exercice défini sur le @exemple-dy-md-start]) <exemple-dy-yaml>
 
-L'intérêt clair du YAML, tout comme le JSON est la possibilité de définir des pairs de clés/valeurs. Les clés définissent ainsi la sémantique d'un bout de texte, ce qui n'est pas possible en Markdown. On pourrait définir une convention par dessus Markdown: définir qu'un titre de niveau 1 est le titre de l'exercice, qu'un bloc de code sans langage défini est l'output ou encore que le texte entre le titre et l'output est la consigne. Ensuite pour définir qu'un texte est l'explication de la solution, définir quelle partie de l'output inclut des entrées utilisateurs, cela devient plus corcé et dépasse ce que le Markdown supporte nativement comme construction.
+Le YAML malgré sa légereté, contient encore plusieurs points de friction:
+- Les tabulations sont difficiles à gérer dès qu'on dépasse 3-4 niveaux, elles sont nécessaire même sur du contenu multiligne
+- Certaines situations nécessitent encore des guillemets autours des strings
+- Les tirets sont nécessaires pour chaque élément de liste et les deux points pour chaque clé
+- Pour avoir plus d'une information par ligne, il faut ajouter une paire d'accolades autour des clés (`- { kind: see, value: Passe une belle journée John Doe ! }`)
+      
 
-qu'on inventait de zéro une toute nouvelle syntaxe qui reprend les idées de `see`, `type`, et `exit`. Une syntaxe qui permettrait de rédiger ce même exercice de manière concise, compacte et avec très peu de caractères additionnels au contenu brut, tout en gardant une structure qui peut être parsée. Voici en @exemple-dy à quoi cela pourrait ressembler.
+L'intérêt clair du YAML, tout comme le JSON est la possibilité de définir des pairs de clés/valeurs. Les clés donne une classification à un bout de texte, ce qui n'est pas possible en Markdown. On pourrait définir une convention par dessus Markdown: définir qu'un titre de niveau 1 est le titre de l'exercice, qu'un bloc de code sans langage défini est l'output ou encore que le texte entre le titre et l'output est la consigne. Quand on arrive sur des champs plus spécifiques à des exercices de programmation, cela se corce un peu: définir le code d'exit attendu, définir la commande pour stopper un programme, et définir les parties de l'output qui sont des entrées utilisateurs.
+
+Pour résoudre ces problèmes, nous proposons une nouvelle syntaxe, nommée DY, à mi-chemin entre le Markdown et le YAML, concise et compacte. Pour les clés, on définit un système de préfixe qui permet de structurer le contenu de l'exercice. On reprend les idées de `see`, `type`, et `exit`. Voici un exemple en @exemple-dy.
 
 #figure(
-  image("../sources/plx-dy-simple.svg", width:100%),
-  caption: [Equivalent dans une version préliminaire de la syntaxe DY de l'exercice défini sur le @exemple-dy-md-start],
+  image("../sources/plx-dy-simple.svg", width:80%),
+  caption: [Equivalent de l'exercice défini sur le @exemple-dy-md-start dans une version préliminaire de la syntaxe DY],
 ) <exemple-dy>
 
-// Dans le @exemple-dy, on définit un exercice de programmation avec un petit programme qui doit dire bonjour à l'utilisateur, en lui demandant son prénom puis son nom. Elle contient 2 checks (vérifications automatiques) pour vérifier le comportement attendu. Le premier check décrit une situation de succès et le deuxième décrit une situation d'erreur.
-
-On retrouve dans @exemple-dy les mêmes informations que défini précédemment, délimitées par un système de préfixe (en bleu du début des lignes) qui permet de structurer le contenu de l'exercice.
-
-// todo les variantes de DY ??
-
-Ce deuxième défi demande ainsi d'écrire un parseur de cette nouvelle syntaxe. Une nouvelle syntaxe sans support dans les IDE modernes est peu agréable à utiliser. Lire du texte structuré blanc sur fond noir sans aucune couleur, sans feedback sur la validité du contenu, mène à une expérience un peu froide. Une fois le parseur fonctionnel, le support de certains IDE pourra être implémenté.
-
-Voici un aperçu de l'expérience imaginée des enseignants pour la rédaction des exercices dans cette syntaxe en @ide-xp.
+Ce deuxième défi demande d'écrire un parseur de cette nouvelle syntaxe. Le parseur seul n'est pas suffisant. En effet, lire du texte structuré blanc sur fond noir sans aucune couleur, sans feedback sur la validité du contenu, mène à une expérience un peu froide. Il est indispensable d'avoir un support solide dans les IDE modernes pour proposer une expérience d'édition productive.
 
 #figure(
   image("../schemas/ide-experience-mental-model-simple.png", width:100%),
-  caption: [Aperçu de l'expérience de rédaction imaginée dans un IDE],
+  caption: [Aperçu de l'expérience imaginée de rédaction imaginée dans un IDE],
 ) <ide-xp>
 
-On voit dans la @ide-xp que l'intégration se fait sur 2 points majeurs
-+ le surlignage de code, qui permet de coloriser les préfixes et les propriétés, afin de bien distinguer le contenu des éléments propres à la syntaxe
+On voit dans la @ide-xp que l'intégration se fait sur 2 points majeurs:
++ le surlignage de code, qui permet de coloriser les préfixes et les propriétés, afin de bien distinguer les préfixes et contenu 
 + intégration avancée de la connaissance et des erreurs du parseur à l'éditeur: comme en ligne 4 avec l'erreur du nom de check manquant après le préfixe `check`, et comme en ligne 19 avec une auto-complétion qui propose les préfixes valides à cette position du curseur.
 
 Cette nouvelle syntaxe, son parseur et support d'IDE permettront de remplacer le format TOML actuellement utilisé dans PLX.

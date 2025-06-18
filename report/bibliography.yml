@@ -5,6 +5,24 @@ plxWebsite:
   title: PLX website
   author: Contributeurs de PLX
 
+# https://www.amazon.com/Peak-How-Achieve-Extraordinary-Things/dp/0143192795
+peakBook:
+  type: Book
+  author:
+    - Ericsson, Anders
+    - Pool, Robert
+  date: 2017-10-03
+  publisher: Penguin Canada
+  edition: International Edition
+  serial-number: 978-0143192794
+
+PRG1RecueilExercicesGithub:
+  type: Web
+  url: https://github.com/PRG1-HEIGVD/PRG1_Recueil_Exercices/tree/6b04c4559d924c394878993c7606e36ae82237ce
+  date: 2025-01-30
+  title: GitHub - PRG1-HEIGVD/PRG1_Recueil_Exercices at 6b04c4559d924c394878993c7606e36ae82237ce
+  author: Enseignants de PRG1 à la HEIG-VD
+
 UDLCratesio:
   type: Web
   title: udl v0.3.1 - Parser for UDL (Universal Data Language)
