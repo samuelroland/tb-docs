@@ -1,7 +1,7 @@
 ==== Salue-moi
 Un petit programme qui te salue avec ton nom complet.
 
-Assure toi d'avoir la même sortie dans ce scénario, en répondant `John` et `Doe` manuellement.
+Assure toi d'avoir la même sortie que ce scénario, en répondant `John` et `Doe` manuellement.
 ```
 > ./main
 Quel est ton prénom ? John
