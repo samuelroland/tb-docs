@@ -136,29 +136,43 @@ Ce premier défi nécessite le développement d'un protocole de synchronisation 
 
 === Défi 2: Comment faciliter la rédaction et la maintenance des exercices ?
 
+La rédaction de contenu en informatique sous forme de fichier textes, au lieu de l'approche classique de formulaires, semble particulièrement plaire en informatique. En effet, de nombreux cours rédigent tout ou partie de leur contenu (exercices, slides, consignes de laboratoires) dans diverses formats textuels. Le Markdown est de loin le plus accessible et le plus courant recontré. Un exemple d'usage est le recueil d'exercices du cours de PRG1 (C++) à la HEIG-VD qui est rédigé en Markdown @PRG1RecueilExercicesGithub. On note également l'usage de balises HTML `<details>` et `<summary>` pour rendre disponible la solution, tout en la cachant par défaut. Pour combler le manque de mise en page du Markdown, d'autres enseignant·es utilisent Latex ou Typst @TypstWebsite.
 
-La gestion des exercices dans un format textuel dans son IDE favori est largement plus productive qu'utiliser des interfaces web parfois lentes avec des dizaines de champs de formulaires. La possibilité de versionner ces fichiers textuels dans Git et facilement collaborer dans des pull requests est un avantage majeur que de nombreux enseignants apprécient. Une partie d'entre eux gèrent leur slides, exercices et évaluations, en utilisant le Markdown, Latex, Typst ou encore AsciiDoc.
+Pour faciliter l'adoption de PLX, nous avons besoin d'un format de données simple à prendre en main et qui permettent de décrire les différents types d'exercices supportés.
 
-Le défi maintenant est de permettre de rédiger des exercices de programmation en format textuel, tout en y incluant une partie d'interactivité et d'automatisation d'un outil comme PLX à côté de l'éditeur de code.
+- Markdown pas adapté car pas assez structuré pour être parsé sans ambiguité
+- format structuré facilement parsable trop verbeux
+- yaml entre deux 
+
+// La gestion des exercices dans un format textuel dans son IDE favori est largement plus productive qu'utiliser des interfaces web parfois lentes avec des dizaines de champs de formulaires. La possibilité de versionner ces fichiers textuels dans Git et facilement collaborer dans des pull requests est un avantage majeur que de nombreux enseignants apprécient. Une partie d'entre eux gèrent leur slides, exercices et évaluations, en utilisant le Markdown, Latex, Typst ou encore AsciiDoc.
+//
+// Le défi maintenant est de permettre de rédiger des exercices de programmation en format textuel, tout en y incluant une partie d'interactivité et d'automatisation d'un outil comme PLX à côté de l'éditeur de code.
 
 // todo okay de mettre des infos d'opinions ?? je peux pas vraiment citer je crois. -> selon les recherches de l'auteur.
 
-Prenons un exemple concret d'exercice de programmation, pour entrainer la gestion d'entrées/sorties dans le terminal d'un petit CLI.
+
+Si on reprend l'exercice présenté plus tôt, en y ajoutant la solution dans une partie accessible mais cachée par défaut, cela donne @exemple-dy-md-start.
 
 #figure(raw(block: true, lang: "markdown", read("../sources/plx-dy-simple.md")), caption: [Exemple d'exercice de programmation, rédigé en Markdown]) <exemple-dy-md-start>
 
-Cet exercice en @exemple-dy-md-start est adapté à l'affichage et l'export PDF pour être distribué dans un recueil d'exercices. Si un outil tel que PLX voulait automatiser l'exécution du code et des étapes manuelles de rentrer prénom et nom et de vérifier l'output, il n'est pas vraiment possible de parser de manière non ambigüe. En effet, comment savoir exactement sans comprendre le langage naturel que `John` et `Doe` doivent être rentrés à la main et ne font pas partie de l'output ? Comment le parseur peut détecter qu'on parle du code d'exit du programme et que ce code doit valoir zéro ?
+Cet exercice en @exemple-dy-md-start est adapté à l'affichage et l'export PDF si nécessaire. Cependant, si on voulait pouvoir automatiser l'exécution du code et des étapes manuelles de rentrer le prénom, le nom et de vérifier l'output, nous aurions besoin d'extraire chaque information sans ambiguité. Hors cette structure, bien que reproductible sur d'autres exercices, n'est pas assez standardisée. En effet, sans comprendre le langage naturel, comment savoir que `John` et `Doe` doivent être rentrés à la main et ne font pas partie de l'output ? Comment le parseur peut détecter qu'on parle du code d'exit du programme et que ce code doit valoir zéro ? Et si on avait différents scénarios comment pourrait-on les décrire et différencier ? Comment distinguer la consigne utile du reste des instructions comme _en répondant `John` et `Doe` manuellement_, qui ne devrait pas apparaire si le scénario a pu être automatisé?
+Ce qui peut être clair sur le langage naturel pour les humains du découpage mentale des informations, devient une tâche impossible pour un parseur qui doit être prédictible et rapide (on exclut l'usage de l'intelligence artificielle pour ce besoin).
 
-Nous avons besoin de définir de manière structurée ces assertions et ce qu'il faut entrer comme texte à quel moment. On pourrait imaginer utiliser du JSON pour y stocker le titre et la consigne. On pourrait inventer ensuite une liste de checks avec un titre et une séquence d'opérations à effectuer pour ce check. Chaque opération serait de type `see` (ce qu'on s'attend à "voir" dans l'output), `type` (ce qu'on tape dans le terminal) et finalement `exit` pour définir le code d'exit attendu.
+De plus, ce format possède plusieurs parties qui demandent plus de travail à la rédaction. Le code de la solution est développé dans un fichier `main.c` séparé puis doit être copié manuellement. Une partie du texte comme _Assure toi d'avoir la même sortie que ce scénario_ est générique et doit pourtant être constamment répétée à chaque exercice pour introduire le snippet. L'output est à maintenir à jour avec le code de la solution, si celle-ci évolue, on risque d'oublier de mettre à jour la consigne de l'exercice.
 
-#pagebreak()
-Cette définition JSON pourrait ressembler à celle présentée sur le @exemple-dy-json
+Dans le contexte du développement de PLX, la manière la plus rapide et facile à mettre en place serait simplement de définir un schéma JSON à respecter pour la rédaction. On aurait d'abord un champ pour le titre et la consigne. Ensuite une liste de checks serait fournie, avec pour chaque check un titre et une séquence d'opérations à effectuer. Chaque opération serait de type `see` (ce que l'on s'attend à "voir" dans l'output), `type` (ce qu'on tape dans le terminal) et finalement `exit` pour définir le code d'exit attendu. Il serait pratique de définir cette séquence dans un objet, avec en clé `see`, `type` ou `exit` et en valeur, un paramètre. Comme les clés des objets en JSON n'ont pas d'ordre et doivent être uniques, nous ne pourrions pas répéter plusieurs étapes `see`. Nous aurions besoin de décrire la séquence comme un tableau d'objets. Voici un exemple d'usage de ce schéma sur le @exemple-dy-json.
 
 #figure(raw(block: true, lang: "json", read("../sources/plx-dy-simple.json")), caption: [Equivalent JSON de l'exercice défini sur le @exemple-dy-md-start]) <exemple-dy-json>
 
-Cet exemple d'exercice est minimal, mais le @exemple-dy-json montre bien que rédiger dans ce format serait fastidieux. Si on avait eu besoin de rédiger du Markdown dans la consigne sur plusieurs lignes, on aurait eu besoin de remplacer les retours à la ligne par des `\n` à la main. Ces transformations compliquent la lisibilité, en plus de tous les guillemets, deux points et accolades nécessaires au-delà du texte brut qui demande un effort de rédaction important.
+Cet exemple d'exercice en @exemple-dy-json est minimal, mais montre clairement que rédiger dans ce format serait fastidieux. Si la consigne s'étalait sur plusieurs lignes, nous aurions du remplacer manuellement les retours à la ligne par des `\n`. Au-delà du texte brut, tous les guillemets, deux points et accolades nécessaires demande un effort de rédaction important.
 
-Si on oubliait un instant d'autres formats populaires moins verbeux que le JSON (tel que le YAML) et qu'on inventait de zéro une toute nouvelle syntaxe qui reprend les idées de `see`, `type`, et `exit`. Une syntaxe qui permettrait de rédiger ce même exercice de manière concise, compacte et avec très peu de caractères additionnels au contenu brut, tout en gardant une structure qui peut être parsée. Voici en @exemple-dy à quoi cela pourrait ressembler.
+Un autre format plus léger à rédiger est le YAML, voici l'équivalent de la version JSON précédente.
+
+#figure(raw(block: true, lang: "json", read("../sources/plx-dy-simple.yaml")), caption: [Equivalent YAML de l'exercice défini sur le @exemple-dy-md-start]) <exemple-dy-yaml>
+
+L'intérêt clair du YAML, tout comme le JSON est la possibilité de définir des pairs de clés/valeurs. Les clés définissent ainsi la sémantique d'un bout de texte, ce qui n'est pas possible en Markdown. On pourrait définir une convention par dessus Markdown: définir qu'un titre de niveau 1 est le titre de l'exercice, qu'un bloc de code sans langage défini est l'output ou encore que le texte entre le titre et l'output est la consigne. Ensuite pour définir qu'un texte est l'explication de la solution, définir quelle partie de l'output inclut des entrées utilisateurs, cela devient plus corcé et dépasse ce que le Markdown supporte nativement comme construction.
+
+qu'on inventait de zéro une toute nouvelle syntaxe qui reprend les idées de `see`, `type`, et `exit`. Une syntaxe qui permettrait de rédiger ce même exercice de manière concise, compacte et avec très peu de caractères additionnels au contenu brut, tout en gardant une structure qui peut être parsée. Voici en @exemple-dy à quoi cela pourrait ressembler.
 
 #figure(
   image("../sources/plx-dy-simple.svg", width:100%),
@@ -227,4 +241,3 @@ L'auteur de ce travail se permet un certain nombre d'anglicismes quand un équiv
 // todo check ces définitions
 
 #pagebreak()
-

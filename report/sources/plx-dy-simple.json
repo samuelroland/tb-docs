@@ -1,16 +1,16 @@
 {
-    "exo": "Just greet me",
-    "instruction": "A simple hello program that asks your firstname and lastname and greets you.",
+    "exo": "Salue-moi",
+    "instruction": "Un petit programme qui te salue avec ton nom complet.",
     "checks": [
         {
-            "name": "Can enter the full name and be greeted",
+            "name": "Il est possible d'être salué avec son nom complet",
             "sequence": [
-                { "type": "see", "value": "What is your firstname ?" },
-                { "type": "type", "value": "John" },
-                { "type": "see", "value": "Hello John, what's your lastname ?" },
-                { "type": "type", "value": "Doe" },
-                { "type": "see", "value": "Have a nice day John Doe !" },
-                { "type": "exit", "code": 0 }
+                { "kind": "see", "value": "Quel est ton prénom ?" },
+                { "kind": "type", "value": "John" },
+                { "kind": "see", "value": "Salut John, qu'est est ton nom de famille ?" },
+                { "kind": "type", "value": "Doe" },
+                { "kind": "see", "value": "Passe une belle journée John Doe !" },
+                { "kind": "exit", "code": 0 }
             ]
         }
     ]
