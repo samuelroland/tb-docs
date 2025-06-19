@@ -40,6 +40,13 @@ JsonRfcIntro:
     - Bray, Tim
 # Titre défini à la main, ça joue ?
 
+CodecheckJavaExample:
+  type: Web
+  url: https://codecheck.io/files/wiley/codecheck-bj-4-object-102
+  date: 2025
+  title: AverageTester.java exercice on CodeCheck
+  author: Horstmann, Cay
+
 UDLCratesio:
   type: Web
   title: udl v0.3.1 - Parser for UDL (Universal Data Language)
