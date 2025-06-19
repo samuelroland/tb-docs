@@ -23,6 +23,23 @@ PRG1RecueilExercicesGithub:
   title: GitHub - PRG1-HEIGVD/PRG1_Recueil_Exercices at 6b04c4559d924c394878993c7606e36ae82237ce
   author: Enseignants de PRG1 à la HEIG-VD
 
+TypstWebsite:
+  type: Web
+  url: https://typst.app/
+  date: 2025
+  title: "Typst: Compose papers faster"
+  author: Typst contributeurs
+
+JsonRfcIntro:
+  type: Web
+  url: https://www.rfc-editor.org/rfc/rfc7159.html#section-1
+  date: 2025
+  title: RFC 7159 - The JavaScript Object Notation (JSON) Data Interchange Format - Section 1 Introduction
+  author:
+    - Crockford, Douglas
+    - Bray, Tim
+# Titre défini à la main, ça joue ?
+
 UDLCratesio:
   type: Web
   title: udl v0.3.1 - Parser for UDL (Universal Data Language)
