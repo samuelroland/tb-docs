@@ -7,6 +7,11 @@ Cette partie définit le protocole de communication entre les clients et un serv
 ==== Définition des sessions live
 Le protocole tourne autour du concept de session, qui peut être vu comme un endroit virtuel temporaire où plusieurs personnes s'entrainent sur les mêmes exercices. Une session est définie par un titre et un lien HTTPS d'un repository Git, cette combinaison est unique sur le serveur. Une personne démarre une session pour un repository qui contient des exercices pour PLX, en choisit une sélection et d'autres rejoignent pour faire ces exercices. La session vit jusqu'à que la personne qui l'a démarée décide de l'arrêter ou qu'un temps d'expiration côté serveur décide de l'arrêter après un certain temps d'inactivité. L'arrêt d'une session déconnecte tous les clients connectés.
 
+// TODO ajouter notion de sans compte, sécurité particulière,
+// sans avoir de système d'authentification.
+// rate limiting ?
+// éviter le spam ?
+
 ==== Besoins
 - Client: Démarrer et arrêter une session, seul le client qui a démarré doit pouvoir arrêter une session.
 - Serveur: Envoyer l'information de fermeture de la session
@@ -17,8 +22,12 @@ Le protocole tourne autour du concept de session, qui peut être vu comme un end
 - Client: Lancer un exercice, pour qu'il puisse être affiché sur tous les clients de la session
 - Client: Mettre en pause le streaming des changements du serveur vers le client // système d'activation et désactivation de l'abonnement ? meilleur wording ?
 
-==== Tolérance aux instabilités du réseau
-Afin de supporter différentes instabilités du réseau, tel que de pertes de Wifi ou des Wifi surchargés, qui 
+==== Gestion des clients face aux pannes ou redémarrages
+Si un·e étudiant·e quitte PLX et le relance, on aimerait que le client PLX soit reconnu comme étant le même que précédemment, sans avoir de système d'authentification. Le but est d'éviter des incohérences dans l'interface, par exemple de voir le code d'un·e étudiant·e deux fois, parce que le client PLX a été redémarré entre deux et qu'il est considéré comme un tout nouveau client.
+
+Afin de supporter différentes instabilités du réseau, tel que de pertes de Wifi ou des Wifi surchargés,  nous mettons en place quelques mécanismes permettant de reconnecter des clients. 
+
+Nous ne supportons pas les pannes du serveur. Nous pourrions dans le futur imaginer un système où les clients leaders recréent la session si le serveur a été redémarré, mais cela ne sera pas nécessaire pour les premières versions de PLX.
 
 ==== Définition des clients
 Un "client PLX" est défini comme la partie logicielle de PLX qui se connecte à un serveur PLX. Pour qu'un client puisse survivre à une perte temporaire de conn

@@ -6,7 +6,8 @@
   caption: [Architecture haut niveau décrivant les interactions entre les clients PLX et le serveur de session live],
 ) <high-level-arch>
 
-*Avertissement: Le protocole détaillé de synchronisation n'a pas encore été défini.*
+
+#include "../protocol/protocol.typ"
 
 #pagebreak()
 == Syntaxe DY

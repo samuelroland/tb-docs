@@ -755,3 +755,18 @@ PlxBookLogo:
   date: 2025
   title: Development - PLX docs - Logo design
   author: Contributeurs de PLX
+
+# Architecture
+IANAPortsNumbers:
+  type: Web
+  url: https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?search=unassigned&page=5
+  date: 2025-06-18
+  title: Service Name and Transport Protocol Port Number Registry
+  author: IANA
+
+SemverWebsite:
+  type: Web
+  url: https://semver.org/
+  date: 2025
+  title: Semantic Versioning 2.0.0 | Semantic Versioning
+  author: Preston-Werner, Tom
