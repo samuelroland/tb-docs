@@ -770,3 +770,13 @@ SemverWebsite:
   date: 2025
   title: Semantic Versioning 2.0.0 | Semantic Versioning
   author: Preston-Werner, Tom
+
+IetfNoXPrefixRfc:
+  type: Web
+  url: https://datatracker.ietf.org/doc/html/rfc6648
+  date: 2012-06-13
+  title: RFC 6648 - Deprecating the &quot;X-&quot; Prefix and Similar Constructs in Application Protocols
+  author:
+    - Saint-Andre, Peter
+    - Crocker, Dave
+    - Nottingham, Mark
