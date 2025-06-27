@@ -92,4 +92,4 @@ Des mesures basiques sont prises pour éviter un poids ou un nombre inutile de m
 ==== Messages
 
 
-#figure(raw(block: true, lang: "json", read("messages/session-create.json")), caption: [Message `SessionStart`])
+#include "messages/messages.typ"
