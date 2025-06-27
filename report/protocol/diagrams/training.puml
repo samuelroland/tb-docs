@@ -1,0 +1,37 @@
+@startuml 
+hide footbox
+
+title Durant une session live
+
+participant "Client PLX Follower - Julia" as follower
+participant "Client PLX Leader - Jack" as leader
+participant "Serveur PLX" as server
+
+note over follower, server: Ouverture d'une session
+
+====== 0s ==
+' Slow but code+checks
+leader -> server: Action ConfigureSync mode=all, frequency=10s
+====== 30s ==
+leader -> server: Action SwitchExo exos/intro/salue-moi
+server -> leader: Event ExoSwitched exos/intro/salue-moi
+server -> follower: Event ExoSwitched exos/intro/salue-moi
+follower -> follower: Affichage et lancement\nde exos/intro/salue-moi
+follower -> follower: Ouvrir l'exercice, modifier et sauver
+follower -> server: Action CodeChange "#include ....."
+follower -> server: Action CheckResult passing=fail,output=...
+note over server: Premier transfert immédiat
+server -> leader: Event ForwardCode "code v1" client_tmp_id = 3
+server -> leader: Event ForwardCheck "code v1" client_tmp_id = 3
+follower -> follower: Changer code et sauver
+follower -> server: Action CodeChange "code v2"
+follower -> follower: Changer code et sauver
+follower -> server: Action CodeChange "code v3"
+====== 40s ==
+server -> leader: Event ForwardCode "#include ....." client_tmp_id = 3
+
+' Faster but checks only
+leader -> server: Action ConfigureSync mode=checks, frequency=3s
+note over follower, server: Fermeture d'une session
+
+@enduml

@@ -11,34 +11,32 @@ participant "Serveur PLX" as server
 follower -> follower: Générer et persister\nclient_id => 7ke9A1Idkk
 leader -> leader: Générer et persister\nclient_id => EUtqpL7GjC
 
-' Follower init and get an empty list of sessions
-follower -> server: Ouvrir la connexion WebSocket
-follower -> server: Action Init, protocol_version = 0.1.0, client_id = 7ke9A1Idkk
-follower -> server: Action GetSessions https://github.com/prg2/prg2
-server -> follower: Event GetSessions [  ]
+' Follower get an empty list of sessions
+follower -> server: Ouvrir la connexion (TCP + WebSocket handshake)\nprotocol version = 0.1.0, client_id = 7ke9A1Idkk
+follower -> server: Msg GetSessions https://github.com/prg2/prg2
+server -> follower: Msg GetSessions [  ]
 
 ' Session creation
-leader -> server: Ouvrir la connexion WebSocket
-leader -> server: Action Init, client_id = EUtqpL7GjC
-leader -> server: Action StartSession "PRG2 Jack"
-server -> server: Génération stop_secret,\nsauvegarde session\nen mémoire
-server -> leader: Event SessionStarted "PRG2 Jack" stop_secret=ynDju7kQse
-leader -> leader: Persister le stop_secret
+leader -> server: Ouvrir la connexion (...)
+leader -> server: Msg StartSession "PRG2 Jack"
+server -> leader: Msg SessionCreated "PRG2 Jack"
 
 ' Follower join
-follower -> server: Action GetSessions https://github.com/prg2/prg2
-server -> follower: Event GetSessions [ "PRG2 Jack" ]
-follower -> server: Action JoinSession https://github.com/prg2/prg2 "PRG2 Jack"
-server -> follower: Event SessionJoined
+follower -> server: Msg GetSessions https://github.com/prg2/prg2
+server -> follower: Msg GetSessions [ "PRG2 Jack" ]
+follower -> server: Msg JoinSession https://github.com/prg2/prg2 "PRG2 Jack"
+server -> follower: Msg SessionJoined
+server -> leader: Msg Stats followers=1
 
-note over follower, server: Déroulement d'une session.
-leader -> server: Action StopSession stop_secret=ynDju7kQse
-server -> leader: Event SessionStopped
+note over follower, server: Déroulement de l'entrainement
+leader -> server: Msg StopSession
+server -> server: Vérification que le client\nest bien le créateur\nde la session
+server -> leader: Msg SessionStopped
 server -> leader: Fermeture de la connexion
-server -> follower: Event SessionStopped
+server -> follower: Msg SessionStopped
 server -> follower: Fermeture de la connexion
 
-' Aucune requête ne doit être envoyée avant l'action Init, le serveur a besoin de connaître un ID unique du client. Ces IDs doivent rester secrète entre le client et serveur, sinon il serait possible d'impersonner un client.
+' Ces IDs doivent rester secrète entre le client et serveur, sinon il serait possible d'impersonner un client.
 ' Le même client_id ne peut être utilisé sur plusieurs sockets séparés
 ' Les clients ne peuvent être connecté sur une session à la fois. Les messages n'ont ainsi pas besoin d'indiquer la session concernée, le serveur maintient une map de client_id vers session, et en plus socket vers client_id ?
 ' Les clients n'ont pas besoin d'informer sur leur nom, juste d'un ID unique qui doit être persisté afin de supporter un redémarrage du client PLX ou une reconnexion.
