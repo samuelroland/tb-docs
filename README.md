@@ -4,8 +4,8 @@
 
 ## Documents disponibles
 1. [**Le rapport final**](report/rapport-final-tb-plx.pdf) - Typst - en cours de rédaction
-1. [Descriptif de l'idée pour GAPS](./descriptif-gaps.md) - Markdown - Rendu le 2024-11-18 pour le sytème de gestion des TBs
-1. [Cahier des charges (cdc)](./cdc.md) - Markdown - Rendu le 2025-04-09
+1. [Descriptif de l'idée pour GAPS](./preparation/descriptif-gaps.md) - Markdown - Rendu le 2024-11-18 pour le sytème de gestion des TBs
+1. [Cahier des charges (cdc)](./preparation/cdc.md) - Markdown - Rendu le 2025-04-09
 1. [Liste de POC des différentes technologies pour l'état de l'art](./pocs) - 5 POCs en Rust pour tester différentes crates
 
 ## Implémentation
