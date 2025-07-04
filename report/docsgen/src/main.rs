@@ -1,16 +1,18 @@
 // We use the strum crate with AsRefStr derive macro to be able to get the enum variant name by event.as_ref() on the Event enum for example
 use std::{
     ffi::OsStr,
-    fmt::Display,
-    fs::{read, read_to_string, write},
+    fs::{read, write},
     path::PathBuf,
     time::SystemTime,
 };
 
-use chrono::{DateTime, Utc, format};
+use chrono::{DateTime, Utc};
 use colored::Colorize;
 use plx::live::{
-    msg::{Action, ClientNum, Event, ForwardedFile, ForwardedResult, LiveProtocolError},
+    msg::{
+        Action, CheckStatus, ClientNum, Event, ExoCheckResult, ForwardedFile, ForwardedResult,
+        LiveProtocolError,
+    },
     session::Session,
 };
 use walkdir::WalkDir;
@@ -53,10 +55,7 @@ fn export_plantuml_diagrams() -> Result<(), Box<dyn std::error::Error>> {
         let content = read(&file).expect("File has been found by walkdir and should still exist");
         let client = reqwest::blocking::Client::new();
         let res = client
-            .post(format!(
-                "{}/{}",
-                PLANTUML_SERVER_URL, PLANTUML_EXPORT_FORMAT
-            ))
+            .post(format!("{PLANTUML_SERVER_URL}/{PLANTUML_EXPORT_FORMAT}"))
             // This header is necessary to avoid french accents to get transformed in weird ways
             .header("Content-Type", "text/plain; charset=utf-8")
             .body(content)
@@ -78,8 +77,8 @@ fn save_protocol_message<T>(
     T: serde::Serialize,
 {
     save_protocol_message_with_filename_and_caption(
-        format!("{}-{}.json", enum_name, variant_name),
-        format!("Message `{}::{}`", enum_name, variant_name),
+        format!("{enum_name}-{variant_name}.json"),
+        format!("Message `{enum_name}::{variant_name}`"),
         msg,
         files,
     );
@@ -106,10 +105,8 @@ fn export_protocol_messages() {
     println!("{}", "Exporting protocol messages as JSON".green());
     let mut all_json_files: Vec<FileInclude> = Vec::new();
     let events = [
-        Event::SessionStarted,
-        Event::SessionStarted,
         Event::SessionStopped,
-        Event::SessionJoined,
+        Event::SessionJoined(ClientNum(4)),
         Event::SessionsList(vec![
             Session {
                 name: "PRG2 Jack".to_string(),
@@ -120,14 +117,17 @@ fn export_protocol_messages() {
                 group_id: "https://github.com/prg2/prg2.git".to_string(),
             },
         ]),
-        Event::Stats {
+        Event::Stats(plx::live::msg::SessionStats {
             followers_count: 32,
             leaders_count: 2,
+        }),
+        Event::ExoSwitched {
+            path: "intro/salue-moi".to_string(),
         },
-        Event::ForwardFile(
-            ClientNum(23),
-            ForwardedFile {
-                file: "main.c".to_string(),
+        Event::ForwardFile {
+            client_num: ClientNum(23),
+            file: ForwardedFile {
+                path: "main.c".to_string(),
                 content: r#"
 #include <stdio.h>
 
@@ -140,16 +140,17 @@ int main(int argc, char *argv[]) {
                 .to_string(),
                 time: DateTime::<Utc>::from(SystemTime::now()),
             },
-        ),
-        Event::ForwardResult(
-            ClientNum(12),
-            ForwardedResult {
-                check_result: plx::live::msg::ExoCheckResult {
-                    state: plx::live::msg::CheckStatus::Passed,
+        },
+        Event::ForwardResult {
+            client_num: ClientNum(12),
+            result: ForwardedResult {
+                check_result: ExoCheckResult {
+                    state: CheckStatus::Passed,
+                    index: 0,
                 },
                 time: DateTime::<Utc>::from(SystemTime::now()),
             },
-        ),
+        },
     ];
 
     let actions = [
@@ -167,7 +168,7 @@ int main(int argc, char *argv[]) {
         },
         Action::LeaveSession,
         Action::SendFile {
-            file: "main.c".to_string(),
+            path: "main.c".to_string(),
             content: r#"
 #include <stdio.h>
 
@@ -180,9 +181,33 @@ int main(int argc, char *argv[]) {
             .to_string(),
         },
         Action::SendResult {
-            check_result: plx::live::msg::ExoCheckResult {
-                state: plx::live::msg::CheckStatus::Passed,
+            check_result: ExoCheckResult {
+                state: CheckStatus::Passed,
+                index: 3,
             },
+        },
+        Action::SendResult {
+            check_result: ExoCheckResult {
+                state: CheckStatus::BuildFailed(
+                    "main.c: In function ‘main’:\nmain.c:4:5: error: ‘a’ undeclared".to_string(),
+                ),
+                index: 0,
+            },
+        },
+        Action::SendResult {
+            check_result: ExoCheckResult {
+                state: CheckStatus::CheckFailed("Hello Doe !".to_string()),
+                index: 1,
+            },
+        },
+        Action::SendResult {
+            check_result: ExoCheckResult {
+                state: CheckStatus::RunFailed("Hello\nsegfault".to_string()), // TODO: fix that
+                index: 1,
+            },
+        },
+        Action::ExoSwitch {
+            path: "structs/hello-dog".to_string(),
         },
     ];
 
@@ -194,13 +219,19 @@ int main(int argc, char *argv[]) {
     }
 
     let errors_event = [
+        LiveProtocolError::FailedToStartSession(
+            "There is already a session with the same group id and name combination.".to_string(),
+        ),
+        LiveProtocolError::FailedToJoinSession(
+            "No session found with this name in this group id".to_string(),
+        ),
         LiveProtocolError::FailedSendingWithoutSession,
         LiveProtocolError::FailedToLeaveSession,
         LiveProtocolError::SessionNotFound,
         LiveProtocolError::CannotJoinOtherSession,
         LiveProtocolError::ForbiddenSessionStop,
+        LiveProtocolError::ActionOnlyForLeader("switch of exo".to_string()),
     ];
-    for event in events {}
     for (idx, error) in errors_event.into_iter().enumerate() {
         save_protocol_message_with_filename_and_caption(
             format!("Event-Error-{idx}.json"),
@@ -223,8 +254,7 @@ int main(int argc, char *argv[]) {
     for (filename, caption) in all_json_files {
         typst_lines.push_str(
             format!(
-                r#"#figure(raw(block: true, lang: "json", read("{}")), caption: [{}])"#,
-                filename, caption
+                r#"#figure(raw(block: true, lang: "json", read("{filename}")), caption: [{caption}])"#
             )
             .as_str(),
         );
