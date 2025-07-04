@@ -1,10 +1,11 @@
 {
-  "ForwardFile": [
-    23,
-    {
-      "file": "main.c",
+  "type": "ForwardFile",
+  "content": {
+    "client_num": 23,
+    "file": {
+      "path": "main.c",
       "content": "\n#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n    printf(\"hello world!\\n\");\n    return 0;\n}\n\n",
-      "time": 1751063233
+      "time": 1751632509
     }
-  ]
+  }
 }

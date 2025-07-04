@@ -1,6 +1,7 @@
 {
-  "SendFile": {
-    "file": "main.c",
+  "type": "SendFile",
+  "content": {
+    "path": "main.c",
     "content": "\n#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n    printf(\"hello world!\\n\");\n    return 0;\n}\n\n"
   }
 }

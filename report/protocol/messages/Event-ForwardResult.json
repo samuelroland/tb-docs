@@ -1,11 +1,15 @@
 {
-  "ForwardResult": [
-    12,
-    {
+  "type": "ForwardResult",
+  "content": {
+    "client_num": 12,
+    "result": {
       "check_result": {
-        "state": "Passed"
+        "index": 0,
+        "state": {
+          "type": "Passed"
+        }
       },
-      "time": 1751063233
+      "time": 1751632509
     }
-  ]
+  }
 }

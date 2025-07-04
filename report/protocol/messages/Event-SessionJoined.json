@@ -1,1 +1,4 @@
-"SessionJoined"
+{
+  "type": "SessionJoined",
+  "content": 4
+}

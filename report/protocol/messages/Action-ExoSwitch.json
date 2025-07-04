@@ -1,0 +1,6 @@
+{
+  "type": "ExoSwitch",
+  "content": {
+    "path": "structs/hello-dog"
+  }
+}

@@ -1,7 +1,12 @@
 {
-  "SendResult": {
+  "type": "SendResult",
+  "content": {
     "check_result": {
-      "state": "Passed"
+      "index": 1,
+      "state": {
+        "type": "RunFailed",
+        "content": "Hello\nsegfault"
+      }
     }
   }
 }

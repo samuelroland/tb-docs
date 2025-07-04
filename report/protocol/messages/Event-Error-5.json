@@ -1,6 +1,6 @@
 {
   "type": "Error",
   "content": {
-    "type": "SessionNotFound"
+    "type": "CannotJoinOtherSession"
   }
 }

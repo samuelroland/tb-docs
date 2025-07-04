@@ -1,3 +1,7 @@
 {
-  "Error": "FailedToLeaveSession"
+  "type": "Error",
+  "content": {
+    "type": "FailedToJoinSession",
+    "content": "No session found with this name in this group id"
+  }
 }

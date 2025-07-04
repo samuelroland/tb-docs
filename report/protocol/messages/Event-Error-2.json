@@ -1,3 +1,6 @@
 {
-  "Error": "SessionNotFound"
+  "type": "Error",
+  "content": {
+    "type": "FailedSendingWithoutSession"
+  }
 }

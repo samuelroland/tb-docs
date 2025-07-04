@@ -1,3 +1,6 @@
 {
-  "Error": "CannotJoinOtherSession"
+  "type": "Error",
+  "content": {
+    "type": "FailedToLeaveSession"
+  }
 }
