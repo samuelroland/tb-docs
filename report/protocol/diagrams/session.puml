@@ -3,7 +3,7 @@ hide footbox
 skinparam defaultFontSize 16
 
 participant "Client Follower - Julia" as follower
-participant "Serveur\nlive.plx.rs:9120" as server
+participant "Serveur live.plx.rs:9120" as server
 participant "Client Leader - Jack" as leader
 skinparam defaultFontSize 15
 
@@ -34,13 +34,5 @@ leader -> server: Action StopSession
 server -> server: Vérification que le client\nest bien le créateur\nde la session
 server -> leader: Event SessionStopped
 server -> follower: Event SessionStopped
-
-' Ces IDs doivent rester secrète entre le client et serveur, sinon il serait possible d'impersonner un client.
-' Le même client_id ne peut être utilisé sur plusieurs sockets séparés
-' Les clients ne peuvent être connecté sur une session à la fois. Les messages n'ont ainsi pas besoin d'indiquer la session concernée, le serveur maintient une map de client_id vers session, et en plus socket vers client_id ?
-' Les clients n'ont pas besoin d'informer sur leur nom, juste d'un ID unique qui doit être persisté afin de supporter un redémarrage du client PLX ou une reconnexion.
-' Action are actions taken mostly by client, but could also be the server closing the session after inactivity or during shutdown.
-' Event are responses to actions, as everything is asynchronous
-' exemple messages JSON pour les 2 formats
 
 @enduml

@@ -1,13 +1,12 @@
 = Architecture <architecture>
 
-== Protocole de synchronisation
-#figure(
-  image("../schemas/high-level-arch.opti.svg", width:100%),
-  caption: [Architecture haut niveau décrivant les interactions entre les clients PLX et le serveur de session live],
-) <high-level-arch>
-
+== Serveur de sessions live
 
 #include "../protocol/protocol.typ"
+
+=== Implémentation du serveur
+
+=== Implémentation du client
 
 #pagebreak()
 == Syntaxe DY

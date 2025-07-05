@@ -118,9 +118,10 @@ Le besoin de feedback humain pour les étudiant·es en plus du feedback automati
 Comme mentionné précédemment, le rendu manuel d'exercices prend un peu de temps et ne sera pas fait fréquemment durant un entrainement. De plus, avoir accès à une archive de fichiers de code, demanderait encore de les lancer localement avant de pouvoir construire des statistiques de l'état des checks.
 // todo c'est un dupliqué ou pas ?
 
-Comme l'application fonctionne localement et s'exécute à chaque sauvegarde, le code et les résultats des checks sont déjà connus par PLX. Il suffirait d'avoir un serveur central, qui héberge les sessions d'entrainement en classe (appelées "sessions live"), vers lequel PLX envoie le code et l'état des checks en continu. Ces informations peuvent ensuite être récupérées du serveur et affichées sur l'interface PLX de l'enseignant·e.
+Comme l'application fonctionne localement et s'exécute à chaque sauvegarde, le code et les résultats des checks sont déjà connus par PLX. Il suffirait d'avoir un serveur central, qui héberge les sessions d'entrainement synchrones (appelées "sessions live"). A chaque changement, PLX pourrait ainsi envoyer le code et l'état des checks. Ces informations pourraient être transférées par le serveur vers le client PLX de l'enseignant·e, pour les afficher sur un tableau de bord dédié.
 
-Des interfaces de visualisation sur une échelle globale ou plus zoomée, permettront aux enseignant·es de rapidement comprendre les lacunes des étudiant·es, en relisant les différentes réponses affichées. Grâce à l'état des checks, il sera facile de voir si la classe a terminé l'exercice ou de filtrer les réponses pour concentrer sa relecture. Il sera possible de sélectionner certaines réponses particulières pour les afficher au beamer, pouvoir les commenter ou demander à la classe de critiquer constructivement le code choisi.
+Ce tableau de bord permettra aux enseignant·es de rapidement comprendre les lacunes des étudiant·es, en relisant les différentes réponses affichées. Grâce à l'état des checks, il sera facile de voir si la classe a terminé l'exercice ou de filtrer les réponses pour concentrer sa relecture. Il sera possible de sélectionner certaines réponses particulières pour les afficher au beamer, pouvoir les commenter ou demander à la classe de critiquer constructivement le code choisi.
+// todo mode beamer implémenté ou pas ??
 
 Sur la @live-sessions-flow suivante, on voit qu'avant de commencer, les étudiants ont dû cloner le repository Git du cours sur leur machine pour accéder aux exercices. Une fois une session live démarrée par un·e enseignant·e et les étudiant·es ayant rejoint la session, l'enseignant·e peut choisir de faire un exercice l'un après l'autre en choisissant le rythme.
 #figure(
@@ -250,6 +251,7 @@ L'auteur de ce travail se permet un certain nombre d'anglicismes quand un équiv
 - `README` ou `README.md`: Point d'entrée de la documentation d'un repository Git, généralement écrit en Markdown, affiché directement sur la plupart des hébergeurs de repository Git
 - `regex`: raccourcis pour les expressions régulières
 - `snippet`: court morceau de code ou de données
+- `querystring`: partie d'un URL après le `?` tel que `?action=send&id=23`, qui se termine au premier `#` rencontré
 
 // todo add note de bas de page à chaque première apparition du mot !
 

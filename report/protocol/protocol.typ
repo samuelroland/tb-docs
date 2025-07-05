@@ -1,16 +1,25 @@
-=== Protocole de sessions live
+== Définition du `Live protocol`
+
+=== Vue d'ensemble
+Cette partie définit le protocole de communication nommé `Live Protocol`, qui régit les interactions entre les clients PLX et un serveur PLX. Sur le plan technique, il fonctionne sur le protocole WebSocket pour permettre une communication bidirectionnelle. Trois parties composent notre protocole: la gestion de la connexion, la gestion des sessions et le transfert du code et résultats autour d'un exercice. La particularité du protocole est qu'il n'inclue pas d'authentification. Les clients sont néamoins identifiés par un identifiant unique (`client_id`) permettant de reconnaître un client qui perd la connexion et se reconnecte ensuite.
+
+Le protocole définit deux types de messages: les clients envoie des actions (message `Action`) au serveur et le serveur leur envoie des événements (message `Event`). Ne pas avoir de système de compte implique que tous les clients sont égaux par défaut. Pour éviter que n'importe quel client puisse contrôler une session en cours, comme changer d'exercice ou arrêter la session, un système de role est défini. Ce role attribué à chaque client dans une session est soit leader soit follower. Seul les clients leaders peuvent agir sans restriction sur la session. Les clients leaders ne font pas les exercices, mais recoivent chaque modification envoyée par les clients followers. Pour supporter des contextes variés, il est possible d'avoir plusieurs leaders par session si nécessaire. De même, nous aurions pu définir un rôle enseignant·e et étudiant·e, mais cela met de côté des usages avec des assistant·es en plus ou des étudiant·es durant une révision en groupe.
+
+Un système de gestion des pannes du serveur et des clients est défini, pour une expérience finale claire et fluide. Les clients pourront ainsi afficher dans leur interface quand le serveur s'est éteint. Pour un·e étudiant·e qui aurait du redémarer son ordinateur durant une session, son enseignant·e ne devrait pas voir 2 versions du même code avant et après redémarrage, mais bien uniquement la dernière version à jour. Les clients doivent pouvoir facilement se reconnecter et récupérer l'état actuel en cours. Un·e enseignant·e qui se déconnecterait involontairement, n'impacterait pas la présence de la session. Ces gestions de pannes sont importantes pour supporter des instabilités de Wifi notamment.
+
+=== ???
+#figure(
+  image("../schemas/high-level-arch.opti.svg", width:100%),
+  caption: [Architecture haut niveau décrivant les interactions entre les clients PLX et le serveur de session live],
+) <high-level-arch>
+// todo schéma -> inclusif
 
 *Etat: en cours de rédaction*
 
-Cette partie définit le protocole de communication entre les clients et un serveur PLX, pour toutes les interactions nécessaires à la gestion et participation à des sessions lives.
-
-==== Transport et sérialisation
-Ce protocole se base sur le protocole Websocket *RFC 6455* @WSRFC qui est basé sur TCP. Il utilise le port *9120* par défaut, qui a été choisi parmi la liste des ports non assignés publiés par l'IANA @IANAPortsNumbers. Ce port est également configurable s'il est nécessaire d'avoir plusieurs serveurs sur la même adresse IP ou s'il serait déjà pris par un autre logiciel. Les messages sont transmis sous forme de JSON sérialisé en chaine de caractères.
-
 ==== Définition des sessions live
-Le protocole tourne autour du concept de session, qui peut être vu comme un endroit virtuel temporaire où plusieurs personnes s'entrainent sur les mêmes exercices disponible dans un repository Git donné. Une session est définie par un titre et une ID textuel de groupe, cette combinaison est unique sur le serveur.
+Le protocole tourne autour du concept de session, qui peut être vu comme un endroit virtuel temporaire où plusieurs personnes s'entrainent sur les mêmes exercices au même moment, une partie des personnes ne participent pas directement mais observe les changements. Une session est définie par un titre et une ID textuel de groupe, cette combinaison est unique sur le serveur.
 
-Cette ID de groupe est complètement arbitraire et permet de grouper les sessions du même cours ensemble. Par défaut, le client PLX va prendre le lien HTTPS du repository Git (récupéré via l'origine du repository cloné). Celle-ci peut être reconfiguré, dans le cas de fork du cours qui veulent apparaître dans la même liste.
+Cette ID de groupe est complètement arbitraire et permet de grouper les sessions du même cours ensemble. Par défaut, le client PLX va prendre le lien HTTPS du repository Git. Celle-ci peut être reconfiguré, dans le cas de fork du cours qui veulent apparaître dans la même liste.
 
 Si 100 sessions live tournent en même temps, seul les sessions du cours seront listées. Si 1-6 enseignant·es enseignent un cours en même temps, la liste ne sera que de 1-6 entrées, ce qui simplifie l'accès à la bonne session. Le titre de la session sert aux étudiant·es à trouver la session qui les intéressent.
 
@@ -38,6 +47,18 @@ port = 9120
 group_id = "https://github.com/prg2/prg2.git"
 ```
 Le port est optionnel, la valeur par défaut est utilisée, tout comme `group_id` 
+
+
+==== Transport, sérialisation et gestion de la connexion
+Ce protocole se base sur le protocole Websocket *RFC 6455* @WSRFC qui est basé sur TCP. Il utilise le port *9120* par défaut, qui a été choisi parmi la liste des ports non assignés publiés par l'IANA @IANAPortsNumbers. Ce port est également configurable s'il est nécessaire d'avoir plusieurs serveurs sur la même adresse IP ou s'il serait déjà pris par un autre logiciel. Les messages, transmis dans le type de message `Text` du protocole WebSocket, sont transmis sous forme de JSON sérialisé en chaine de caractères.
+
+TODO
+#figure(
+```
+ws://live.plx.rs:9120?live_protocol_version=0.1.0&live_client_id=e9fc3566-32e3-4b98-99b5-35be520d46cb
+```, caption: [Lien de connexion en WebSocket, avec les 2 champs requis dans la querystring])
+
+
 ==== Besoins
 - Client: Démarrer et arrêter une session, seul le client qui a démarré doit pouvoir arrêter une session.
 - Serveur: Envoyer l'information de fermeture de la session
@@ -85,11 +106,25 @@ Des mesures basiques sont prises pour éviter un poids ou un nombre inutile de m
 ==== Diagrammes de séquences
 
 #figure(
-  image("diagrams/session.svg", width: 70%),
+  box(image("diagrams/session.svg", width: 100%)),
   caption: [Exemple de communication entre 2 clients et un serveur, pour gérer une session],
 )
 
 ==== Messages
 
+Tous les champs et le messages final en JSON doit être encodés en UTF-8 valide. Toutes les dates sont gérées en UTC, seulement l'affichage s'adapte au fuseau horaire local. Les dates sont sérialisées sous forme de `timestamp`, c'est à dire en nombre de secondes depuis l'époque Unix (1er janvier 1970).
+
+
+NOTES
+' Ces IDs doivent rester secrète entre le client et serveur, sinon il serait possible d'impersonner un client.
+' Le même client_id ne peut être utilisé sur plusieurs sockets séparés
+' Les clients ne peuvent être connecté sur une session à la fois. Les messages n'ont ainsi pas besoin d'indiquer la session concernée, le serveur maintient une map de client_id vers session, et en plus socket vers client_id ?
+' Les clients n'ont pas besoin d'informer sur leur nom, juste d'un ID unique qui doit être persisté afin de supporter un redémarrage du client PLX ou une reconnexion.
+' Action are actions taken mostly by client, but could also be the server closing the session after inactivity or during shutdown.
+' Event are responses to actions, as everything is asynchronous
+' exemple messages JSON pour les 2 formats
+
+
+Voici un aperçu de tous les types de messages implémentés dans notre protocole, avec des exemples réalistes de données. Certains cas possède beaucoup de variantes, notamment sur les résultats des checks, elles n'ont pas toute été documentée car elles sont plus liés à PLX qu'au protocole, mais peuvent être lue dans l'implémentation (`msg.rs`) ou les bindings TypeScript (`desktop/src/ts/bindings.ts`).
 
 #include "messages/messages.typ"
