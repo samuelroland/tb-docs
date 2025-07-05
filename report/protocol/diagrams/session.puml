@@ -29,7 +29,7 @@ follower -> server: Action JoinSession\nhttps://github.com/samuelroland/plx-demo
 server -> follower: Event SessionJoined client_num=1
 server -> leader: Event Stats\nfollowers_count=1 leaders_count=1
 
-note over follower, leader: Déroulement de l'entrainement
+===== Déroulement de l'entrainement ==
 leader -> server: Action StopSession
 server -> server: Vérification que le client\nest bien le créateur\nde la session
 server -> leader: Event SessionStopped
