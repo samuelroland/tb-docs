@@ -1,0 +1,29 @@
+@startuml 
+hide footbox
+skinparam defaultFontSize 16
+
+participant "Client - Julia" as c1
+participant "Serveur live.plx.rs:9120" as server
+participant "Client - Jack" as c2
+participant "Client - Jonathan" as c4
+participant "Client - Mélanie" as c3
+skinparam defaultFontSize 15
+
+c1 -> server: Se connecte et démarre session 1
+c2 -> server: Se connecte et démarre session 2
+c4 -> server: Se connecte et rejoint session 2
+c3 -> server: Se connecte
+server -> server: réception signal d'arrêt
+server -> c1: Event SessionStopped
+server -> c1: Event ServerStopped
+server -> c1: Fermeture du websocket
+server -> c2: Event SessionStopped
+server -> c2: Event ServerStopped
+server -> c2: Fermeture du websocket
+server -> c4: Event SessionStopped
+server -> c4: Event ServerStopped
+server -> c4: Fermeture du websocket
+server -> c3: Event ServerStopped
+server -> c3: Fermeture du websocket
+
+@enduml

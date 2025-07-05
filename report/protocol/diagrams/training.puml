@@ -1,37 +1,42 @@
 @startuml 
 hide footbox
 
-title Durant une session live
+skinparam defaultFontSize 16
+participant "Follower client_num=1 Julia" as f1
+participant "Follower client_num=2 Benoit" as f2
+participant "Serveur live.plx.rs:9120" as server
+participant "Leader client_num=0 Jack" as leader
+skinparam defaultFontSize 15
 
-participant "Client PLX Follower - Julia" as follower
-participant "Client PLX Leader - Jack" as leader
-participant "Serveur PLX" as server
+===== Démarrage d'une session à 1 leader et 2 followers ==
+' Feature idea with ConfigureSync, if useful ?
+' leader -> server: Action ConfigureSync mode=all, frequency=10s
+' Include time lines like that
+' ====== 30s ==
 
-note over follower, server: Ouverture d'une session
+leader -> server: Action SwitchExo intro/salue-moi
+server -> leader: Event ExoSwitched intro/salue-moi
+server -> f2: Event ExoSwitched intro/salue-moi
+server -> f1: Event ExoSwitched intro/salue-moi
+f1 -> f1: Affichage et lancement\nde l'exercice intro/salue-moi
+f1 -> f1: Ouvrir l'exercice, modifier et sauver
+f1 -> server: Action SendFile content="code v1" path=main.c
+f1 -> server: Action SendResult type=Passed,...
+server -> leader: Event ForwardFile "code v1"\nclient_num=1 path=main.c time=1751632509
+server -> leader: Event ForwardResult\nclient_num=1 type=Passed time=1751632510
 
-====== 0s ==
-' Slow but code+checks
-leader -> server: Action ConfigureSync mode=all, frequency=10s
-====== 30s ==
-leader -> server: Action SwitchExo exos/intro/salue-moi
-server -> leader: Event ExoSwitched exos/intro/salue-moi
-server -> follower: Event ExoSwitched exos/intro/salue-moi
-follower -> follower: Affichage et lancement\nde exos/intro/salue-moi
-follower -> follower: Ouvrir l'exercice, modifier et sauver
-follower -> server: Action CodeChange "#include ....."
-follower -> server: Action CheckResult passing=fail,output=...
-note over server: Premier transfert immédiat
-server -> leader: Event ForwardCode "code v1" client_tmp_id = 3
-server -> leader: Event ForwardCheck "code v1" client_tmp_id = 3
-follower -> follower: Changer code et sauver
-follower -> server: Action CodeChange "code v2"
-follower -> follower: Changer code et sauver
-follower -> server: Action CodeChange "code v3"
-====== 40s ==
-server -> leader: Event ForwardCode "#include ....." client_tmp_id = 3
+f2 -> server: Action SendFile\ncontent="code v1" path=main.c
+server -> leader: Event ForwardFile "code v1"\nclient_num=2 path=main.c time=1751632522
+f2 -> server: Action SendResult type=RunFail,...
+server -> leader: Event ForwardResult\nclient_num=2 type=RunFail time=1751632526
+
+note over f2: Après une autre itération, le résultat du\ncheck n'a pas changé, seul le code est envoyé
+f2 -> server: Action SendFile\ncontent="code v2" path=main.c
+server -> leader: Event ForwardFile "code v2"\nclient_num=2 path=main.c time=1751632553
 
 ' Faster but checks only
-leader -> server: Action ConfigureSync mode=checks, frequency=3s
-note over follower, server: Fermeture d'une session
+' leader -> server: Action ConfigureSync mode=checks, frequency=3s
+
+===== Fermeture de la session ==
 
 @enduml

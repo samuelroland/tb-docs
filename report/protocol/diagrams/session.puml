@@ -1,40 +1,39 @@
 @startuml 
 hide footbox
+skinparam defaultFontSize 16
 
-title Gestion de sessions live
-
-participant "Client PLX Follower - Julia" as follower
-participant "Client PLX Leader - Jack" as leader
-participant "Serveur PLX" as server
+participant "Client Follower - Julia" as follower
+participant "Serveur\nlive.plx.rs:9120" as server
+participant "Client Leader - Jack" as leader
+skinparam defaultFontSize 15
 
 ' Before
-follower -> follower: Générer et persister\nclient_id => 7ke9A1Idkk
-leader -> leader: Générer et persister\nclient_id => EUtqpL7GjC
+follower -> follower: Générer et persister\nclient_id => e9fc3566-32e3-4b98-99b5-35be520d46cb
+leader <- leader: Générer et persister client_id =>\nae9b8213-fcf6-40c8-8f35-b6d14f0ace75
 
 ' Follower get an empty list of sessions
-follower -> server: Ouvrir la connexion (TCP + WebSocket handshake)\nprotocol version = 0.1.0, client_id = 7ke9A1Idkk
-follower -> server: Msg GetSessions https://github.com/prg2/prg2
-server -> follower: Msg GetSessions [  ]
+follower -> server: Ouvrir la connexion (TCP + WebSocket handshake)\nws://live.plx.rs:9120?live_protocol_version=0.1.0\n&live_client_id=e9fc3566-32e3-4b98-99b5-35be520d46cb
+follower -> server: Action GetSessions\ngroup_id=https://github.com/samuelroland/plx-demo/
+server -> follower: Event SessionsList [  ]
 
 ' Session creation
 leader -> server: Ouvrir la connexion (...)
-leader -> server: Msg StartSession "PRG2 Jack"
-server -> leader: Msg SessionCreated "PRG2 Jack"
+leader -> server: Action StartSession "PRG2 Jack" + group_id
+server -> leader: Event SessionJoined client_num=0
+' attention: pas de Stats ici !
 
 ' Follower join
-follower -> server: Msg GetSessions https://github.com/prg2/prg2
-server -> follower: Msg GetSessions [ "PRG2 Jack" ]
-follower -> server: Msg JoinSession https://github.com/prg2/prg2 "PRG2 Jack"
-server -> follower: Msg SessionJoined
-server -> leader: Msg Stats followers=1
+follower -> server: Action GetSessions https://github.com/samuelroland/plx-demo/
+server -> follower: Event SessionsList [ "PRG2 Jack" ]
+follower -> server: Action JoinSession\nhttps://github.com/samuelroland/plx-demo/ "PRG2 Jack"
+server -> follower: Event SessionJoined client_num=1
+server -> leader: Event Stats\nfollowers_count=1 leaders_count=1
 
-note over follower, server: Déroulement de l'entrainement
-leader -> server: Msg StopSession
+note over follower, leader: Déroulement de l'entrainement
+leader -> server: Action StopSession
 server -> server: Vérification que le client\nest bien le créateur\nde la session
-server -> leader: Msg SessionStopped
-server -> leader: Fermeture de la connexion
-server -> follower: Msg SessionStopped
-server -> follower: Fermeture de la connexion
+server -> leader: Event SessionStopped
+server -> follower: Event SessionStopped
 
 ' Ces IDs doivent rester secrète entre le client et serveur, sinon il serait possible d'impersonner un client.
 ' Le même client_id ne peut être utilisé sur plusieurs sockets séparés
