@@ -13,7 +13,7 @@ leader <- leader: Générer et persister client_id =>\nae9b8213-fcf6-40c8-8f35-b
 
 ' Follower get an empty list of sessions
 follower -> server: Ouvrir la connexion (TCP + WebSocket handshake)\nws://live.plx.rs:9120?live_protocol_version=0.1.0\n&live_client_id=e9fc3566-32e3-4b98-99b5-35be520d46cb
-follower -> server: Action GetSessions\ngroup_id=https://github.com/samuelroland/plx-demo/
+follower -> server: Action GetSessions\ngroup_id=https://github.com/prg2/prg2.git
 server -> follower: Event SessionsList [  ]
 
 ' Session creation
@@ -23,9 +23,9 @@ server -> leader: Event SessionJoined client_num=0
 ' attention: pas de Stats ici !
 
 ' Follower join
-follower -> server: Action GetSessions https://github.com/samuelroland/plx-demo/
+follower -> server: Action GetSessions https://github.com/prg2/prg2.git
 server -> follower: Event SessionsList [ "PRG2 Jack" ]
-follower -> server: Action JoinSession\nhttps://github.com/samuelroland/plx-demo/ "PRG2 Jack"
+follower -> server: Action JoinSession\nhttps://github.com/prg2/prg2.git "PRG2 Jack"
 server -> follower: Event SessionJoined client_num=1
 server -> leader: Event Stats\nfollowers_count=1 leaders_count=1
 

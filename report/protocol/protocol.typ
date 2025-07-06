@@ -19,13 +19,13 @@ Un système de gestion des pannes du serveur et des clients est défini, pour un
 ==== Définition des sessions live
 Le protocole tourne autour du concept de session, qui peut être vu comme un endroit virtuel temporaire où plusieurs personnes s'entrainent sur les mêmes exercices au même moment, une partie des personnes ne participent pas directement mais observe les changements. Une session est définie par un titre et une ID textuel de groupe, cette combinaison est unique sur le serveur.
 
-Cette ID de groupe est complètement arbitraire et permet de grouper les sessions du même cours ensemble. Par défaut, le client PLX va prendre le lien HTTPS du repository Git. Celle-ci peut être reconfiguré, dans le cas de fork du cours qui veulent apparaître dans la même liste.
+Cette ID de groupe est complètement arbitraire et permet de grouper les sessions du même cours ensemble. Par défaut, le client PLX va prendre le lien HTTPS du repository Git. Dans le cas de fork du cours qui souhaiterai apparaître dans la même liste, cette ID peut être reconfigurée.
 
 Si 100 sessions live tournent en même temps, seul les sessions du cours seront listées. Si 1-6 enseignant·es enseignent un cours en même temps, la liste ne sera que de 1-6 entrées, ce qui simplifie l'accès à la bonne session. Le titre de la session sert aux étudiant·es à trouver la session qui les intéressent.
 
-Cela complique aussi une attaque qui viserait à polluer la liste des sessions pour tromper des étudiant·es, . Un·e attaquant·e ne peut pas facilement récupérer la liste de toutes les sessions ouvertes, puisqu'il est nécessaire de donner le lien d'un repository Git pour avoir une partie de la liste.
+Cela complique aussi une attaque qui viserait à polluer la liste des sessions pour tromper des étudiant·es. Un·e attaquant·e ne peut pas facilement récupérer la liste de toutes les sessions ouvertes, puisqu'il est nécessaire de donner le lien d'un repository Git pour avoir une partie de la liste.
 
-Une personne démarre une session pour un repository qui contient des exercices pour PLX, en choisit une sélection et d'autres rejoignent pour faire ces exercices. La session vit jusqu'à que la personne qui l'a démarée décide de l'arrêter ou qu'un temps d'expiration côté serveur décide de l'arrêter après un certain temps d'inactivité. L'arrêt d'une session déconnecte tous les clients connectés.
+Une personne démarre une session pour un repository qui contient des exercices pour PLX, en choisit une sélection et d'autres rejoignent pour faire ces exercices. La session vit jusqu'à que la personne qui l'a démarrée décide de l'arrêter ou qu'un temps d'expiration côté serveur décide de l'arrêter après un certain temps d'inactivité. L'arrêt d'une session déconnecte tous les clients connectés.
 
 // TODO ajouter notion de sans compte, sécurité particulière,
 // sans avoir de système d'authentification.
@@ -44,10 +44,9 @@ Pour qu'un client puisse se connecter au serveur, un repository d'un cours PLX d
 # This is the configuration used to connect to a live server
 domain = "live.plx.rs"
 port = 9120
-group_id = "https://github.com/prg2/prg2.git"
+group_id = "https://github.com/samuelroland/plx-demo.git"
 ```
-Le port est optionnel, la valeur par défaut est utilisée, tout comme `group_id` 
-
+Le `port` et le `group_id` sont optionnels, la valeur par défaut du port est utilisée et le `group_id` peut être récupérée via l'origine du repository cloné.
 
 ==== Transport, sérialisation et gestion de la connexion
 Ce protocole se base sur le protocole Websocket *RFC 6455* @WSRFC qui est basé sur TCP. Il utilise le port *9120* par défaut, qui a été choisi parmi la liste des ports non assignés publiés par l'IANA @IANAPortsNumbers. Ce port est également configurable s'il est nécessaire d'avoir plusieurs serveurs sur la même adresse IP ou s'il serait déjà pris par un autre logiciel. Les messages, transmis dans le type de message `Text` du protocole WebSocket, sont transmis sous forme de JSON sérialisé en chaine de caractères.
@@ -59,15 +58,86 @@ ws://live.plx.rs:9120?live_protocol_version=0.1.0&live_client_id=e9fc3566-32e3-4
 ```, caption: [Lien de connexion en WebSocket, avec les 2 champs requis dans la querystring])
 
 
-==== Besoins
-- Client: Démarrer et arrêter une session, seul le client qui a démarré doit pouvoir arrêter une session.
-- Serveur: Envoyer l'information de fermeture de la session
+#figure(raw(block: true, lang: "json", read("messages/Action-SendFile.json")), caption: [Action `SendFile` en exemple de message en format JSON])
+
+==== Détails de messages
+Voici les actions définies, avec l'événement associé en cas de succès de l'action. Cet événement est parfois renvoyé au même client ou à d'autres, la 4ème colonne indique les destinataires de l'événement.
+
+#table(
+  columns: 4,
+  stroke: 1pt + gray,
+  [*Identifiant*], [*But*],[*Evénement associé*],[*Evénement envoyé à*],
+  [`Action::StartSession`], [Démarrer une session],[`Event::SessionJoined`], [même client],
+  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Action-StartSession.json"))]),
+  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-SessionJoined.json"))]),
+
+  [`Action::GetSessions`], [Lister les sessions ouvertes pour un `group_id` donné],[`Event::SessionsList`], [même client],
+  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Action-GetSessions.json"))]),
+  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-SessionsList.json"))]),
+
+  [`Action::JoinSession`], [Rejoindre une session en cours],[`Event::SessionJoined`], [même client],
+  table.cell(colspan: 2,[#raw(block: true, lang: "json", read("messages/Action-JoinSession.json"))]),
+  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-SessionJoined.json"))]),
+
+  [`Action::LeaveSession`], [Quitter une session],[`Event::`], [même client],
+  table.cell(colspan: 4, [#raw(block: true, lang: "json", read("messages/Action-LeaveSession.json"))]),
+  [`Action::StopSession`], [Arrêter une session, seul le client qui a démarré peut le faire],[`Event::SessionStopped`], [tous les clients de la session],
+  table.cell(colspan: 2,[#raw(block: true, lang: "json", read("messages/Action-StopSession.json"))]),
+  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-SessionStopped.json"))]),
+
+  [`Action::SendFile`], [Envoyer une nouvelle version d'un fichier],[`Event::ForwardResult`], [aux clients leaders de la session],
+  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Action-SendFile.json"))]),
+  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-ForwardFile.json"))]),
+
+  [`Action::SendResult`], [Envoyer le résultat d'un check],[`Event::ForwardResult`], [aux clients leaders de la session],
+  table.cell(colspan: 4, [#raw(block: true, lang: "json", read("messages/Action-SendResult.json"))]),
+  table.cell(colspan: 4, [#raw(block: true, lang: "json", read("messages/Action-SendResult.json"))]),
+  table.cell(colspan: 4, [#raw(block: true, lang: "json", read("messages/Action-SendResult.json"))]),
+  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Action-SendResult.json"))]),
+  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-ForwardResult.json"))]),
+  // TODO: fix ces variantes de SendResults
+
+  [`Action::SwitchExo`], [Changer d'exercice actuel de la session, identifié par un chemin relatif],[`Event::ExoSwitched`], [à tous les clients de la session],
+  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Action-ExoSwitch.json"))]),
+  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-ExoSwitched.json"))]),
+  // todo SwitchExo renamed !?
+
+  [`Action::`], [],[`Event::`], [même client],
+
+  [`Action::`], [],[`Event::`], [même client],
+  table.cell(colspan: 4, [#raw(block: true, lang: "json", read("messages/Event-Stats.json"))]),
+  //
+  // #raw(block: true, lang: "json", read("messages/Event-Error-0.json")), caption: [Message `Event::Error(LiveProtocolError::FailedToStartSession)`])
+  // #raw(block: true, lang: "json", read("messages/Event-Error-1.json")), caption: [Message `Event::Error(LiveProtocolError::FailedToJoinSession)`])
+  // #raw(block: true, lang: "json", read("messages/Event-Error-2.json")), caption: [Message `Event::Error(LiveProtocolError::FailedSendingWithoutSession)`])
+  // #raw(block: true, lang: "json", read("messages/Event-Error-3.json")), caption: [Message `Event::Error(LiveProtocolError::FailedToLeaveSession)`])
+  // #raw(block: true, lang: "json", read("messages/Event-Error-4.json")), caption: [Message `Event::Error(LiveProtocolError::SessionNotFound)`])
+  // #raw(block: true, lang: "json", read("messages/Event-Error-5.json")), caption: [Message `Event::Error(LiveProtocolError::CannotJoinOtherSession)`])
+  // #raw(block: true, lang: "json", read("messages/Event-Error-6.json")), caption: [Message `Event::Error(LiveProtocolError::ForbiddenSessionStop)`])
+  // #raw(block: true, lang: "json", read("messages/Event-Error-7.json")), caption: [Message `Event::Error(LiveProtocolError::ActionOnlyForLeader)`])
+)
+
+- Client: Démarrer et - Serveur: Envoyer l'information de fermeture de la session
 - Serveur: Renvoyer des erreurs en cas de données invalides
-- Client: Lister les sessions ouvertes pour une repository Git donné
-- Client: Rejoindre une session en cours
+- Client: 
 - Client: En tant que client follower, configurer le mode du broadcast: sa fréquence (live, ou quelques secondes), le type de changement à recevoir (tout, seulement les checks) ou lancer une mise à jour maintenant
 - Client: Lancer un exercice, pour qu'il puisse être affiché sur tous les clients de la session
 - Client: Mettre en pause le streaming des changements du serveur vers le client // système d'activation et désactivation de l'abonnement ? meilleur wording ?
+
+==== Diagrammes de séquences
+
+#figure(
+  box(image("diagrams/session.svg", width: 100%)),
+  caption: [Exemple de communication entre 2 clients et un serveur, pour gérer une session],
+)
+
+==== Messages
+
+Tous les champs et le messages final en JSON doit être encodés en UTF-8 valide. Toutes les dates sont gérées en UTC, seulement l'affichage s'adapte au fuseau horaire local. Les dates sont sérialisées sous forme de `timestamp`, c'est à dire en nombre de secondes depuis l'époque Unix (1er janvier 1970).
+
+Voici un aperçu de tous les types de messages implémentés dans notre protocole, avec des exemples réalistes de données. Certains cas possède beaucoup de variantes, notamment sur les résultats des checks, elles n'ont pas toute été documentée car elles sont plus liés à PLX qu'au protocole, mais peuvent être lue dans l'implémentation (`msg.rs`) ou les bindings TypeScript (`desktop/src/ts/bindings.ts`).
+
+#include "messages/messages.typ"
 
 ==== Gestion des clients face aux pannes ou redémarrages
 Si un·e étudiant·e quitte PLX et le relance, on aimerait que le client PLX soit reconnu comme étant le même que précédemment, sans avoir de système d'authentification. Le but est d'éviter des incohérences dans l'interface, par exemple de voir le code d'un·e étudiant·e deux fois, parce que le client PLX a été redémarré entre deux et qu'il est considéré comme un tout nouveau client.
@@ -86,7 +156,9 @@ Nous souhaitons définir un système flexible, qui peut être autant utilisés a
 
 
 ==== Versions et rétrocompatibilité
-Pour que le serveur et les clients connectés puissent savoir s'ils communiquent avec la même version ou une version compatible, il est nécessaire d'envoyer un numéro de version de ce protocole à la première connexion. Pour ce numéro de version on utilise le Semantic Versionning 2.0.0 @SemverWebsite. Durant le développement, le protocole reste en version `0.x.y` et ne sera stabilisé qu'une fois le protocole et son implémentation dans PLX auront été testés quelques temps en grandeur nature.
+Pour que le serveur et les clients connectés puissent savoir s'ils communiquent avec une version compatible, il est nécessaire d'envoyer un numéro de version de ce protocole à la première connexion. C'est le serveur qui sera souvent le plus à jour et décide ainsi s'il refuse la connexion, en renvoyant un code HTTP 400.
+
+Pour ce numéro de version on utilise le Semantic Versionning 2.0.0 @SemverWebsite. Durant le développement, le protocole reste en version `0.x.y` et ne sera stabilisé qu'une fois le protocole et son implémentation dans PLX auront été testés quelques temps en grandeur nature.
 
 ==== Evolutivité
 Pour permettre d'évoluer le protocole au fil du temps, le numéro de version sera passée dans l'entête du "handshake" HTTP, sous le nom de `LiveProtocolVersion`, qui ne devrait pas avoir besoin de changer. Ce champ n'est évidemment pas standard mais IETF recommende depuis 2012 de ne pas ajouter le préfix `X-` @IetfNoXPrefixRfc.  Cela permettra de changer le format ou les types de messages, ou encore le format de sérialisation, tout en gardant ce numéro de version séparé et toujours accessible peu importe la version du serveur.
@@ -103,17 +175,6 @@ Des mesures basiques sont prises pour éviter un poids ou un nombre inutile de m
 - N'envoyer un résultat que s'il est différent depuis le dernier envoi. Sauver 3 fois le même fichier sans modification, donnera le même résultat, qui ne peut être envoyé qu'une seule fois pour la première sauvegarde.
 // - Bufferiser les envois en boucle: quand le serveur doit envoyer une longue suite de messages à un client, l'envoi se fait en bufferisant les messages pour éviter une partie d'appels systèmes
 
-==== Diagrammes de séquences
-
-#figure(
-  box(image("diagrams/session.svg", width: 100%)),
-  caption: [Exemple de communication entre 2 clients et un serveur, pour gérer une session],
-)
-
-==== Messages
-
-Tous les champs et le messages final en JSON doit être encodés en UTF-8 valide. Toutes les dates sont gérées en UTC, seulement l'affichage s'adapte au fuseau horaire local. Les dates sont sérialisées sous forme de `timestamp`, c'est à dire en nombre de secondes depuis l'époque Unix (1er janvier 1970).
-
 
 NOTES
 ' Ces IDs doivent rester secrète entre le client et serveur, sinon il serait possible d'impersonner un client.
@@ -125,6 +186,4 @@ NOTES
 ' exemple messages JSON pour les 2 formats
 
 
-Voici un aperçu de tous les types de messages implémentés dans notre protocole, avec des exemples réalistes de données. Certains cas possède beaucoup de variantes, notamment sur les résultats des checks, elles n'ont pas toute été documentée car elles sont plus liés à PLX qu'au protocole, mais peuvent être lue dans l'implémentation (`msg.rs`) ou les bindings TypeScript (`desktop/src/ts/bindings.ts`).
 
-#include "messages/messages.typ"
