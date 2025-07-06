@@ -45,9 +45,9 @@
 
 //#include "chapters/ch_exemple.typ"
 
-#include "chapters/architecture.typ"
+#include "chapters/arch_impl_server.typ"
 
-#include "chapters/implementation.typ"
+#include "chapters/arch_impl_syntax.typ"
 
 #include "chapters/conclusion.typ"
 

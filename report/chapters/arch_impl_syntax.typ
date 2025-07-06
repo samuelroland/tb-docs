@@ -1,44 +1,31 @@
-= Architecture <architecture>
-
-== Serveur de sessions live
-
-#include "../protocol/protocol.typ"
-
-=== Implémentation du serveur
-
-pas d'état plus que dernier code et résultats, pas de persistence.
-
-=== Implémentation du client
-
-#pagebreak()
-== Syntaxe DY
+= Architecture et implémentation de syntaxe DY <arch_impl_dy>
 
 Cette partie décrit d'une manière semi-formelle la syntaxe DY et son usage dans PLX.
 
 *Avertissement: ceci est une brouillon, il sera continué les semaines suivantes.*
 
-=== Définition semi-formelle de la syntaxe DY en abstrait
+== Définition semi-formelle de la syntaxe DY en abstrait
 
-==== Les préfixes
+=== Les préfixes
 TODO
 
-==== Les types de préfixes
+=== Les types de préfixes
 TODO
 
-==== Les propriétés
+=== Les propriétés
 TODO
 
-==== Longueurs et types de contenu
+=== Longueurs et types de contenu
 TODO
 
-==== Hiérarchie implicite
+=== Hiérarchie implicite
 Les fins de ligne définissent la fin du contenu pour les préfixes sur une seule ligne. Le préfixe `exo` supporte plusieurs lignes, son contenu se termine ainsi dès qu'un autre préfixe valide est détecté (ici `check`). La hiérarchie est implicite dans la sémantique, un exercice contient un ou plusieurs checks, sans qu'il y ait besoin d'indentation ou d'accolades pour indiquer les relations de parents et enfants. De même, un check contient une séquence d'action à effectuer (`run`, `see`, `type` et `kill`), ces préfixes n'ont de sens qu'à l'intérieur la définition d'un check (uniquement après une ligne préfixée par `check`).
 
 TODO
 
-==== Détection d'erreurs générales
+=== Détection d'erreurs générales
 
-=== Usage de la syntaxe dans PLX
+== Usage de la syntaxe dans PLX
 TODO
 
 === Exemple d'usage dans PLX
@@ -61,4 +48,16 @@ Toutes les propriétés sont optionnelles, soit elles ont une valeur par défaut
 ==== Détection d'erreurs spécifiques à PLX
 TODO
 
+TODO fix headings level
 
+== Implémentation de la librairie `dy`
+TODO
+
+== Intégration de `dy` dans PLX
+TODO
+
+== Implémentation de la syntaxe Tree-Sitter
+TODO
+
+== Implémentation du serveur de language
+TODO
