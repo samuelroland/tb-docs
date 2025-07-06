@@ -7,16 +7,19 @@ Le protocole définit deux types de messages: les clients envoie des actions (me
 
 Un système de gestion des pannes du serveur et des clients est défini, pour une expérience finale claire et fluide. Les clients pourront ainsi afficher dans leur interface quand le serveur s'est éteint. Pour un·e étudiant·e qui aurait du redémarer son ordinateur durant une session, son enseignant·e ne devrait pas voir 2 versions du même code avant et après redémarrage, mais bien uniquement la dernière version à jour. Les clients doivent pouvoir facilement se reconnecter et récupérer l'état actuel en cours. Un·e enseignant·e qui se déconnecterait involontairement, n'impacterait pas la présence de la session. Ces gestions de pannes sont importantes pour supporter des instabilités de Wifi notamment.
 
-=== ???
+#pagebreak()
+
+=== Architecture haut niveau
+La @high-level-arch montre un aperçu des besoins sur les informations à transmettre et recevoir. PLX a déjà accès aux exercices, stockés dans des repository Git clonés au début du semestre. Une fois une session lancée, le serveur n'a pas besoin de connaître les détails des exercices, il agit principalement comme un relai. Le serveur n'est utile que pour un entrainement dans une session live, il n'est pas nécessaire pour un entrainement tout seul.
+
 #figure(
   image("../schemas/high-level-arch.opti.svg", width:100%),
   caption: [Architecture haut niveau décrivant les interactions entre les clients PLX et le serveur de session live],
 ) <high-level-arch>
 // todo schéma -> inclusif
+// todo schéma -> update to desktop ui ?
 
-*Etat: en cours de rédaction*
-
-==== Définition des sessions live
+=== Définition des sessions live
 Le protocole tourne autour du concept de session, qui peut être vu comme un endroit virtuel temporaire où plusieurs personnes s'entrainent sur les mêmes exercices au même moment, une partie des personnes ne participent pas directement mais observe les changements. Une session est définie par un titre et une ID textuel de groupe, cette combinaison est unique sur le serveur.
 
 Cette ID de groupe est complètement arbitraire et permet de grouper les sessions du même cours ensemble. Par défaut, le client PLX va prendre le lien HTTPS du repository Git. Dans le cas de fork du cours qui souhaiterai apparaître dans la même liste, cette ID peut être reconfigurée.

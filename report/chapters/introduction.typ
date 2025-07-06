@@ -87,6 +87,8 @@ En conclusion, le problème c'est que l'entrainement est fastidieux pour les ét
 // l'existant
 Ce travail de Bachelor vise à poursuivre le développement du projet PLX @plxWebsite, Terminal User Interface (TUI) écrite en Rust. Cette application permet aux étudiant·es de se concentrer pleinement sur l'écriture du code. PLX est inspiré de Rustlings (TUI pour apprendre le Rust), permettant de s'habituer aux erreurs du compilateur Rust et de prendre en main la syntaxe @RustlingsWebsite. PLX fournit actuellement une expérience locale similaire pour le C et C++.
 
+// TODO: ce n'est plus un TUI...
+
 Pour commencer à s'entrainer, les étudiant·es clonent un repository Git et travaillent localement dans leur IDE favori qui s'exécute en parallèle de PLX. Les scénarios de vérifications, exécutés auparavant manuellement, sont lancés automatiquement à chaque sauvegarde de fichier. Ces suites de tests automatisées, appelées "checks", permettent d'apporter un feedback automatisé rapide, continu et riche. Au lieu de perdre sept minutes sur dix sur des tâches "administratives", PLX en automatise la majorité et permet à l'étudiant·e de réduire ce temps à une minute.
 
 // todo yatil des études scientifiques dans l'état de l'art à mentionner ? peut-être qui soutient les défaut du YAML ou d'autres formats ?

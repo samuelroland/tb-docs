@@ -6,6 +6,8 @@
 
 === Implémentation du serveur
 
+pas d'état plus que dernier code et résultats, pas de persistence.
+
 === Implémentation du client
 
 #pagebreak()
