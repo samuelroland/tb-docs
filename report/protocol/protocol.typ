@@ -54,18 +54,27 @@ Le `port` et le `group_id` sont optionnels, la valeur par défaut du port est ut
 ==== Transport, sérialisation et gestion de la connexion
 Ce protocole se base sur le protocole Websocket *RFC 6455* @WSRFC qui est basé sur TCP. Il utilise le port *9120* par défaut, qui a été choisi parmi la liste des ports non assignés publiés par l'IANA @IANAPortsNumbers. Ce port est également configurable s'il est nécessaire d'avoir plusieurs serveurs sur la même adresse IP ou s'il serait déjà pris par un autre logiciel. Les messages, transmis dans le type de message `Text` du protocole WebSocket, sont transmis sous forme de JSON sérialisé en chaine de caractères.
 
-TODO
+
 #figure(
+text(size: 0.9em)[
 ```
 ws://live.plx.rs:9120?live_protocol_version=0.1.0&live_client_id=e9fc3566-32e3-4b98-99b5-35be520d46cb
-```, caption: [Lien de connexion en WebSocket, avec les 2 champs requis dans la querystring])
+```
+] , caption: [Lien de connexion en WebSocket, avec les 2 champs requis dans la querystring])
 
+#figure(raw(block: true, lang: "json", read("messages/Action-SendFile.json")), caption: [Un exemple de message en format JSON, ici l'action `SendFile`])
 
-#figure(raw(block: true, lang: "json", read("messages/Action-SendFile.json")), caption: [Action `SendFile` en exemple de message en format JSON])
-
-==== Détails de messages
+==== Messages
 Voici les actions définies, avec l'événement associé en cas de succès de l'action. Cet événement est parfois renvoyé au même client ou à d'autres, la 4ème colonne indique les destinataires de l'événement.
 
+Tous les champs et le messages final en JSON doit être encodés en UTF-8 valide. Toutes les dates sont gérées en UTC, seulement l'affichage s'adapte au fuseau horaire local. Les dates sont sérialisées sous forme de `timestamp`, c'est à dire en nombre de secondes depuis l'époque Unix (1er janvier 1970).
+
+L'implémentation de la structure de messages est défini en Rust (`msg.rs`) et également dans les bindings TypeScript (`desktop/src/ts/bindings.ts`) générés.
+
+TODO: make sure all messages are here !!!!!
+// see #include "messages/messages.typ"
+
+#text(size: 0.8em)[
 #table(
   columns: 4,
   stroke: 1pt + gray,
@@ -83,7 +92,8 @@ Voici les actions définies, avec l'événement associé en cas de succès de l'
   table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-SessionJoined.json"))]),
 
   [`Action::LeaveSession`], [Quitter une session],[`Event::`], [même client],
-  table.cell(colspan: 4, [#raw(block: true, lang: "json", read("messages/Action-LeaveSession.json"))]),
+  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Action-LeaveSession.json"))]),
+  table.cell(colspan: 2, [todo sessionleaved]),
   [`Action::StopSession`], [Arrêter une session, seul le client qui a démarré peut le faire],[`Event::SessionStopped`], [tous les clients de la session],
   table.cell(colspan: 2,[#raw(block: true, lang: "json", read("messages/Action-StopSession.json"))]),
   table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-SessionStopped.json"))]),
@@ -105,42 +115,47 @@ Voici les actions définies, avec l'événement associé en cas de succès de l'
   table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-ExoSwitched.json"))]),
   // todo SwitchExo renamed !?
 
-  [`Action::`], [],[`Event::`], [même client],
-
-  [`Action::`], [],[`Event::`], [même client],
-  table.cell(colspan: 4, [#raw(block: true, lang: "json", read("messages/Event-Stats.json"))]),
-  //
-  // #raw(block: true, lang: "json", read("messages/Event-Error-0.json")), caption: [Message `Event::Error(LiveProtocolError::FailedToStartSession)`])
-  // #raw(block: true, lang: "json", read("messages/Event-Error-1.json")), caption: [Message `Event::Error(LiveProtocolError::FailedToJoinSession)`])
-  // #raw(block: true, lang: "json", read("messages/Event-Error-2.json")), caption: [Message `Event::Error(LiveProtocolError::FailedSendingWithoutSession)`])
-  // #raw(block: true, lang: "json", read("messages/Event-Error-3.json")), caption: [Message `Event::Error(LiveProtocolError::FailedToLeaveSession)`])
-  // #raw(block: true, lang: "json", read("messages/Event-Error-4.json")), caption: [Message `Event::Error(LiveProtocolError::SessionNotFound)`])
-  // #raw(block: true, lang: "json", read("messages/Event-Error-5.json")), caption: [Message `Event::Error(LiveProtocolError::CannotJoinOtherSession)`])
-  // #raw(block: true, lang: "json", read("messages/Event-Error-6.json")), caption: [Message `Event::Error(LiveProtocolError::ForbiddenSessionStop)`])
-  // #raw(block: true, lang: "json", read("messages/Event-Error-7.json")), caption: [Message `Event::Error(LiveProtocolError::ActionOnlyForLeader)`])
+  // [`Action::`], [],[`Event::`], [même client],
 )
+]
 
-- Client: Démarrer et - Serveur: Envoyer l'information de fermeture de la session
-- Serveur: Renvoyer des erreurs en cas de données invalides
-- Client: 
-- Client: En tant que client follower, configurer le mode du broadcast: sa fréquence (live, ou quelques secondes), le type de changement à recevoir (tout, seulement les checks) ou lancer une mise à jour maintenant
-- Client: Lancer un exercice, pour qu'il puisse être affiché sur tous les clients de la session
-- Client: Mettre en pause le streaming des changements du serveur vers le client // système d'activation et désactivation de l'abonnement ? meilleur wording ?
+Voici les événements non couvert précédemment.
+#figure(raw(block: true, lang: "json", read("messages/Event-Stats.json")), caption: [Message `Event::Stats`])
+
+Pour terminer une liste des types d'erreur qui peuvent être reçues du serveur via un `Event::Error`, contentant différent type de `LiveProtocolError`. Ces erreurs peuvent arriver dans différents contextes et ne sont pas toujours liées à une action précise. Une partie des erreurs ne peut pas arriver si le client gère correctement son état et ne tente pas des actions non autorisée par son rôle. Il faut bien sûr gérer les cas où le client aurait été modifié pour être malicieux ou simplement par erreur de logique, le serveur doit réagir correctement.
+// TODO make sure all files are here
+#figure(raw(block: true, lang: "json", read("messages/Event-Error-0.json")), caption: [Message `Event::Error(LiveProtocolError::FailedToStartSession)`])
+#figure(raw(block: true, lang: "json", read("messages/Event-Error-1.json")), caption: [Message `Event::Error(LiveProtocolError::FailedToJoinSession)`])
+#figure(raw(block: true, lang: "json", read("messages/Event-Error-2.json")), caption: [Message `Event::Error(LiveProtocolError::FailedSendingWithoutSession)`])
+#figure(raw(block: true, lang: "json", read("messages/Event-Error-3.json")), caption: [Message `Event::Error(LiveProtocolError::FailedToLeaveSession)`])
+#figure(raw(block: true, lang: "json", read("messages/Event-Error-4.json")), caption: [Message `Event::Error(LiveProtocolError::SessionNotFound)`])
+#figure(raw(block: true, lang: "json", read("messages/Event-Error-5.json")), caption: [Message `Event::Error(LiveProtocolError::CannotJoinOtherSession)`])
+#figure(raw(block: true, lang: "json", read("messages/Event-Error-6.json")), caption: [Message `Event::Error(LiveProtocolError::ForbiddenSessionStop)`])
+#figure(raw(block: true, lang: "json", read("messages/Event-Error-7.json")), caption: [Message `Event::Error(LiveProtocolError::ActionOnlyForLeader)`])
+
+// - Client: En tant que client follower, configurer le mode du broadcast: sa fréquence (live, ou quelques secondes), le type de changement à recevoir (tout, seulement les checks) ou lancer une mise à jour maintenant
+// - Client: Mettre en pause le streaming des changements du serveur vers le client // système d'activation et désactivation de l'abonnement ? meilleur wording ?
 
 ==== Diagrammes de séquences
 
+Maintenant que les différents types de messages sont connus, voici quelques exemples pour mieux comprendre leur ordre et 
+
 #figure(
   box(image("diagrams/session.svg", width: 100%)),
-  caption: [Exemple de communication entre 2 clients et un serveur, pour gérer une session],
+  caption: [Exemple de communication de gestion d'une session],
 )
+// todo bigger width ??
 
-==== Messages
+#figure(
+  box(image("diagrams/training.svg", width: 100%)),
+  caption: [Exemple de communication pour montrer le transfert des fichiers et des résultats],
+)
+// todo bigger width ??
 
-Tous les champs et le messages final en JSON doit être encodés en UTF-8 valide. Toutes les dates sont gérées en UTC, seulement l'affichage s'adapte au fuseau horaire local. Les dates sont sérialisées sous forme de `timestamp`, c'est à dire en nombre de secondes depuis l'époque Unix (1er janvier 1970).
-
-Voici un aperçu de tous les types de messages implémentés dans notre protocole, avec des exemples réalistes de données. Certains cas possède beaucoup de variantes, notamment sur les résultats des checks, elles n'ont pas toute été documentée car elles sont plus liés à PLX qu'au protocole, mais peuvent être lue dans l'implémentation (`msg.rs`) ou les bindings TypeScript (`desktop/src/ts/bindings.ts`).
-
-#include "messages/messages.typ"
+#figure(
+  box(image("diagrams/shutdown.svg", width: 80%)),
+  caption: [Exemple de communication pour montrer l'arrêt du serveur,#linebreak()avec différents clients connectés à un session ou non],
+)
 
 ==== Gestion des clients face aux pannes ou redémarrages
 Si un·e étudiant·e quitte PLX et le relance, on aimerait que le client PLX soit reconnu comme étant le même que précédemment, sans avoir de système d'authentification. Le but est d'éviter des incohérences dans l'interface, par exemple de voir le code d'un·e étudiant·e deux fois, parce que le client PLX a été redémarré entre deux et qu'il est considéré comme un tout nouveau client.
