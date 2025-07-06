@@ -9,7 +9,7 @@ participant "Jonathan" as c4
 participant "Mélanie" as c3
 skinparam defaultFontSize 15
 
-===== Démarrage d'une session avec Julia, Jack et Jonathan.\nMélanie est juste connectée mais n'a pas rejoint de session. ==
+===== Démarrage d'une session avec Julia, Jack et Jonathan.\nMélanie est connectée mais n'a pas rejoint de session. ==
 server -> server: Réception signal d'arrêt
 server -> c1: Event SessionStopped
 server -> c1: Event ServerStopped

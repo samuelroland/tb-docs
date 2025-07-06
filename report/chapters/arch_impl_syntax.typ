@@ -1,4 +1,6 @@
-= Architecture et implémentation de syntaxe DY <arch_impl_dy>
+= Développement de la syntaxe DY <arch_impl_dy>
+
+Cette partie documente la définition et l'implémentation de la syntaxe DY, son parseur et l'intégration IDE qui a pu être développée.
 
 Cette partie décrit d'une manière semi-formelle la syntaxe DY et son usage dans PLX.
 
