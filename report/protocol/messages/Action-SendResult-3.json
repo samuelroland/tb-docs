@@ -1,0 +1,12 @@
+{
+  "type": "SendResult",
+  "content": {
+    "check_result": {
+      "index": 1,
+      "state": {
+        "type": "CheckFailed",
+        "content": "Hello Doe !"
+      }
+    }
+  }
+}

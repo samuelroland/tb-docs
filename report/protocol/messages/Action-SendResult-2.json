@@ -1,0 +1,12 @@
+{
+  "type": "SendResult",
+  "content": {
+    "check_result": {
+      "index": 0,
+      "state": {
+        "type": "BuildFailed",
+        "content": "main.c: In function ‘main’:\nmain.c:4:5: error: ‘a’ undeclared"
+      }
+    }
+  }
+}

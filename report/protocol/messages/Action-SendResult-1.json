@@ -1,0 +1,11 @@
+{
+  "type": "SendResult",
+  "content": {
+    "check_result": {
+      "index": 3,
+      "state": {
+        "type": "Passed"
+      }
+    }
+  }
+}
