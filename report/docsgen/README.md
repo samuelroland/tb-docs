@@ -15,6 +15,20 @@ Run a local PlantUML server with Docker or change `docsgen/main.rs` to point to 
 docker run -p 5076:8080 --restart unless-stopped -d plantuml/plantuml-server
 ```
 
+## How to update
+From time to time, when the protocol change, we need to pull changes from PLX, fix build errors if any, add new messages or errors types manually.
+
+Currently, we use the `live` branch, this will be changed later.
+```toml
+plx = { git = "https://github.com/samuelroland/plx", branch = "live" }
+```
+
+```sh
+cd report/docsgen
+cargo update plx # make sure we are at the latest commit from PLX
+cargo run
+```
+
 ## The results
 Files are generated under `report/protocol/messages` folder. Here is the example of the generated tree. Notice teh `messages.typ` to be imported in `protocol.typ`.
 ```sh
@@ -28,23 +42,7 @@ protocol> tree
 ├── messages
 │   ├── Action-GetSessions.json
 │   ├── Action-JoinSession.json
-│   ├── Action-LeaveSession.json
-│   ├── Action-SendFile.json
-│   ├── Action-SendResult.json
-│   ├── Action-StartSession.json
-│   ├── Action-StopSession.json
-│   ├── Event-Error-0.json
-│   ├── Event-Error-1.json
-│   ├── Event-Error-2.json
-│   ├── Event-Error-3.json
-│   ├── Event-Error-4.json
-│   ├── Event-ForwardFile.json
-│   ├── Event-ForwardResult.json
-│   ├── Event-SessionJoined.json
-│   ├── Event-SessionsList.json
-│   ├── Event-SessionStarted.json
-│   ├── Event-SessionStopped.json
-│   ├── Event-Stats.json
+...
 │   └── messages.typ
 └── protocol.typ
 ```

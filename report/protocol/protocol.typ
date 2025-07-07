@@ -100,9 +100,9 @@ L'implémentation de la structure de messages est défini en Rust (`msg.rs`) et 
   table.cell(colspan: 2,[#raw(block: true, lang: "json", read("messages/Action-JoinSession.json"))]),
   table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-SessionJoined.json"))]),
 
-  [`Action::LeaveSession`], [Quitter une session],[`Event::`], [même client],
+  [`Action::LeaveSession`], [Quitter une session],[`Event::SessionLeaved`], [même client],
   table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Action-LeaveSession.json"))]),
-  table.cell(colspan: 2, [todo sessionleaved]),
+  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-SessionLeaved.json"))]),
   [`Action::StopSession`], [Arrêter une session, seul le client qui a démarré peut le faire],[`Event::SessionStopped`], [tous les clients de la session],
   table.cell(colspan: 2,[#raw(block: true, lang: "json", read("messages/Action-StopSession.json"))]),
   table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-SessionStopped.json"))]),
@@ -121,11 +121,8 @@ L'implémentation de la structure de messages est défini en Rust (`msg.rs`) et 
   // TODO: fix ces variantes de SendResults
 
   [`Action::SwitchExo`], [Changer d'exercice actuel de la session, identifié par un chemin relatif],[`Event::ExoSwitched`], [à tous les clients de la session],
-  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Action-ExoSwitch.json"))]),
+  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Action-SwitchExo.json"))]),
   table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-ExoSwitched.json"))]),
-  // todo SwitchExo renamed !?
-  // TODO serverstopped !
-
   // [`Action::`], [],[`Event::`], [même client],
 )
 ]
@@ -133,7 +130,12 @@ L'implémentation de la structure de messages est défini en Rust (`msg.rs`) et 
 Voici les événements non couvert précédemment. Le message `Stats` sur la @statsevent est envoyé aux leaders à chaque fois qu'un client rejoint ou quitte la session, excepté quand le leader créateur rejoint.
 #text(size: 0.8em)[
 #figure(raw(block: true, lang: "json", read("messages/Event-Stats.json")), caption: [Message `Event::Stats`]) <statsevent>
-] 
+]
+
+
+#text(size: 0.8em)[
+#figure(raw(block: true, lang: "json", read("messages/Event-ServerStopped.json")), caption: [Message `Event::ServerStopped`]) <serverstoppedevent>
+]
 
 Pour terminer une liste des types d'erreur qui peuvent être reçues du serveur via un `Event::Error`, contentant différent types de `LiveProtocolError`. Ces erreurs peuvent arriver dans différents contextes et ne sont pas toujours liées à une action précise. Une partie des erreurs ne peut pas arriver si le client gère correctement son état et ne tente pas des actions non autorisée par son rôle. Il faut bien sûr gérer les cas où le client aurait été modifié pour être malicieux ou simplement par erreur de logique, le serveur doit réagir correctement.
 // TODO make sure all files are here

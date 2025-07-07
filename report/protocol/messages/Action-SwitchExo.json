@@ -1,5 +1,5 @@
 {
-  "type": "ExoSwitch",
+  "type": "SwitchExo",
   "content": {
     "path": "structs/hello-dog"
   }
