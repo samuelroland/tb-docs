@@ -67,7 +67,11 @@ Le `port` et le `group_id` sont optionnels: la valeur par défaut du port est ut
 === Transport, sérialisation et gestion de la connexion
 Ce protocole se base sur le protocole Websocket *RFC 6455* @WSRFC qui est basé sur TCP. Il utilise le port *9120* par défaut, qui a été choisi parmi la liste des ports non assignés publiés par l'IANA @IANAPortsNumbers. Ce port est également configurable s'il est nécessaire d'avoir plusieurs serveurs sur la même adresse IP ou s'il était déjà occupé par un autre logiciel. Les messages, transmis dans le type de message `Text` du protocole WebSocket, sont transmis sous forme de JSON sérialisé en chaine de caractères.
 
-Pour se connecter les clients, doivent donner deux informations obligatoires dans les paramètres de la requête, comme le montre le @wsurl. `live_protocol_version` est la version du protocole supportée par le client et `live_client_id` le `client_id` présenté précédemment.
+
+Pour que le serveur et les clients connectés puissent savoir s'ils communiquent avec une version compatible, il est nécessaire d'envoyer un numéro de version de ce protocole à la première connexion. C'est le serveur qui sera souvent le plus à jour et décidera d'accepter ou refuser la connexion, en renvoyant un code HTTP 400 s'il la refuse.
+
+Pour se connecter les clients, comme le montre le @wsurl doivent indiquer `live_protocol_version` est la version du protocole supportée par le client et `live_client_id` est le `client_id` présenté précédemment. Si cette première requête ne contient pas ces informations, le serveur la refusera également.
+
 #figure(
 text(size: 0.9em)[
 ```
@@ -75,61 +79,67 @@ ws://live.plx.rs:9120?live_protocol_version=0.1.0&live_client_id=e9fc3566-32e3-4
 ```
 ], caption: [Lien de connexion en WebSocket]) <wsurl>
 
+Pour ce numéro de version on utilise le Semantic Versionning 2.0.0 @SemverWebsite. Le numéro actuel est `0.1.0` et restera sur la version majeur zéro (`0.x.y`) durant la suite du développement, jusqu'à que le protocole ait pris en maturité.
+
+Les navigateurs web ne pouvant pas définir des entêtes HTTPs via l'API `WebSocket`, il est nécessaire de passer via la querystring.
+// todo ref biblio
+
+La connexion WebSocket devrait se terminer comme le protocole WebSocket le définit, c'est à dire en fermant proprement la connexion WebSocket avec un message de type `Close`.
+// todo ref et check ?
+
 #figure(raw(block: true, lang: "json", read("messages/Action-SendFile.json")), caption: [Un exemple de message en format JSON, ici l'action `SendFile`])
 
-// todo connection managment ??
-
 === Messages
-Voici les actions définies, avec l'événement associé en cas de succès de l'action. Cet événement est parfois renvoyé au même client ou à d'autres, la 4ème colonne indique les destinataires de l'événement.
+Voici les actions définies, avec l'événement associé en cas de succès de l'action. La 4ème colonne indique les destinataires de l'événement.
 
-Tous les champs et le messages final en JSON doit être encodés en UTF-8 valide. Toutes les dates sont gérées en UTC, seulement l'affichage s'adapte au fuseau horaire local. Les dates sont sérialisées sous forme de `timestamp`, c'est à dire en nombre de secondes depuis l'époque Unix (1er janvier 1970).
+Tous les champs et le message final en JSON doivent être encodés en UTF-8. Toutes les dates sont générées par le serveur en UTC, seulement l'affichage s'adapte au fuseau horaire local. Les dates sont sérialisées sous forme de `timestamp`, c'est à dire en nombre de secondes depuis l'époque Unix (1er janvier 1970).
 // TODO ref biblio
 
-L'implémentation de la structure de messages est défini en Rust (`msg.rs`) et également dans les bindings TypeScript (`desktop/src/ts/bindings.ts`) générés.
+L'implémentation de la structure de messages est défini en Rust (`src/live/msg.rs`) et également dans les bindings TypeScript (`desktop/src/ts/bindings.ts`) générés.
 
 // TODO: make sure all messages are here !!!!!
 // see #include "messages/messages.typ"
 
-// todo besoin de voir le role permis pour chaque action ??
-
-#text(size: 0.8em)[
+#text(size: 0.7em)[
 #table(
-  columns: 4,
+  columns: (3fr, 2fr, 4fr, 4fr, 4fr),
   stroke: 1pt + gray,
-  [*Identifiant*], [*But*],[*Evénement associé*],[*Evénement envoyé à*],
-  [`Action::StartSession`], [Démarrer une session],[`Event::SessionJoined`], [même client],
-  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Action-StartSession.json"))]),
+  [*Identifiant*], [*Clients#linebreak()autorisés*], [*But*],[*Evénement associé*],[*Evénement envoyé à*],
+  [`Action::StartSession`], [tous], [Démarrer une session],[`Event::SessionJoined`], [même client],
+  table.cell(colspan: 3, [#raw(block: true, lang: "json", read("messages/Action-StartSession.json"))]),
   table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-SessionJoined.json"))]),
 
-  [`Action::GetSessions`], [Lister les sessions ouvertes pour un `group_id` donné],[`Event::SessionsList`], [même client],
-  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Action-GetSessions.json"))]),
+  [`Action::GetSessions`], [tous], [Lister les sessions ouvertes pour un `group_id` donné],[`Event::SessionsList`], [même client],
+  table.cell(colspan: 3, [#raw(block: true, lang: "json", read("messages/Action-GetSessions.json"))]),
   table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-SessionsList.json"))]),
 
-  [`Action::JoinSession`], [Rejoindre une session en cours],[`Event::SessionJoined`], [même client],
-  table.cell(colspan: 2,[#raw(block: true, lang: "json", read("messages/Action-JoinSession.json"))]),
+  [`Action::JoinSession`], [tous], [Rejoindre une session en cours],[`Event::SessionJoined`], [même client],
+  table.cell(colspan: 3,[#raw(block: true, lang: "json", read("messages/Action-JoinSession.json"))]),
   table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-SessionJoined.json"))]),
 
-  [`Action::LeaveSession`], [Quitter une session],[`Event::SessionLeaved`], [même client],
-  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Action-LeaveSession.json"))]),
+  [`Action::LeaveSession`], [tous], [Quitter une session],[`Event::SessionLeaved`], [même client],
+  table.cell(colspan: 3, [#raw(block: true, lang: "json", read("messages/Action-LeaveSession.json"))]),
   table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-SessionLeaved.json"))]),
-  [`Action::StopSession`], [Arrêter une session, seul le client qui a démarré peut le faire],[`Event::SessionStopped`], [tous les clients de la session],
-  table.cell(colspan: 2,[#raw(block: true, lang: "json", read("messages/Action-StopSession.json"))]),
+  [`Action::StopSession`], [le leader qui a démarré la session], [Arrêter une session],[`Event::SessionStopped`], [tous les clients de la session],
+  table.cell(colspan: 3,[#raw(block: true, lang: "json", read("messages/Action-StopSession.json"))]),
   table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-SessionStopped.json"))]),
 
-  [`Action::SendFile`], [Envoyer une nouvelle version d'un fichier],[`Event::ForwardResult`], [aux clients leaders de la session],
-  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Action-SendFile.json"))]),
+  [`Action::SendFile`], [followers], [Envoyer une nouvelle version d'un fichier],[`Event::ForwardResult`], [aux clients leaders de la session],
+  table.cell(colspan: 3, [#raw(block: true, lang: "json", read("messages/Action-SendFile.json"))]),
   table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-ForwardFile.json"))]),
 
-  [`Action::SendResult`], [Envoyer le résultat d'un check],[`Event::ForwardResult`], [aux clients leaders de la session],
-  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Action-SendResult-1.json"))]),
+  [`Action::SendResult`], [followers], [Envoyer le résultat d'un check],[`Event::ForwardResult`], [aux clients leaders de la session],
+  table.cell(colspan: 3, [#raw(block: true, lang: "json", read("messages/Action-SendResult-1.json"))]),
   table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-ForwardResult.json"))]),
-  table.cell(colspan: 4, [Autres exemples de `Action::SendResult`]),
-  table.cell(colspan: 4, [#raw(block: true, lang: "json", read("messages/Action-SendResult-2.json"))]),
-  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Action-SendResult-3.json"))]),
-  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Action-SendResult-4.json"))]),
+  table.cell(colspan: 5, [Autres exemples de `Action::SendResult`]),
+  table.cell(colspan: 5, align(center, grid( columns: 3,   gutter: 2mm, 
+      raw(block: true, lang: "json", read("messages/Action-SendResult-2.json")),
+      raw(block: true, lang: "json", read("messages/Action-SendResult-3.json")),
+      raw(block: true, lang: "json", read("messages/Action-SendResult-4.json"))
+    ))),
 
-  [`Action::SwitchExo`], [Changer d'exercice actuel de la session, identifié par un chemin relatif],[`Event::ExoSwitched`], [à tous les clients de la session],
-  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Action-SwitchExo.json"))]),
+  [`Action::SwitchExo`], [leaders], [Changer d'exercice actuel de la session, identifié par un chemin relatif],[`Event::ExoSwitched`], [à tous les clients de la session],
+  table.cell(colspan: 3, [#raw(block: true, lang: "json", read("messages/Action-SwitchExo.json"))]),
   table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-ExoSwitched.json"))]),
   // [`Action::`], [],[`Event::`], [même client],
 )
@@ -144,7 +154,7 @@ grid(
         gutter: 2mm, 
 
 text(size: 0.8em)[
-#figure(raw(block: true, lang: "json", read("messages/Event-Stats.json")), caption: [Message `Event::Stats`]) <statsevent>
+#figure(raw(block: true, lang: "json", read("messages/Event-Stats.json")), caption: [Message `Event::Stats`, #linebreak()reçu uniquement par les clients leaders]) <statsevent>
 ],
 
 text(size: 0.8em)[
@@ -201,30 +211,25 @@ Lors de la réception d'un signal d'arrêt (lancé lors d'un `Ctrl+c`), le serve
 
 ==== Gestion des pannes
 
-TODO
+Le serveur n'a rien besoin de persister, on accepte le problème de perte des sessions en cas de crash ou de maintenance, en faisant l'hypothèse que cela n'arrive pas souvent ou en dehors des heures de cours, pour minimiser le dérangement. Toute l'information étant temporaire, un crash du serveur n'est en fait pas un gros problème, il faudrait juste recréer et rejoindre les sessions à la main.
 
-// Durant la reconnexion d'un client
+Coté des clients, pour simplifier le développement et la logique de reconnexion, les clients n'ont pas besoin de persister l'état de la session comme l'exercice en cours. Durant la connexion d'un client, le serveur doit envoyer le dernier message `SwitchExo` qu'il a reçu par le passé.
 
+Lorsqu'un client se reconnecte, c'est à dire qu'un client avec un `client_id` qui est déjà associé à un socket ouvert.
+
+tester what happening if client is losing connection.
 
 // keep alive, fermeture de connexion
 
-
-
-==== Versions et rétrocompatibilité
-TODO faire propre
-Pour que le serveur et les clients connectés puissent savoir s'ils communiquent avec une version compatible, il est nécessaire d'envoyer un numéro de version de ce protocole à la première connexion. C'est le serveur qui sera souvent le plus à jour et décidera d'accepter ou refuser la connexion, en renvoyant un code HTTP 400 s'il la refuse.
-
-Pour ce numéro de version on utilise le Semantic Versionning 2.0.0 @SemverWebsite. Durant le développement, le protocole reste en version `0.x.y` et ne sera stabilisé qu'une fois le protocole et son implémentation dans PLX auront été testés quelques temps en grandeur nature.
-
-Les navigateurs web ne pouvant pas définir des entêtes HTTPs via l'API `WebSocket`, il est nécessaire de passer 
-
 ==== Evolutivité
-TODO faire propre
-// Pour permettre d'évoluer le protocole au fil du temps, le numéro de version sera passée dans l'entête du "handshake" HTTP, sous le nom de `LiveProtocolVersion`, qui ne devrait pas avoir besoin de changer. Ce champ n'est évidemment pas standard mais IETF recommende depuis 2012 de ne pas ajouter le préfix `X-` @IetfNoXPrefixRfc.  Cela permettra de changer le format ou les types de messages, ou encore le format de sérialisation, tout en gardant ce numéro de version séparé et toujours accessible peu importe la version du serveur.
-//
-// Le concept de session lancée par des clients leaders et de synchronisation de données provenant de clients followers vers des clients leaders, peut facilement être étendu à d'autres usages. Si on imagine d'autres types d'exercice que du code, des exercices de choix multiples par exemple, il suffirait d'ajouter une nouvelle action pour envoyer une réponse et un événement associer pour renvoyer cette réponse vers les clients leaders.
-//
-// Si la première requête ne contient pas de numéro de version, la requête est ignorée et la connexion est fermée.
+Le concept de session lancée par des clients leaders et de synchronisation de données provenant de clients followers vers des clients leaders, peut facilement être étendu à d'autres usages. Si on imagine d'autres types d'exercice que du code comme des exercices à choix multiples, il suffirait d'ajouter une nouvelle action `Action::SendChoice` pour envoyer une réponse et un événement associé (`Event::ForwardChoice`), pour renvoyer cette réponse vers les clients leaders.
+
+Dans le futur, si le support de nouveaux formats d'exercices seront supportés par PLX. Si cela implique de changer trop souvent la structure des résultats dans le champ `content.check_result` dans le message `Event::SendResult`, une solution serait de ne pas spécifier la structure exacte de ce sous champ et laisser les clients gérer les structures non définies ou partielles. Cela pourrait éviter de régulièrement devoir augmenter le numéro de version majeure à cause de _breaking change_.
+
+// todo note breaking change
+
+// TODO en italic tous les noms en anglais !!!!!!!!!!!
+
 //
 // ===== Performance
 // TODO faire propre
