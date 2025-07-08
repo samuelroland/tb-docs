@@ -112,13 +112,12 @@ L'implémentation de la structure de messages est défini en Rust (`msg.rs`) et 
   table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-ForwardFile.json"))]),
 
   [`Action::SendResult`], [Envoyer le résultat d'un check],[`Event::ForwardResult`], [aux clients leaders de la session],
-  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Action-SendResult.json"))]),
+  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Action-SendResult-1.json"))]),
   table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-ForwardResult.json"))]),
-  table.cell(colspan: 4, [todo fix with other examples]),
-  // table.cell(colspan: 4, [#raw(block: true, lang: "json", read("messages/Action-SendResult.json"))]),
-  // table.cell(colspan: 4, [#raw(block: true, lang: "json", read("messages/Action-SendResult.json"))]),
-  // table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Action-SendResult.json"))]),
-  // TODO: fix ces variantes de SendResults
+  table.cell(colspan: 4, [Autres exemples de `Action::SendResult`]),
+  table.cell(colspan: 4, [#raw(block: true, lang: "json", read("messages/Action-SendResult-2.json"))]),
+  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Action-SendResult-3.json"))]),
+  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Action-SendResult-4.json"))]),
 
   [`Action::SwitchExo`], [Changer d'exercice actuel de la session, identifié par un chemin relatif],[`Event::ExoSwitched`], [à tous les clients de la session],
   table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Action-SwitchExo.json"))]),
@@ -211,9 +210,9 @@ TODO faire propre
 // Le concept de session lancée par des clients leaders et de synchronisation de données provenant de clients followers vers des clients leaders, peut facilement être étendu à d'autres usages. Si on imagine d'autres types d'exercice que du code, des exercices de choix multiples par exemple, il suffirait d'ajouter une nouvelle action pour envoyer une réponse et un événement associer pour renvoyer cette réponse vers les clients leaders.
 //
 // Si la première requête ne contient pas de numéro de version, la requête est ignorée et la connexion est fermée.
-
-===== Performance
-TODO faire propre
+//
+// ===== Performance
+// TODO faire propre
 // Des mesures basiques sont prises pour éviter un poids ou un nombre inutile de messages envoyés sur le réseau. Ces mesures ont pour but de limiter le nombre de messages que le serveur doit gérer lorsque plusieurs sessions avec de nombreux clients connectés. Nous ne faisons pas de benchmark pour le moment, pour se concentrer sur développer une implémentation correcte.
 //
 // - N'envoyer un morceau de code uniquement s'il a été modifié depuis le dernier envoi
