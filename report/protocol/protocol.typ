@@ -1,13 +1,21 @@
-== Définition du `Live protocol`
+== Définition du protocole
 
 === Vue d'ensemble
-Cette partie définit le protocole de communication nommé `Live Protocol`, qui régit les interactions entre les clients PLX et un serveur PLX. Sur le plan technique, il fonctionne sur le protocole WebSocket pour permettre une communication bidirectionnelle. Trois parties composent notre protocole: la gestion de la connexion, la gestion des sessions et le transfert du code et résultats autour d'un exercice. La particularité du protocole est qu'il n'inclue pas d'authentification. Les clients sont néamoins identifiés par un identifiant unique (`client_id`) permettant de reconnaître un client qui perd la connexion et se reconnecte ensuite.
+Cette partie définit le protocole de communication, qui régit les interactions entre les clients PLX et un serveur PLX. Sur le plan technique, il fonctionne sur le protocole WebSocket pour permettre une communication bidirectionnelle. Trois parties composent notre protocole: la gestion de la connexion, la gestion des sessions et le transfert du code et résultats d'un exercice. La particularité du protocole est qu'il n'inclue pas d'authentification. Les clients sont néamoins identifiés par un identifiant unique (`client_id`) permettant de reconnaître un client avant et après une déconnexion temporaire.
 
-Le protocole définit deux types de messages: les clients envoie des actions (message `Action`) au serveur et le serveur leur envoie des événements (message `Event`). Ne pas avoir de système de compte implique que tous les clients sont égaux par défaut. Pour éviter que n'importe quel client puisse contrôler une session en cours, comme changer d'exercice ou arrêter la session, un système de role est défini. Ce role attribué à chaque client dans une session est soit leader soit follower. Seul les clients leaders peuvent agir sans restriction sur la session. Les clients leaders ne font pas les exercices, mais recoivent chaque modification envoyée par les clients followers. Pour supporter des contextes variés, il est possible d'avoir plusieurs leaders par session si nécessaire. De même, nous aurions pu définir un rôle enseignant·e et étudiant·e, mais cela met de côté des usages avec des assistant·es en plus ou des étudiant·es durant une révision en groupe.
+Le protocole définit deux types de messages: les clients envoient des actions au serveur (message `Action`) et le serveur leur envoie des événements (message `Event`).
 
-Un système de gestion des pannes du serveur et des clients est défini, pour une expérience finale claire et fluide. Les clients pourront ainsi afficher dans leur interface quand le serveur s'est éteint. Pour un·e étudiant·e qui aurait du redémarer son ordinateur durant une session, son enseignant·e ne devrait pas voir 2 versions du même code avant et après redémarrage, mais bien uniquement la dernière version à jour. Les clients doivent pouvoir facilement se reconnecter et récupérer l'état actuel en cours. Un·e enseignant·e qui se déconnecterait involontairement, n'impacterait pas la présence de la session. Ces gestions de pannes sont importantes pour supporter des instabilités de Wifi notamment.
+#figure(
+  image("imgs/basic-event-action-flow.png", width: 80%),
+  caption: [Les deux types de messages ne sont envoyés que dans une direction],
+) <fig-basic-event-action-flow>
 
-#pagebreak()
+Ne pas avoir de système de compte implique que tous les clients sont égaux par défaut. Pour éviter que n'importe quel client puisse contrôler une session en cours et arrive à changer d'exercice ou arrêter la session, un système de role est défini. Nous aurions pu définir un rôle enseignant·e et étudiant·e, mais cela exclut d'autres contextes comme lorsque des assistant·es présent·es ou encore des étudiant·es durant une révision en groupe en dehors des cours. Nous avons besoin de définir deux rôles qui permettent de distinguer les clients qui gèrent une session et les autres qui y participent. Nous choisissons ainsi de les nommer respectivement *leader* et *follower*. Le serveur peut ainsi vérifier à chaque `Action` envoyée que son rôle autorise l'action.
+
+Ce role est attribué à chaque client dans une session, avoir un rôle en dehors d'une session ne fait pas de sens. Les clients followers suivent les exercices lancés par les clients leaders et envoie le code et les résultats des checks à chaque changement. Les clients leaders ne participent pas aux exercices, mais le serveur leur transfère chaque modification envoyée par les clients followers. Le protocole n'empêche pas d'avoir plusieurs leaders par session, pour permettre certains contextes avec plusieurs enseignant·es ou des assistant·es présent·es pour aider à relire tous les morceaux de code envoyés.
+// TODO really la dernière phrase ?
+
+Un système de gestion des pannes du serveur et des clients est défini, pour éviter de la confusion et la frustration dans l'expérience finale. Les instabilités de Wifi, la batterie vide ou un éventuel crash de l'application ne devrait pas impacter le reste des participant·es de la sessions. Les clients doivent pouvoir afficher dans leur interface quand le serveur s'est éteint en cas de panne ou de mise à jour. Pour un·e étudiant·e déconnecté temporairement, son enseignant·e ne devrait pas voir 2 versions du même fichier avant et après redémarrage, mais uniquement la dernière version à jour. Les clients doivent récupérer l'état actuel en cours à la reconnexion, notamment l'exercice en cours pour pouvoir l'afficher à nouveau. Un·e enseignant·e qui se déconnecterait involontairement, n'impacterait pas la présence de la session qui resterait ouverte sur le serveur.
 
 === Architecture haut niveau
 La @high-level-arch montre un aperçu des besoins sur les informations à transmettre et recevoir. PLX a déjà accès aux exercices, stockés dans des repository Git clonés au début du semestre. Une fois une session lancée, le serveur n'a pas besoin de connaître les détails des exercices, il agit principalement comme un relai. Le serveur n'est utile que pour un entrainement dans une session live, il n'est pas nécessaire pour un entrainement tout seul.
@@ -71,7 +79,6 @@ ws://live.plx.rs:9120?live_protocol_version=0.1.0&live_client_id=e9fc3566-32e3-4
 
 // todo connection managment ??
 
-#pagebreak()
 === Messages
 Voici les actions définies, avec l'événement associé en cas de succès de l'action. Cet événement est parfois renvoyé au même client ou à d'autres, la 4ème colonne indique les destinataires de l'événement.
 
@@ -82,6 +89,8 @@ L'implémentation de la structure de messages est défini en Rust (`msg.rs`) et 
 
 // TODO: make sure all messages are here !!!!!
 // see #include "messages/messages.typ"
+
+// todo besoin de voir le role permis pour chaque action ??
 
 #text(size: 0.8em)[
 #table(
@@ -126,15 +135,22 @@ L'implémentation de la structure de messages est défini en Rust (`msg.rs`) et 
 )
 ]
 
-Voici les événements non couvert précédemment. Le message `Stats` sur la @statsevent est envoyé aux leaders à chaque fois qu'un client rejoint ou quitte la session, excepté quand le leader créateur rejoint.
-#text(size: 0.8em)[
+
+Voici les événements non couvert précédemment. L'événement `Stats` sur le @statsevent est envoyé aux leaders à chaque fois qu'un client rejoint ou quitte la session, excepté quand le leader créateur rejoint. L'événement `ServerStopped` sur le @serverstoppedevent est envoyé du serveur à tous les clients lorsqu'il doit s'arrêter.
+
+#align(center,
+grid(
+        columns: 2,   
+        gutter: 2mm, 
+
+text(size: 0.8em)[
 #figure(raw(block: true, lang: "json", read("messages/Event-Stats.json")), caption: [Message `Event::Stats`]) <statsevent>
-]
+],
 
-
-#text(size: 0.8em)[
+text(size: 0.8em)[
 #figure(raw(block: true, lang: "json", read("messages/Event-ServerStopped.json")), caption: [Message `Event::ServerStopped`]) <serverstoppedevent>
 ]
+))
 
 Pour terminer une liste des types d'erreur qui peuvent être reçues du serveur via un `Event::Error`, contentant différent types de `LiveProtocolError`. Ces erreurs peuvent arriver dans différents contextes et ne sont pas toujours liées à une action précise. Une partie des erreurs ne peut pas arriver si le client gère correctement son état et ne tente pas des actions non autorisée par son rôle. Il faut bien sûr gérer les cas où le client aurait été modifié pour être malicieux ou simplement par erreur de logique, le serveur doit réagir correctement.
 // TODO make sure all files are here
@@ -176,9 +192,11 @@ Maintenant que les différents types de messages sont connus, voici quelques dia
 )
 // todo bigger width ??
 
+#pagebreak()
+Lors de la réception d'un signal d'arrêt (lancé lors d'un `Ctrl+c`), le serveur ne doit pas juste quitter immédiatement. Les sessions en cours doivent être arrêtées et tous les clients doivent recevoir un `Event::ServerStopped` qui informe de l'arrêt du serveur, puis le processus peut quitter.
 #figure(
   box(image("diagrams/shutdown.svg", width: 80%)),
-  caption: [Exemple de communication pour montrer l'arrêt du serveur,#linebreak()avec différents clients connectés à un session ou non],
+  caption: [Exemple de communication pour montrer l'arrêt du serveur, #linebreak()avec différents clients connectés à un session ou non],
 )
 
 ==== Gestion des clients face aux pannes ou redémarrages
@@ -188,13 +206,8 @@ TODO faire propre
 //
 // Afin de supporter différentes instabilités du réseau, tel que de pertes de Wifi ou des Wifi surchargés,  nous mettons en place quelques mécanismes permettant de reconnecter des clients. 
 //
-// Nous ne supportons pas les pannes du serveur. Nous pourrions dans le futur imaginer un système où les clients leaders recréent la session si le serveur a été redémarré, mais cela ne sera pas nécessaire pour les premières versions de PLX.
-//
 // keep alive, fermeture de connexion
 
-==== Workflow d'usage des sessions live
-TODO faire propre
-// Nous souhaitons définir un système flexible, qui peut être autant utilisés avec 40 étudiant·es et 1 enseignant·e, que 120 étudiant·es, 3 enseignant·es et 2 assistant·es, ou encore 3 étudiant·es coachés par un·e étudiant·e plus expérimenté·e durant des révisions. Au final, ce protocole ne distingue que 2 rôles: leader et follower. Le rôle leader est attribué au client qui crée une session, il permet de gérer l'avancement des exercices, de recevoir le code et les résultats ou encore d'arrêter la session. Le rôle de follower permet de rejoindre une session, envoyer du code et des résultats pour cette session. Un client follower ne recevra pas le code et les résultats d'autres clients followers. Il peut cependant y avoir plusieurs leaders sur une session.
 
 
 ==== Versions et rétrocompatibilité
