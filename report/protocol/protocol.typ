@@ -48,9 +48,9 @@ Une personne démarre une session pour un repository qui contient des exercices 
 // mesure de trust on first use pour vérifier l'identité du prof
 
 === Définition et configuration du client
-Un "client PLX" est défini comme la partie logicielle de PLX qui se connecte à un serveur PLX. Un client n'a pas besoin d'être codé dans une langage ou pour une plateforme spécifique, le seul prérequis est la capacité d'utiliser le protocole WebSocket. Chaque client est anonyme (le nom n'est pas envoyé, il ne peut pas être connu de l'enseignant·e facilement), mais s'identifie par un `client_id`, qu'il doit persister. Cette ID doit rester secrète entre le client et serveur, sinon il devient possible de se faire passer pour un autre client. Cela pose surtout des problèmes lorsque ce même client gère des sessions. Par soucis de simplicité, les clients PLX génère une UUID (exemple `aeb5f2ec-aa69-42b0-a55d-8948842b3df6`), un identifiant de plus grande entropie pourrait être utilisé plus tard facilement si le besoin de plus de sécurité devient nécessaire.
+Un "client PLX" est défini comme la partie logicielle de PLX qui se connecte à un serveur PLX. Un client n'a pas besoin d'être codé dans une langage ou pour une plateforme spécifique, le seul prérequis est la capacité d'utiliser le protocole WebSocket. Chaque client est anonyme (le nom n'est pas envoyé, il ne peut pas être connu de l'enseignant·e facilement), mais s'identifie par un `client_id`, qu'il doit persister. Cette ID doit rester secrète entre le client et serveur, sinon il devient possible de se faire passer pour un autre client. Cela pose surtout des problèmes lorsque ce même client gère des sessions. Par soucis de simplicité, les clients PLX génère une UUID (exemple `1be216e1-220c-4a0e-a582-0572096cea07`) dans sa version 4 @uuidv4. Le protocole ne définissant pas le format de cette identifiant, un autre identifiant de format différent et de plus grande entropie pourrait être utilisé plus tard facilement, si une sécurité plus accrue devient nécessaire.
 
-// add ref to UUID spec
+// add UUID def ?
 
 Un même client ne peut pas se connecter en même temps au même serveur. En démarrant deux fois l'application, les deux chargeront les même `client_id`, qu'une seule instance pourra être connectée à la fois. Chaque client ne peut aussi rejoindre qu'une session à la fois. Les messages n'ont pas besoin d'indiquer la session concernée, le serveur doit maintenir le lien entre un socket et son `client_id` vers session.
 
@@ -65,9 +65,9 @@ group_id = "https://github.com/samuelroland/plx-demo.git"
 Le `port` et le `group_id` sont optionnels: la valeur par défaut du port est utilisée et le `group_id` peut être récupérée via l'origine du repository cloné.
 
 === Transport, sérialisation et gestion de la connexion
-Ce protocole se base sur le protocole Websocket *RFC 6455* @WSRFC qui est basé sur TCP. Il utilise le port *9120* par défaut, qui a été choisi parmi la liste des ports non assignés publiés par l'IANA @IANAPortsNumbers. Ce port est également configurable s'il est nécessaire d'avoir plusieurs serveurs sur la même adresse IP ou s'il serait déjà pris par un autre logiciel. Les messages, transmis dans le type de message `Text` du protocole WebSocket, sont transmis sous forme de JSON sérialisé en chaine de caractères.
+Ce protocole se base sur le protocole Websocket *RFC 6455* @WSRFC qui est basé sur TCP. Il utilise le port *9120* par défaut, qui a été choisi parmi la liste des ports non assignés publiés par l'IANA @IANAPortsNumbers. Ce port est également configurable s'il est nécessaire d'avoir plusieurs serveurs sur la même adresse IP ou s'il était déjà occupé par un autre logiciel. Les messages, transmis dans le type de message `Text` du protocole WebSocket, sont transmis sous forme de JSON sérialisé en chaine de caractères.
 
-La @wsurl montre les champs `live_protocol_version` et `live_client_id` qui sont deux informations obligatoires.
+Pour se connecter les clients, doivent donner deux informations obligatoires dans les paramètres de la requête, comme le montre le @wsurl. `live_protocol_version` est la version du protocole supportée par le client et `live_client_id` le `client_id` présenté précédemment.
 #figure(
 text(size: 0.9em)[
 ```
@@ -199,22 +199,24 @@ Lors de la réception d'un signal d'arrêt (lancé lors d'un `Ctrl+c`), le serve
   caption: [Exemple de communication pour montrer l'arrêt du serveur, #linebreak()avec différents clients connectés à un session ou non],
 )
 
-==== Gestion des clients face aux pannes ou redémarrages
+==== Gestion des pannes
 
-TODO faire propre
-// Si un·e étudiant·e quitte PLX et le relance, on aimerait que le client PLX soit reconnu comme étant le même que précédemment, sans avoir de système d'authentification. Le but est d'éviter des incohérences dans l'interface, par exemple de voir le code d'un·e étudiant·e deux fois, parce que le client PLX a été redémarré entre deux et qu'il est considéré comme un tout nouveau client.
-//
-// Afin de supporter différentes instabilités du réseau, tel que de pertes de Wifi ou des Wifi surchargés,  nous mettons en place quelques mécanismes permettant de reconnecter des clients. 
-//
+TODO
+
+// Durant la reconnexion d'un client
+
+
 // keep alive, fermeture de connexion
 
 
 
 ==== Versions et rétrocompatibilité
 TODO faire propre
-// Pour que le serveur et les clients connectés puissent savoir s'ils communiquent avec une version compatible, il est nécessaire d'envoyer un numéro de version de ce protocole à la première connexion. C'est le serveur qui sera souvent le plus à jour et décide ainsi s'il refuse la connexion, en renvoyant un code HTTP 400.
-//
-// Pour ce numéro de version on utilise le Semantic Versionning 2.0.0 @SemverWebsite. Durant le développement, le protocole reste en version `0.x.y` et ne sera stabilisé qu'une fois le protocole et son implémentation dans PLX auront été testés quelques temps en grandeur nature.
+Pour que le serveur et les clients connectés puissent savoir s'ils communiquent avec une version compatible, il est nécessaire d'envoyer un numéro de version de ce protocole à la première connexion. C'est le serveur qui sera souvent le plus à jour et décidera d'accepter ou refuser la connexion, en renvoyant un code HTTP 400 s'il la refuse.
+
+Pour ce numéro de version on utilise le Semantic Versionning 2.0.0 @SemverWebsite. Durant le développement, le protocole reste en version `0.x.y` et ne sera stabilisé qu'une fois le protocole et son implémentation dans PLX auront été testés quelques temps en grandeur nature.
+
+Les navigateurs web ne pouvant pas définir des entêtes HTTPs via l'API `WebSocket`, il est nécessaire de passer 
 
 ==== Evolutivité
 TODO faire propre

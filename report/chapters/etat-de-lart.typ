@@ -892,3 +892,10 @@ Si l'étudiant introduit une erreur de compilation, un message avec un statut di
 )
 
 Le système de synchronisation en temps réel permet ainsi d'envoyer différents messages au serveur qui le retransmet directement au `teacher`. Même si cet exemple est minimal puisqu'il ne vérifie pas la source des messages, et qu'il n'y a qu'un seul étudiant et enseignant impliqué, nous avons démontré que la crate `tungstenite` fonctionne.
+
+== Implémentation des POC
+Les POC ont été implémenté dans le dossier `pocs` du repository Git de la documentation du projet. Ce dossier est accessible sur #link("https://github.com/samuelroland/tb-docs/tree/main/pocs")[https://github.com/samuelroland/tb-docs/tree/main/pocs].
+// todo lien en bibliographie aussi ?
+
+// TODO: lien qqepart des 2-3 repos ?
+
