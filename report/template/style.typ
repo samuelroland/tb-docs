@@ -80,6 +80,15 @@
 // My global style
 #let MyGlobalStyle(body) = {
 
+  // Insert non breakable space before any : in any paragraph (this doesn't include code snippets)
+  // show par: it => [
+  // #show ":": sym.space.nobreak + ":"
+  //   #it
+  // ]
+  // # TODO fix this and enable again, it it included in inline #raw ...
+  // https://github.com/typst/typst/issues/3848
+  // todo include headings, list and others ??
+
   // Lora font released under OFL 1.1
   // to install https://www.fontsquirrel.com/fonts/lora
   set text(font: "Lora")
