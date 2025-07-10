@@ -1,7 +1,8 @@
 == Définition du protocole
+Ce chapitre définit le protocole de communication qui régit les interactions entre les clients PLX et un serveur PLX.
 
 === Vue d'ensemble
-Cette partie définit le protocole de communication, qui régit les interactions entre les clients PLX et un serveur PLX. Sur le plan technique, il fonctionne sur le protocole WebSocket pour permettre une communication bidirectionnelle. Trois parties composent notre protocole: la gestion de la connexion, la gestion des sessions et le transfert du code et résultats d'un exercice. La particularité du protocole est qu'il n'inclut pas d'authentification. Les clients sont néamoins identifiés par un identifiant unique (`client_id`) permettant de reconnaître un client avant et après une déconnexion temporaire.
+Sur le plan technique, il fonctionne sur le protocole WebSocket pour permettre une communication bidirectionnelle. Trois parties composent notre protocole: la gestion de la connexion, la gestion des sessions et le transfert du code et résultats d'un exercice. La particularité du protocole est qu'il n'inclut pas d'authentification. Les clients sont néamoins identifiés par un identifiant unique (`client_id`) permettant de reconnaître un client avant et après une déconnexion temporaire.
 
 Le protocole définit deux types de messages: les clients envoient des actions au serveur (message `Action`) et le serveur leur envoie des événements (message `Event`).
 
@@ -17,8 +18,8 @@ Ce rôle est attribué à chaque client dans une session, avoir un rôle en deho
 
 Un système de gestion des pannes du serveur et des clients est défini, pour éviter de la confusion et la frustration dans l'expérience finale. Les instabilités de Wifi, la batterie vide ou un éventuel crash de l'application ne devrait pas impacter le reste des participant·es de la sessions. Les clients doivent pouvoir afficher dans leur interface quand le serveur s'est éteint en cas de panne ou de mise à jour. Un·e enseignant·e qui se déconnecterait involontairement, n'impacterait pas la présence de la session, qui continuerai d'exister sur le serveur.
 
-=== Architecture haut niveau
-La @high-level-arch montre un aperçu des besoins sur les informations à transmettre et recevoir. PLX a déjà accès aux exercices, stockés dans des repository Git clonés au début du semestre. Une fois une session lancée, le serveur n'a pas besoin de connaître les détails des exercices, il agit principalement comme un relai. Le serveur n'est utile que pour un entrainement dans une session live, il n'est pas nécessaire pour un entrainement tout seul.
+=== Architecture conceptuel du protocole
+La @high-level-arch montre un aperçu des besoins sur les informations à transmettre et recevoir. PLX a déjà accès aux exercices, stockés dans des repository Git clonés au début du semestre. Une fois une session lancée, le serveur n'a pas besoin de connaître les détails des exercices, il agit principalement comme un relai. Le serveur n'est utile que pour un entrainement dans une session live, PLX peut être utilisé sans serveur pour l'entrainement local.
 
 #figure(
   image("../schemas/high-level-arch.opti.svg", width:100%),
@@ -100,7 +101,7 @@ La connexion WebSocket devrait se terminer comme le protocole WebSocket le défi
 === Messages
 Voici les actions définies, avec l'événement associé en cas de succès de l'action. La 4ème colonne indique les destinataires de l'événement.
 
-Tous les champs et le message final en JSON doivent être encodés en UTF-8. Toutes les dates sont générées par le serveur en UTC, seulement l'affichage s'adapte au fuseau horaire local. Les dates sont sérialisées sous forme de `timestamp`, c'est à dire en nombre de secondes depuis l'époque Unix (1er janvier 1970).
+Tous les champs et le message final en JSON doivent être encodés en UTF-8. Toutes les dates sont générées par le serveur en UTC, seulement l'affichage s'adapte au fuseau horaire local. Les dates sont sérialisées sous forme de _timestamp_, c'est à dire en nombre de secondes depuis l'époque Unix (1er janvier 1970).
 // TODO ref biblio
 
 L'implémentation de la structure de messages est défini en Rust (`src/live/msg.rs`) et également dans les bindings TypeScript (`desktop/src/ts/bindings.ts`) générés.
@@ -219,7 +220,7 @@ Lors de la réception d'un signal d'arrêt (lancé lors d'un `Ctrl+c`), le serve
 
 ==== Gestion des pannes
 
-Le serveur n'a rien besoin de persister, toutes les données des sessions peuvent rester en mémoire vive uniquement. La perte des sessions au redémarrage est un problème minime car toute l'information n'est qu'une copie temporaire. Les cas de crash devraient être très rares grâce aux garanties de sécurité mémoire de Rust. On suppose aussi que les mises à jour du serveur seront faites en dehors des heures de cours. Si ces deux situations arrivent pendant que des sessions sont en cours, les clients doivent juste se reconnecter, et proposer aux participant·es de recréer ou rejoindre les sessions à la main.
+Le serveur n'a rien besoin de persister, toutes les données des sessions peuvent rester en mémoire vive uniquement. Les cas de crash devraient être très rares grâce aux garanties de sécurité mémoire de Rust. Il suffit de configurer le conteneur Docker en mode redémarrage automatique. On suppose aussi que les mises à jour du serveur seront faites en dehors des heures de cours pour limiter les dérangements. Si ces deux situations arrivent pendant que des sessions sont en cours, les participant·es doivent juste recréer ou rejoindre les nouvelles sessions à la main.
 
 Coté des clients, pour simplifier le développement et la logique de reconnexion, les clients n'ont pas besoin de persister l'état de la session, comme l'identifiant de l'exercice en cours. Durant la connexion d'un client, leader ou follower, le serveur doit envoyer le dernier message `SwitchExo` qu'il a reçu par le passé. Pour un client leader, le serveur doit en plus renvoyer tous les derniers `Event::ForwardFile` et `Event::ForwardResult` pour chaque client. Ce transfert est requis pour que l'interface d'avoir le même état qu'avant deconnexion et de ne pas devoir attendre les prochains envois de ces événements pour chaque follower.
 

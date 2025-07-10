@@ -6,7 +6,13 @@ Cette partie documente l'architecture et l'implémentation du serveur de session
 
 == Implémentation du serveur
 
-Pour démarrer le serveur, il suffit d'invoquer le CLI `plx server`, qui affichera simplement `Started PLX server on port 9120`. Tout comme le coeur de PLX, le serveur est implémenté uniquement en Rust.
+== Implémentation du serveur
+
+== Implémentation du serveur
+
+
+=== Lancement
+Pour démarrer le serveur, il suffit d'invoquer le CLI `plx server`, qui affichera `Started PLX server on port 9120` en attente de connexions. Tout comme le coeur de PLX, le serveur est implémenté uniquement en Rust.
 
 Si on lance un client et qu'on envoie des actions, on peut directement voir sur le @serverlogs des logs pour visualiser les messages reçus et envoyés.
 // todo variable d'env pour activer les logs ??
@@ -35,9 +41,10 @@ SERVER: Sending to 4cd31b74-0192-4900-8807-70912cc9d5d8: {
   "type": "SessionJoined",
   "content": 0
 }
-```, caption: [Logs de réception du serveur d'actions `GetSessions` et `StartSession`.#linebreak()Renvoi de `SessionsList` d'abord puis de `SessionJoined`.]) <serverlogs>
+```, caption: [Sortie console du serveur à la réception de l'action `GetSessions`,#linebreak()répondu par un `SessionsList`, puis un `StartSession` reçu ce qui génère un `SessionJoined`.]) <serverlogs>
 
-L'exemple précédent ne comportait qu'un seul client, en pratique nous en auront des centaines connectés en même temps, ce qui pose un défi de gestion des tâches du serveur. En effet, le serveur doit être capable de faire plusieurs choses à la fois, dont une partie des tâches qui sont bloquantes:
+=== Gestion de la concurrence
+L'exemple précédent ne comportait qu'un seul client, en pratique nous en auront des centaines connectés en même temps, ce qui pose un défi de répartition du travail sur le serveur. En effet, le serveur doit être capable de faire plusieurs choses à la fois, dont une partie des tâches qui sont bloquantes:
 + Réagir à la demande d'arrêt, lors d'un `Ctrl+c`, le serveur doit s'arrêter proprement pour fermer les sessions et envoyer un `Event::ServerStopped`.
 + Attendre de futur clients qui voudraient ouvrir une connexion TCP
 + Attendre de messages sur le websocket pour chaque client
@@ -53,7 +60,7 @@ Une solution à ce problème, est de passer vers du Rust `async`. Concrètement,
 Le runtime lui même exécute ses tâches sur plusieurs _threads_ natifs, pour permettre un parallélisme en plus de la concurrence possible sur un _thread_.
 // TODO okay ?
 
-Ce runtime de threads virtuelles permet ainsi de lancer des milliers de tâches tokio sans se préoccuper de la performance, leur ordonnancement est beaucoup plus léger. Tokio est donc une solution bien adaptée aux applications en réseau avec beaucoup de concurrences mais aussi beaucoup d'attente sur des entrées/sorties.
+Ce runtime de threads virtuelles permet ainsi de lancer des milliers de tâches tokio sans que cela pose soucis au niveau du coût mémoire ou du temps dédié à leur ordonnancement qui est plus léger. Tokio est donc une solution bien adaptée aux applications en réseau avec de nombreux clients concurrents mais aussi beaucoup d'attente sur des entrées/sorties.
 // TODO check explication tokio
 
 La crate `tokio-tungstenite` nous fournit une adaption de `tungstenite`, pour fonctionner avec Tokio.
@@ -68,7 +75,7 @@ pas de support pour plusieurs leaders
 
 == Implémentation du client
 
-PLX étant une application _desktop_ développée avec Tauri, une partie est développée en Rust, dont la librairie 
+PLX étant une application _desktop_ développée avec Tauri, une partie est développée en Rust, dont la librairie
 
 // todo schéma architecture globale du client
 
@@ -155,7 +162,7 @@ const success = await invoke("clone_course", {
     repos: "https://github.com/samuelroland/plx-demo"
 });
 ```
-] , caption: [Une commande Tauri en Rust pour cloner le repository d'un cours et son appel non typé en JavaScript.])
+], caption: [Une commande Tauri en Rust pour cloner le repository d'un cours et son appel non typé en JavaScript.])
 
 Pour résoudre ce deuxième défi, un autre outil du nom de `tauri-specta` @TauriSpectaCratesio a permis de générer une définition TypeScript de l'appel à la commande, en annotant la fonction Rust avec `#[specta::specta]`.
 
