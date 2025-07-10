@@ -786,3 +786,13 @@ IetfNoXPrefixRfc:
     - Saint-Andre, Peter
     - Crocker, Dave
     - Nottingham, Mark
+
+uuidv4:
+  type: Web
+  url: https://www.ietf.org/rfc/rfc9562.html#name-uuid-version-4
+  date: 2025
+  title: "RFC 9562: Universally Unique IDentifiers (UUIDs) -  5.4. UUID Version 4 "
+  author:
+    - Davis, Kyzer
+    - Peabody, Brad
+    - Leach, Paul
