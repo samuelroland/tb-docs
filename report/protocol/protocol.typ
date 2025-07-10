@@ -15,7 +15,7 @@ Ne pas avoir de système de compte implique que tous les clients sont égaux par
 Ce rôle est attribué à chaque client dans une session, avoir un rôle en dehors d'une session ne fait pas de sens. Les clients followers suivent les exercices lancés par les clients leaders et envoient le code et les résultats des checks à chaque changement. Les clients leaders ne participent pas aux exercices, mais le serveur leur transfère chaque modification envoyée par les clients followers. Le protocole n'empêche pas d'avoir plusieurs leaders par session, pour permettre certains contextes avec plusieurs enseignant·es ou des assistant·es présent·es pour aider à relire tous les morceaux de code envoyés.
 // TODO really la dernière phrase ?
 
-Un système de gestion des pannes du serveur et des clients est défini, pour éviter de la confusion et la frustration dans l'expérience finale. Les instabilités de Wifi, la batterie vide ou un éventuel crash de l'application ne devrait pas impacter le reste des participant·es de la sessions. Les clients doivent pouvoir afficher dans leur interface quand le serveur s'est éteint en cas de panne ou de mise à jour. Pour un·e étudiant·e déconnecté temporairement, son enseignant·e ne devrait pas voir 2 versions du même fichier avant et après redémarrage, mais uniquement la dernière version à jour. Les clients doivent récupérer l'état actuel en cours à la reconnexion, notamment l'exercice en cours pour pouvoir l'afficher à nouveau. Un·e enseignant·e qui se déconnecterait involontairement, n'impacterait pas la présence de la session, qui continuerai d'exister sur le serveur.
+Un système de gestion des pannes du serveur et des clients est défini, pour éviter de la confusion et la frustration dans l'expérience finale. Les instabilités de Wifi, la batterie vide ou un éventuel crash de l'application ne devrait pas impacter le reste des participant·es de la sessions. Les clients doivent pouvoir afficher dans leur interface quand le serveur s'est éteint en cas de panne ou de mise à jour. Un·e enseignant·e qui se déconnecterait involontairement, n'impacterait pas la présence de la session, qui continuerai d'exister sur le serveur.
 
 === Architecture haut niveau
 La @high-level-arch montre un aperçu des besoins sur les informations à transmettre et recevoir. PLX a déjà accès aux exercices, stockés dans des repository Git clonés au début du semestre. Une fois une session lancée, le serveur n'a pas besoin de connaître les détails des exercices, il agit principalement comme un relai. Le serveur n'est utile que pour un entrainement dans une session live, il n'est pas nécessaire pour un entrainement tout seul.
@@ -32,7 +32,7 @@ Le protocole tourne autour du concept de session, qui peut être vu comme un end
 
 Une session est définie par un titre et un ID textuel de groupe, cette combinaison est unique sur le serveur. Cet ID de groupe est complètement arbitraire. Par défaut, le client PLX va prendre le lien HTTPS du repository Git pour regrouper les sessions du même cours. Dans le cas d'un fork du cours qui souhaiterait apparaître dans la même liste, cet ID peut être reconfiguré. Cette ID peut paraitre inutile, mais elle présente deux intérêts importants: une amélioration de l'expérience et une limitation du spam.
 
-Si 100 sessions live tournent en même temps, seules les sessions du cours seront listées. Si 1-6 enseignant·es enseignent un cours en même temps, la liste ne sera que de 1-6 entrées, ce qui simplifie l'accès à la bonne session. Le titre de la session sert aux étudiant·es à trouver la session qui les intéressent.
+Si 100 sessions live tournent en même temps, seules les sessions du cours seront listées. Si 1-6 enseignant·es enseignent un cours en même temps, la liste ne sera que de 1-6 entrées, ce qui simplifie l'accès à la bonne session. Le titre de la session sert aux étudiant·es à trouver celle qui les intéressent.
 
 Un problème potentiel de spam est la création automatisée d'autres sessions avec des noms très proches des sessions légitimes pour tromper les étudiant·es. Un autre cas encore plus ennuyant est l'envoi de morceau de code aléatoire de centaines de clients fictifs. Cette attaque rendrait le tableau de bord des leaders inutilisable, puisque les bouts de code envoyés des 20 étudiant·es seraient perdu au milieu de centaines d'autres. Puisqu'il est nécessaire de connaître le lien d'un repository Git d'un cours PLX pour connaître une partie de la liste des sessions en cours, ce genre d'attaque est déjà rendue plus difficile.
 
@@ -50,13 +50,13 @@ Une personne démarre une session pour un repository qui contient des exercices 
 === Définition et configuration du client
 Un "client" est défini comme la partie logicielle de PLX qui se connecte à un serveur de session live. Un client n'a pas besoin d'être codé dans un langage ou pour une plateforme spécifique, le seul prérequis est la capacité d'utiliser le protocole WebSocket. Chaque client est anonyme (le nom n'est pas envoyé, il ne peut pas être connu de l'enseignant·e facilement), mais s'identifie par un `client_id`, qu'il doit persister. Cet ID doit rester secrète entre le client et serveur, sinon il devient possible de se faire passer pour un autre client. Cela pose surtout des problèmes lorsque ce même client gère des sessions.
 
-Par souci de simplicité, les clients PLX génèrent un UUID (exemple `1be216e1-220c-4a0e-a582-0572096cea07`) dans sa version 4 @uuidv4. Le protocole ne définit pas le format de cet identifiant, un autre format de plus grande entropie pourrait facilement être utilisé plus tard, si une sécurité plus accrue devient nécessaire.
+Par souci de simplicité, les clients PLX génèrent un UUID (exemple `1be216e1-220c-4a0e-a582-0572096cea07`) dans sa version 4 @uuidv4. Le protocole ne définit pas le format de cet identifiant, un autre format de plus grande entropie pourrait facilement être utilisé plus tard, si une sécurité plus accrue devenait nécessaire.
 
-Une fois une session rejoints, les clients se voient assignés un `client_num`, numéro entier incrémentale (partant à zéro) attribué par le serveur dans l'ordre d'arrivée dans la session. Ces numéros de clients ont deux utilités. La première est d'identifier coté clients leaders, quel bout de code ou résultat vient du même client. Le `client_id` doit rester secret et ne doit pas être envoyés vers un autre client.  Ces numéros permettent aux participant·es de discuter à l'oral
+Une fois une session rejoints, les clients se voient assignés un `client_num`, numéro entier incrémentale (partant de zéro) attribué par le serveur dans l'ordre d'arrivée dans la session. Ces numéros de clients ont deux utilités. La première est d'identifier coté clients leaders, quel bout de code ou résultat vient du même client. Le `client_id` doit rester secret et ne doit pas être envoyés vers un autre client. La deuxième utilité est de permettre aux participant·es de mentionner à l'oral leur numéro, par exemple: _Je ne comprends pas l'erreur, est-ce que vous pouvez me dire pourquoi mon code ne compile pas, en numéro 8 ?_.
 
 // todo add UUID def ?
 
-Un client ne peut pas se connecter plusieurs fois simultanément au même serveur. Cela peut arriver lorsque l'on démarre deux fois l'application, le même `client_id` sera utilisé sur deux connexions WebSocket distinctes. Lors de la deuxième connexion, la première est fermée par le serveur après l'envoi d'une erreur. Une fois connecté, chaque client ne peut rejoindre qu'une session à la fois.
+Un client ne peut pas se connecter plusieurs fois simultanément au même serveur. Cela peut arriver lorsque l'on démarre l'application deux fois, le même `client_id` sera utilisé sur deux connexions WebSocket distinctes. Lors de la deuxième connexion, la première est fermée par le serveur après l'envoi d'une erreur. Une fois connecté, chaque client ne peut rejoindre qu'une session à la fois.
 
 // todo check fermeture connexion du serveur implémenté ??
 // todo check erreur incluse plus bas
@@ -219,38 +219,28 @@ Lors de la réception d'un signal d'arrêt (lancé lors d'un `Ctrl+c`), le serve
 
 ==== Gestion des pannes
 
-Le serveur n'a rien besoin de persister, toutes les données des sessions peuvent rester en mémoire parce que le problème de perte des sessions est minime. Les cas de crash devraient être très rares grâce aux garanties de sécurité mémoire de Rust, et en supposant que les mises à jour du serveur seront faites en dehors des heures de cours. Toute l'information étant temporaire, un crash du serveur n'est en fait pas un gros problème, les clients doivent juste se reconnecter et recréer ou rejoindre les sessions à la main.
+Le serveur n'a rien besoin de persister, toutes les données des sessions peuvent rester en mémoire vive uniquement. La perte des sessions au redémarrage est un problème minime car toute l'information n'est qu'une copie temporaire. Les cas de crash devraient être très rares grâce aux garanties de sécurité mémoire de Rust. On suppose aussi que les mises à jour du serveur seront faites en dehors des heures de cours. Si ces deux situations arrivent pendant que des sessions sont en cours, les clients doivent juste se reconnecter, et proposer aux participant·es de recréer ou rejoindre les sessions à la main.
 
-Coté des clients, pour simplifier le développement et la logique de reconnexion, les clients n'ont pas besoin de persister l'état de la session, comme l'identifiant de l'exercice en cours. Durant la connexion d'un client, leader ou follower, le serveur doit envoyer le dernier message `SwitchExo` qu'il a reçu par le passé. Pour un client leader, le serveur doit aussi renvoyer tous les derniers `Event::ForwardFile` et `Event::ForwardResult` pour chaque client, afin que le leader puisse immédiatement retrouver l'interface tel qu'avant reconnexion et de ne pas devoir attendre les prochains envois de ces événements pour chaque follower.
+Coté des clients, pour simplifier le développement et la logique de reconnexion, les clients n'ont pas besoin de persister l'état de la session, comme l'identifiant de l'exercice en cours. Durant la connexion d'un client, leader ou follower, le serveur doit envoyer le dernier message `SwitchExo` qu'il a reçu par le passé. Pour un client leader, le serveur doit en plus renvoyer tous les derniers `Event::ForwardFile` et `Event::ForwardResult` pour chaque client. Ce transfert est requis pour que l'interface d'avoir le même état qu'avant deconnexion et de ne pas devoir attendre les prochains envois de ces événements pour chaque follower.
 
-Lorsqu'un client se reconnecte à une session après l'avoir rejoint dans le passé, il doit récupérer le même `client_num`.
+Pour un follower déconnecté temporairement, son leader ne devrait pas voir 2 versions du même code avant et après redémarrage, mais uniquement la dernière version à jour. Pour permettre cette expérience, un client qui se reconnecte à une session il doit récupérer le même `client_num` que la dernière fois qu'il était connecté à cette session.
 
-tester what happening if client is losing connection.
-
-// keep alive, fermeture de connexion
+// tester what happening if client is losing connection.
 
 ==== Evolutivité
 Le concept de session lancée par des clients leaders et de synchronisation de données provenant de clients followers vers des clients leaders, peut facilement être étendu à d'autres usages. Si on imagine d'autres types d'exercice que du code comme des exercices à choix multiples, il suffirait d'ajouter une nouvelle action `Action::SendChoice` pour envoyer une réponse et un événement associé (`Event::ForwardChoice`), pour renvoyer cette réponse vers les clients leaders.
 
 Dans le futur, si le support de nouveaux formats d'exercices seront supportés par PLX. Si cela implique de changer trop souvent la structure des résultats dans le champ `content.check_result` dans le message `Event::SendResult`, une solution serait de ne pas spécifier la structure exacte de ce sous champ et laisser les clients gérer les structures non définies ou partielles. Cela pourrait éviter de régulièrement devoir augmenter le numéro de version majeure à cause de _breaking change_.
 
-// todo note breaking change
+// todo note bas de page breaking change
 
 // TODO en italic tous les noms en anglais !!!!!!!!!!!
 
-//
 // ===== Performance
-// TODO faire propre
 // Des mesures basiques sont prises pour éviter un poids ou un nombre inutile de messages envoyés sur le réseau. Ces mesures ont pour but de limiter le nombre de messages que le serveur doit gérer lorsque plusieurs sessions avec de nombreux clients connectés. Nous ne faisons pas de benchmark pour le moment, pour se concentrer sur développer une implémentation correcte.
 //
 // - N'envoyer un morceau de code uniquement s'il a été modifié depuis le dernier envoi
 // - N'envoyer que les fichiers modifiés par rapport au code de départ à la première synchronisation. Dans un exercice à 3 fichiers avec 1 fichier à changer, les 2 autres fichiers ne devraient pas être envoyés, puisque les clients followers peuvent avoir la version originale stockée dans le repository.
 // - N'envoyer un résultat que s'il est différent depuis le dernier envoi. Sauver 3 fois le même fichier sans modification, donnera le même résultat, qui ne peut être envoyé qu'une seule fois pour la première sauvegarde.
 // - Bufferiser les envois en boucle: quand le serveur doit envoyer une longue suite de messages à un client, l'envoi se fait en bufferisant les messages pour éviter une partie d'appels systèmes
-
-//
-// NOTES
-// ' Action are actions taken mostly by client, but could also be the server closing the session after inactivity or during shutdown.
-// ' Event are responses to actions, as everything is asynchronous
-// ' exemple messages JSON pour les 2 formats
 
