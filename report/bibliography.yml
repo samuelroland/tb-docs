@@ -796,3 +796,26 @@ uuidv4:
     - Davis, Kyzer
     - Peabody, Brad
     - Leach, Paul
+
+TauriWebsite:
+  type: Web
+  url: https://tauri.app/
+  date: 2025
+  title: Tauri 2.0 | Create small, fast, secure, cross-platform applications
+  author: Contributeurs de Tauri
+
+1passwordTypeshare:
+  type: Web
+  url: https://1password.github.io/typeshare/
+  date: 2024-10
+  title: Overview - The Typeshare Book
+  organization: 1Password
+
+TauriSpectaCratesio:
+  type: Web
+  url: https://crates.io/crates/tauri-specta
+  date: 2023-05
+  title: tauri-specta - Completely typesafe Tauri commands
+  author:
+    - Beaumont, Oscar
+    - Allan, Brendan
