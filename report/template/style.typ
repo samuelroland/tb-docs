@@ -108,11 +108,35 @@
 
 #let MyStyle(body) = {
 
-  // Use "Snippet" instead of Liste -> Snippet 1, Snippet 2, ...
+  // Configure figures
+  let figure_supplement_color = blue
+
+  // If the figure contains a #raw snippet (a code block), we use "Snippet" instead of "Figure" as the supplement
+  // todo extend that to image in SVG, considered as snippet also
   show figure.where(kind: raw): set figure(
     supplement: "Snippet"
   )
-  // todo extend that to image in SVG, considered as snippet also
+
+  // Show the figure caption (the text below) with the supplement ("Figure" or "Snippet") in bold
+  // remove the dot after the supplement and after the number
+  // Some a small space above the caption
+  show figure.caption: c => context [
+    #v(0.1cm)
+    #text(fill: figure_supplement_color)[
+      #c.supplement.text.replace("Fig.", "Figure") #c.counter.display(c.numbering)
+    ]#c.separator.text.replace(".", "") #c.body
+  ]
+
+  // Help from https://github.com/typst/typst/discussions/3871
+  // Show the reference to a label with the name of the supplement of this reference
+  // It's sadly not possible to to add the figure_supplement_color to both the supplement and the number
+  set ref(supplement: it => {
+    if it.func() == figure {
+      if type(it.body) == content {
+        text(it.supplement.text.replace("Fig.", "Figure"))
+      }
+    }
+  })
 
   // Justify the text
   set par(justify: true)
@@ -127,7 +151,7 @@
   }
 
   // Disable syntastica as it is slow
-  let syntastica-enabled = true
+  let syntastica-enabled = false
   show raw: it => if syntastica-enabled { align(left)[#syntastica(it, theme: "catppuccin::latte")]} else { it }
 
   // Display inline code in a small box that retains the correct baseline.
