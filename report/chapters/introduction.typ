@@ -34,7 +34,7 @@ Pour mieux comprendre à quel point le processus actuel d'entrainement est fasti
 
 Un titre, une consigne et un scénario pour tester le bon fonctionnement sont fournis. L'enseignante annonce un temps alloué de dix minutes. Une fois la consigne récupérée et lue par un étudiant, il prend le code de départ et crée un nouveau fichier dans ses fichiers personnels. L'étudiant ouvre ensuite son IDE favori dans le dossier de l'exercice et configure la compilation avec CMake. Après trois minutes de mise en place, il peut enfin commencer à coder.
 
-Une première solution est développée et est prête à être testée après deux minutes. Il lance un terminal, compile le code, rentre `John` et `Doe` et s'assure du résultat. Après relecture de la sortie générée, il se rend compte d'une erreur sur `Passe une belle journée Doe !`: seul le nom de famille s'affiche, le prénom a été oublié. Deux minutes pour tester son code se sont écoulées. Après une minute de correction, l'étudiant retourne dans son terminal et recommence le processus de validation. L'exercice est terminé juste à la fin du temps alloué et l'étudiant peut suivre la correction. S'il avait eu une erreur de plus, il aurait eu besoin de quelques minutes de plus. Certain·es étudiant·es à ses côtés n'ont pas eu le temps de finir et doivent s'arrêter.
+Une première solution est développée et est prête à être testée après deux minutes. Il lance un terminal, compile le code, rentre `John` et `Doe` et s'assure du résultat. Après relecture de l'_output_ générée, il se rend compte d'une erreur sur `Passe une belle journée Doe !`: seul le nom de famille s'affiche, le prénom a été oublié. Deux minutes pour tester son code se sont écoulées. Après une minute de correction, l'étudiant retourne dans son terminal et recommence le processus de validation. L'exercice est terminé juste à la fin du temps alloué et l'étudiant peut suivre la correction. S'il avait eu une erreur de plus, il aurait eu besoin de quelques minutes de plus. Certain·es étudiant·es à ses côtés n'ont pas eu le temps de finir et doivent s'arrêter.
 
 En résumé, sur les dix minutes seulement trois ont été utilisées pour de l'écriture de code. Tout le reste a été perdu sur des tâches "administratives" autour de l'exercice.
 
@@ -89,7 +89,7 @@ Ce travail de Bachelor vise à poursuivre le développement du projet PLX @plxWe
 
 Pour commencer à s'entrainer, les étudiant·es clonent un repository Git contenant tous les exercices. Ensuites, ils et elles peuvent travailler localement dans leur IDE favori, qui s'exécute en parallèle de PLX. Les scénarios de vérifications, exécutés auparavant manuellement, sont lancés automatiquement à chaque sauvegarde de fichier. Ces suites de tests automatisées, appelées "checks", permettent d'apporter à l'étudiant·e un feedback automatisé immédiat, riche et continu. Au lieu de perdre sept minutes sur dix sur des tâches "administratives", PLX en automatise la majorité et permet à l'étudiant·e de réduire ce temps à une minute.
 
-Ces checks sont rédigés par les enseignant·es. Le titre, la consigne, ainsi que les détails des checks sont tous décrits dans des fichiers texte en format TOML.
+Ces checks restent pour l'instant assez primitifs, seulement l'output est comparée à celui attendu. D'autres vérifications plus avancées pourront être supportées dans le futur. Les enseignant·es rédigent le titre, la consigne, ainsi que les détails des checks dans des fichiers texte en format TOML.
 
 // todo yatil des études scientifiques dans l'état de l'art à mentionner ? peut-être qui soutient les défaut du YAML ou d'autres formats ?
 
@@ -107,7 +107,7 @@ Ces checks sont rédigés par les enseignant·es. Le titre, la consigne, ainsi q
 
 #figure(
   box(stroke: 2pt + gray, image("../imgs/plx-checks-failed.png", width: 100%)),
-  caption: [2 checks qui échouent, avec la différence de sorties pour facilement comprendre ce qui n'est pas correcte. L'IDE s'est ouvert automatiquement en parallèle.],
+  caption: [2 checks qui échouent, avec la différence d'_output_ pour facilement comprendre ce qui n'est pas correcte. L'IDE s'est ouvert automatiquement en parallèle.],
 ) <fig-plx-checks-failed>
 
 #figure(
@@ -172,16 +172,16 @@ Pour faciliter l'adoption de PLX, nous avons besoin d'un format de données simp
 
 #figure(raw(block: true, lang: "markdown", read("../sources/plx-dy-simple.md")), caption: [Exemple d'exercice de programmation, rédigé en Markdown]) <exemple-dy-md-start>
 
-Ce format en @exemple-dy-md-start est pensé pour un document lisible par des humains. Cependant, si on voulait pouvoir automatiser l'exécution du code et des étapes manuelles de rentrer le prénom, le nom et de vérifier l'output, nous aurions besoin d'extraire chaque information sans ambiguïté. Hors cette structure, bien que reproductible sur d'autres exercices, n'est pas assez standardisée pour une extraction automatique.
+Ce format en @exemple-dy-md-start est pensé pour un document lisible par des humains. Cependant, si on voulait pouvoir automatiser l'exécution du code et des étapes manuelles de rentrer le prénom, le nom et de vérifier l'_output_, nous aurions besoin d'extraire chaque information sans ambiguïté. Hors cette structure, bien que reproductible sur d'autres exercices, n'est pas assez standardisée pour une extraction automatique.
 
-En effet, sans comprendre le langage naturel, comment savoir que `John` et `Doe` doivent être rentrés à la main et ne font pas partie de l'output ? Comment le parseur peut détecter qu'on parle du code d'exit du programme et que ce code doit valoir zéro ? Et si on avait différents scénarios comment pourrait-on les décrire et différencier ? Comment distinguer la consigne utile du reste des instructions générique? La partie _en répondant `John` et `Doe` manuellement_ ne devrait pas apparaître si le scénario a pu être automatisé.
+En effet, sans comprendre le langage naturel, comment savoir que `John` et `Doe` doivent être rentrés à la main et ne font pas partie de l'_output_ ? Comment le parseur peut détecter qu'on parle du code d'exit du programme et que ce code doit valoir zéro ? Et si on avait différents scénarios comment pourrait-on les décrire et différencier ? Comment distinguer la consigne utile du reste des instructions générique? La partie _en répondant `John` et `Doe` manuellement_ ne devrait pas apparaître si le scénario a pu être automatisé.
 Ce qui peut être clair sur le langage naturel pour les humains du découpage mentale des informations, devient une tâche impossible pour un parseur qui doit être prédictible et rapide (on exclut l'usage de l'intelligence artificielle pour ces raisons).
 
-De plus, ce format possède plusieurs parties qui demandent plus de travail à la rédaction. Le code de la solution est développé dans un fichier `main.c` séparé et doit être copié manuellement. Une partie du texte comme _Assure toi d'avoir la même sortie que ce scénario_ est générique et doit pourtant être constamment répétée à chaque exercice pour introduire le snippet. L'output est à maintenir à jour avec le code de la solution, si celle-ci évolue, on risque d'oublier de mettre à jour la consigne de l'exercice.
+De plus, ce format possède plusieurs parties qui demandent plus de travail à la rédaction. Le code de la solution est développé dans un fichier `main.c` séparé et doit être copié manuellement. Une partie du texte comme _Assure toi d'avoir le même output que ce scénario_ est générique et doit pourtant être constamment répétée à chaque exercice pour introduire le snippet. L'_output_ est à maintenir à jour avec le code de la solution, si celle-ci évolue, on risque d'oublier de mettre à jour la consigne de l'exercice.
 
 Dans le contexte du développement de PLX, la manière la plus rapide et facile à mettre en place serait simplement de définir un schéma JSON à respecter. On aurait d'abord un champ pour le titre (sous la clé `exo` pour raccourcir le mot `exercice`) et la consigne.
 
-Ensuite une liste de checks serait fournie. Chaque check serait défini par un titre et une séquence d'opérations à effectuer. Chaque opération serait de type `see` (ce que l'on s'attend à "voir" dans l'output), `type` (ce qu'on tape dans le terminal) et finalement `exit` (pour définir le code d'exit attendu). Il serait pratique de définir cette séquence dans un objet, avec en clé `see`, `type` ou `exit` et en valeur, un paramètre. Comme les clés des objets en JSON n'ont pas d'ordre et doivent être uniques @JsonRfcIntro, nous ne pourrions pas répéter plusieurs étapes `see`. Nous devons décrire la séquence comme un tableau d'objets. Voici un exemple d'usage de ce schéma sur le @exemple-dy-json.
+Ensuite une liste de checks serait fournie. Chaque check serait défini par un titre et une séquence d'opérations à effectuer. Chaque opération serait de type `see` (ce que l'on s'attend à "voir" dans l'_output_), `type` (ce qu'on tape dans le terminal) et finalement `exit` (pour définir le code d'exit attendu). Il serait pratique de définir cette séquence dans un objet, avec en clé `see`, `type` ou `exit` et en valeur, un paramètre. Comme les clés des objets en JSON n'ont pas d'ordre et doivent être uniques @JsonRfcIntro, nous ne pourrions pas répéter plusieurs étapes `see`. Nous devons décrire la séquence comme un tableau d'objets. Voici un exemple d'usage de ce schéma sur le @exemple-dy-json.
 
 #figure(raw(block: true, lang: "json", read("../sources/plx-dy-simple.json")), caption: [Equivalent JSON de l'exercice défini sur le @exemple-dy-md-start]) <exemple-dy-json>
 
@@ -197,18 +197,20 @@ Le YAML nous a permis ici de retirer tous les guillemets, les accolades et croch
 - Les tabulations sont difficiles à gérer dès qu'on dépasse 3-4 niveaux, elles sont aussi nécessaires pour du contenu multiligne
 - Certaines situations nécessitent encore des guillemets autours des chaines de caractères
 
-L'intérêt clair du YAML, tout comme le JSON est la possibilité de définir des pairs de clés/valeurs, ce qui n'est pas possible en Markdown. On pourrait définir une convention par dessus Markdown: définir qu'un titre de niveau 1 est le titre de l'exercice, qu'un bloc de code sans langage défini est l'output ou encore que le texte entre le titre et l'output est la consigne. Quand on arrive sur des champs plus spécifiques aux exercices de programmation, cela se corce un peu: comment définir le code d'exit attendu, définir la commande pour stopper un programme, ou encore définir les parties de l'output qui sont des entrées utilisateurs ?
+L'intérêt clair du YAML, tout comme le JSON est la possibilité de définir des pairs de clés/valeurs, ce qui n'est pas possible en Markdown. On pourrait définir une convention par dessus Markdown: définir qu'un titre de niveau 1 est le titre de l'exercice, qu'un bloc de code sans langage défini est l'_output_ ou encore que le texte entre le titre et l'output est la consigne.
+
+Quand on arrive sur des champs plus spécifiques aux exercices de programmation, cela se corce un peu. Comment définir le code d'exit attendu? Comment définir la commande pour stopper un programme? Ou encore définir les parties de l'_output_ qui sont des entrées utilisateurs ?
 
 #pagebreak()
 
-Pour résoudre ces problèmes, nous proposons une nouvelle syntaxe, nommée DY, à mi-chemin entre le Markdown et le YAML, concise et compacte. Pour les clés, on définit un système de préfixe qui permet de structurer le contenu de l'exercice. On reprend les idées de `see`, `type`, et `exit`. Voici un exemple en @exemple-dy.
+Pour résoudre ces problèmes, nous proposons une nouvelle syntaxe, nommée DY, à mi-chemin entre le Markdown et le YAML, concise et compacte. Voici un exemple en @exemple-dy.
 
 #figure(
   image("../sources/plx-dy-simple.svg", width:70%),
   caption: [Equivalent de l'exercice du @exemple-dy-md-start, dans une version préliminaire de la syntaxe DY],
 ) <exemple-dy>
 
-Dans cette syntaxe, plus de tabulation, de deux points, juste des informations séparées ligne par ligne, avec un préfixe avant chaque nouveau champ. La consigne est définie dans la suite du titre et peut s'étendre sur plusieurs lignes. Le Markdown est toujours supportés dans le titre et la consigne.
+Dans cette syntaxe DY, nous reprenons les idées de `see`, `type`, et `exit`. Nous avons gardé les clés du YAML mais retiré le superflu: les tabulations, les deux points, les tirets et les accolades. Les différentes informations sont séparées par la fin de ligne avant une autre clé valide. La consigne est définie dans la suite du titre et peut s'étendre sur plusieurs lignes. Le Markdown est toujours supporté dans le titre et la consigne.
 
 Ce deuxième défi demande d'écrire un parseur de cette nouvelle syntaxe. Ce n'est que la première étape, car lire du texte structuré blanc sur fond noir sans aucune couleur, sans feedback sur la validité du contenu, mène à une expérience un peu froide. En plus du parseur, il est indispensable d'avoir un support solide dans les IDE modernes pour proposer une expérience d'édition productive.
 
@@ -217,11 +219,11 @@ Ce deuxième défi demande d'écrire un parseur de cette nouvelle syntaxe. Ce n'
   caption: [Aperçu de l'expérience imaginée de rédaction imaginée dans un IDE],
 ) <ide-xp>
 
-On voit dans la @ide-xp que l'intégration consiste en deux parties principales
+On voit dans la @ide-xp que l'intégration inclut deux fonctionnalités principales
 + le surlignage de code, qui permet de coloriser les préfixes et les propriétés, afin de bien distinguer les préfixes et contenu
-+ intégration avancée des erreurs du parseur et de la documentation à l'éditeur. On le voit en ligne 4 avec l'erreur du nom de check manquant après le préfixe `check`, en ligne 19 avec une auto-complétion qui propose les préfixes valides à cette position du curseur.
++ intégration avancée des erreurs du parseur et de la documentation à l'éditeur. On le voit en ligne 4 avec l'erreur du nom de check manquant après le préfixe `check`. En ligne 19 une auto-complétion facilite la découverte et rédaction en proposant les clés valides à cette position du curseur.
 
-Cette nouvelle syntaxe, son parseur et support d'IDE permettront de remplacer le format TOML actuellement utilisé dans PLX.
+Cette nouvelle syntaxe, son parseur et support d'IDE permettront de complètement remplacer le format TOML actuellement utilisé par PLX.
 
 == Solutions existantes <solutions-existantes>
 
@@ -249,9 +251,10 @@ Ces solutions existantes sont intéressantes mais ne couvrent qu'une partie des 
 #pagebreak()
 // todo move that somewhere useful once we have bottom page notes
 == Glossaire
-L'auteur de ce travail se permet un certain nombre d'anglicismes quand un équivalent français n'existe pas . Certaines constructions de programmations bien connues comme les `strings` au lieu d'écrire `chaînes de caractères` sont également utilisées. Certaines sont spécifiques à certains langages et sont décrites ci-dessous pour aider à la lecture.
+L'auteur de ce travail se permet un certain nombre d'anglicismes quand un équivalent français n'existe pas. Certaines constructions de programmations bien connues comme les `strings` au lieu d'écrire `chaînes de caractères` sont également utilisées. Certaines sont spécifiques à certains langages et sont décrites ci-dessous pour aider à la lecture.
 
 - `POC`: _Proof Of Concept_, preuve qu'un concept fonctionne en pratique. Consiste ici en un petit morceau de code développé juste pour démontrer que le concept est fonctionnel, sans soin particulier apporté à la qualité de l'implémentation. Ce code n'est pas réutilisé par la suite, il sert seulement d'inspiration pour l'implémentation réelle.
+- `output`: flux de texte de la sortie standard du programme / texte affiché dans la console par le programme
 - `exo`: abréviation familière de `exercice`. Elle est utilisée dans la syntaxe DY pour rendre plus concis la rédaction.
 - `check`: nom choisi pour décrire un ou plusieurs tests unitaires ou vérifications automatisées du code
 - `Cargo`: le gestionnaire de dépendances, de compilation et de test des projets Rust
