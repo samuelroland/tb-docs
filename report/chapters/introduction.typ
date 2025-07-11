@@ -91,15 +91,27 @@ Pour commencer à s'entrainer, les étudiant·es clonent un repository Git et tr
 
 // todo yatil des études scientifiques dans l'état de l'art à mentionner ? peut-être qui soutient les défaut du YAML ou d'autres formats ?
 
-#figure(
-  image("../imgs/plx-preview-home.png", width: 100%),
-  caption: [Aperçu de la page d'accueil de PLX dans le terminal @PlxDocsStatus],
-) <fig-plx-preview-home>
+// TODO la liste des cours ?
 
 #figure(
-  image("../imgs/plx-preview-checks.png", width: 100%),
-  caption: [Aperçu d'un exercice de C dans PLX, avec un check qui échoue et 2 autres qui passent @PlxDocsStatus],
-) <fig-plx-preview-checks>
+  box(stroke: 2pt + gray,  image("../imgs/plx-course-details.png", width: 90%)),
+  caption: [Dans PLX, l'aperçu des listes de compétences et exercices dans un cours fictif, il est possible de parcourir les exercices et d'en démarrer un],
+) <fig-plx-course-details>
+
+#figure(
+   box(stroke: 2pt + gray, image("../imgs/plx-build-failed.png", width: 100%)),
+  caption: [Une fois cet exercice de C lancé, le titre et la consigne sont visibles. Les erreurs de compilation sont directement affichés dans PLX, en préservant les couleurs],
+) <fig-plx-build-failed>
+
+#figure(
+  box(stroke: 2pt + gray, image("../imgs/plx-checks-failed.png", width: 100%)),
+  caption: [2 checks qui échouent, avec la différence de sorties pour facilement comprendre ce qui n'est pas correcte. L'IDE s'est ouvert automatiquement en parallèle.],
+) <fig-plx-checks-failed>
+
+#figure(
+  box(stroke: 2pt + gray, image("../imgs/plx-checks-passing.png", width: 80%)),
+  caption: [Une fois tous les checks passés, tout passe au vert et l'exercice est terminé],
+) <fig-plx-checks-passing>
 
 // todo screen 2 avec vscode à coté mieux ?
 
