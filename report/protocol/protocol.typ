@@ -18,13 +18,14 @@ Ce rôle est attribué à chaque client dans une session, avoir un rôle en deho
 
 Un système de gestion des pannes du serveur et des clients est défini, pour éviter de la confusion et la frustration dans l'expérience finale. Les instabilités de Wifi, la batterie vide ou un éventuel crash de l'application ne devrait pas impacter le reste des participant·es de la sessions. Les clients doivent pouvoir afficher dans leur interface quand le serveur s'est éteint en cas de panne ou de mise à jour. Un·e enseignant·e qui se déconnecterait involontairement, n'impacterait pas la présence de la session, qui continuerai d'exister sur le serveur.
 
-=== Architecture conceptuel du protocole
+=== Vue conceptuelle
 La @high-level-arch montre un aperçu des besoins sur les informations à transmettre et recevoir. PLX a déjà accès aux exercices, stockés dans des repository Git clonés au début du semestre. Une fois une session lancée, le serveur n'a pas besoin de connaître les détails des exercices, il agit principalement comme un relai. Le serveur n'est utile que pour un entrainement dans une session live, PLX peut être utilisé sans serveur pour l'entrainement local.
 
 #figure(
   image("../schemas/high-level-arch.opti.svg", width:100%),
   caption: [Architecture haut niveau décrivant les interactions entre les clients PLX et le serveur de session live],
 ) <high-level-arch>
+// todo add client without connection to the server
 // todo schéma -> inclusif
 // todo schéma -> update to desktop ui ?
 

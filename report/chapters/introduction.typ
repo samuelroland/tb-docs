@@ -201,7 +201,7 @@ De plus, ce format possède plusieurs parties qui demandent plus de travail à l
 
 Maintenant qu'il est clair que le Markdown seul n'est pas adapté, regardons du côté des formats structurés. L'option la plus rapide et facile à mettre en place serait simplement de définir un schéma JSON à respecter. On aurait d'abord un champ pour le titre (sous la clé `exo` pour raccourcir le mot `exercice`) et la consigne.
 
-Ensuite une liste de checks serait fournie. Chaque check serait défini par un titre et une séquence d'opérations à effectuer. Chaque opération serait de type `see` (ce que l'on s'attend à "voir" dans l'_output_), `type` (ce qu'on tape dans le terminal) et finalement `exit` (pour définir le code d'exit attendu). Il serait pratique de définir cette séquence dans un objet, avec en clé `see`, `type` ou `exit` et en valeur, un paramètre. Comme les clés des objets en JSON n'ont pas d'ordre et doivent être uniques @JsonRfcIntro, nous ne pourrions pas répéter plusieurs étapes `see`. Nous devons décrire la séquence comme un tableau d'objets. Voici un exemple d'usage de ce schéma sur le @exemple-dy-json.
+Ensuite une liste de checks serait fournie. Chaque check serait défini par un titre et une séquence d'opérations à effectuer. Chaque opération serait de type `see` (ce que l'on s'attend à "voir" dans l'_output_), `type` (ce qu'on tape dans le terminal) et finalement `exit` (pour définir le code d'exit attendu). Il serait pratique de définir cette séquence dans un objet, avec en clé `see`, `type` ou `exit` et en valeur, un paramètre. Comme les clés des objets en JSON n'ont pas d'ordre et doivent être uniques @JsonRfcIntro, nous ne pourrions pas répéter plusieurs étapes `see`. Nous devons décrire la séquence comme un tableau `[]` d'objets `{}`. Voici un exemple d'usage de ce schéma sur le @exemple-dy-json.
 
 #figure(raw(block: true, lang: "json", read("../sources/plx-dy-simple.json")), caption: [Equivalent JSON de l'exercice défini sur le @exemple-dy-md-start]) <exemple-dy-json>
 
@@ -220,8 +220,6 @@ Le YAML nous a permis ici de retirer tous les guillemets, les accolades et croch
 L'intérêt clair du YAML, tout comme le JSON est la possibilité de définir des pairs de clés/valeurs, ce qui n'est pas possible en Markdown. On pourrait définir une convention par dessus Markdown: définir qu'un titre de niveau 1 est le titre de l'exercice, qu'un bloc de code sans langage défini est l'_output_ ou encore que le texte entre le titre et l'output est la consigne.
 
 Quand on arrive sur des champs plus spécifiques aux exercices de programmation, cela se corce un peu. Comment définir le code d'exit attendu? Comment définir la commande pour stopper un programme? Ou encore définir les parties de l'_output_ qui sont des entrées utilisateurs ?
-
-#pagebreak()
 
 Pour résoudre ces problèmes, nous proposons une nouvelle syntaxe, nommée DY, à mi-chemin entre le Markdown et le YAML, concise et compacte. Voici un exemple en @exemple-dy.
 
@@ -270,7 +268,7 @@ Plusieurs plateformes web similaires existent, comme CodeCheck @HorstmannCodeche
   caption: [Aperçu d'un exercice de Java sur CodeCheck, avec un code qui compile mais un résultat erroné @CodecheckJavaExample],
 ) <fig-codecheck-demo>
 
-Le code est exécuté sur le serveur et l'édition se fait dans la navigateur dans un éditeur simplifié. L'avantage est la simplicité d'usage et le système de pseudo commentaires pour configurer l'exercice depuis la solution directement. Comme désavantage par rapport à PLX c'est le temps de compilation qui est plus lent qu'une compilation en local et l'expérience d'édition en ligne reste trop minimale pour passer des heures sur des exercices. Chaque exercice a son propre URL pour l'édition et un autre pour l'entrainement, ce qui peut rendre fastidieux le déploiement de dizaines d'exercices à la chaine.
+Le code est exécuté sur le serveur et l'édition se fait dans le navigateur dans un éditeur simplifié. L'avantage est la simplicité d'usage et le système de pseudo commentaires pour configurer l'exercice depuis la solution directement. Comme désavantage par rapport à PLX c'est le temps de compilation qui est plus lent qu'une compilation en local et l'expérience d'édition en ligne reste trop minimale pour passer des heures sur des exercices. Chaque exercice a son propre URL pour l'édition et un autre pour l'entrainement, ce qui peut rendre fastidieux le déploiement de dizaines d'exercices à la chaine.
 
 Ces solutions existantes sont intéressantes mais ne couvrent qu'une partie des besoins de PLX. Le plus gros manque est l'impossibilité de faire des sessions live.
 
