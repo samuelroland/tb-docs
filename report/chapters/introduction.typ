@@ -23,7 +23,7 @@ Ce travail de Bachelor s'inscrit dans ce contexte et vise à redéfinir l'expér
 // todo aussi expliquer le besoin de fichiers texte ? ou ca doit venir plus loin ?
 
 #pagebreak()
-== Problèmes de l'expérience originale
+== Problèmes de l'expérience actuelle
 Pour mieux comprendre à quel point le processus actuel d'entrainement est fastidieux, regardons un exercice concret de C pour débutant. Une enseignante qui suit une classe de 40 étudiant·es, fournit la consigne suivante sur un serveur, comme premier exercice de la session.
 
 // TODO en français l'exo ??
@@ -32,7 +32,7 @@ Pour mieux comprendre à quel point le processus actuel d'entrainement est fasti
 
 // Problème de la friction pour les étudiants sur un exercice
 
-Un titre, une consigne et un scénario pour tester le bon fonctionnement sont fournis. L'enseignante annonce un temps alloué de dix minutes. Une fois la consigne récupérée et lue par un des étudiant·es, il prend le code de départ et de crée un nouveau fichier dans ses fichiers personnels. L'étudiant ouvre ensuite son IDE favori dans le dossier de l'exercice et configure la compilation avec CMake. Après trois de mise en place, il peut enfin commencer à coder.
+Un titre, une consigne et un scénario pour tester le bon fonctionnement sont fournis. L'enseignante annonce un temps alloué de dix minutes. Une fois la consigne récupérée et lue par un étudiant, il prend le code de départ et crée un nouveau fichier dans ses fichiers personnels. L'étudiant ouvre ensuite son IDE favori dans le dossier de l'exercice et configure la compilation avec CMake. Après trois minutes de mise en place, il peut enfin commencer à coder.
 
 Une première solution est développée et est prête à être testée après deux minutes. Il lance un terminal, compile le code, rentre `John` et `Doe` et s'assure du résultat. Après relecture de la sortie générée, il se rend compte d'une erreur sur `Passe une belle journée Doe !`: seul le nom de famille s'affiche, le prénom a été oublié. Deux minutes pour tester son code se sont écoulées. Après une minute de correction, l'étudiant retourne dans son terminal et recommence le processus de validation. L'exercice est terminé juste à la fin du temps alloué et l'étudiant peut suivre la correction. S'il avait eu une erreur de plus, il aurait eu besoin de quelques minutes de plus. Certain·es étudiant·es à ses côtés n'ont pas eu le temps de finir et doivent s'arrêter.
 
@@ -41,15 +41,15 @@ En résumé, sur les dix minutes seulement trois ont été utilisées pour de l'
 // Problème du manque d'accès aux solutions en live et manque de feedback -> coté étudiants et enseignants
 // perte de l'expérience locale sur des services en ligne
 
-Durant la correction, l'enseignante va présenter sa solution et demander s'il y a des questions. Certain·es étudiant·es les plus avancé·es poseront peut-être des questions sur l'approche ou une fonction spécifique. Il est cependant rare d'entendre une question du type "Je suis complètement paumé·e, vous pouvez réexpliquer ce que fait cette fonction ?" ou encore "Je ne n'ai pas ce qui est flou mais je n'ai vraiment pas compris votre solution". D'autres qui n'ont pas pu terminer l'exercice ne savent pas si leur début partait dans la bonne direction, même si la solution était bien expliquée.
+Durant la correction, l'enseignante va présenter sa solution et demander s'il y a des questions. Certain·es étudiant·es les plus avancé·es poseront peut-être des questions sur l'approche ou une fonction spécifique. Il est cependant rare d'entendre une question du type "Je suis complètement paumé·e, vous pouvez réexpliquer ce que fait cette fonction ?" ou encore "Je ne sais pas ce qui est flou, mais je n'ai vraiment pas compris votre solution". D'autres qui n'ont pas pu terminer l'exercice ne savent pas si leur début partait dans la bonne direction, même si la solution était bien expliquée.
 
 Faire fonctionner le programme n'est que la première étape. Faire du code robuste, modulaire, lisible et performant demande des retours humains pour pouvoir progresser. Les étudiant·es moins expérimenté·es ne savent pas immédiatement si la compétence est acquise, comme le feedback n'arrive que dans les corrections des évaluations notées, plusieurs semaines plus tard.
 
-Côté de l'enseignante, en comptant uniquement sur les questions des étudiant·es, savoir si le message de l'exercice est passé reste un challenge. Il est difficile aussi de savoir quand l'exercice doit se terminer. Peut-être qu'il aurait fallu 5 minutes de plus pour qu'une majorité ait le temps de finir ? Pour avoir accès aux réponses, elles doivent être manuellement rendues sur un serveur. Ce rendu prend à nouveau du temps pour chaque étudiant·e. Pour l'enseignante, les récupérer, ouvrir et fermer 40 fichiers, pour évaluer l'état d'avancement à l'oeil et comprendre les différentes approches, prendrait trop de temps en classe.
+Côté de l'enseignante, en comptant uniquement sur les questions des étudiant·es, savoir si le message de l'exercice est passé reste un challenge. Il est difficile aussi de savoir quand l'exercice doit se terminer. Peut-être qu'il aurait fallu 5 minutes de plus pour qu'une majorité ait le temps de finir ? Pour avoir accès aux réponses, elles doivent être manuellement rendues sur un serveur. Ce rendu prend à nouveau du temps pour chaque étudiant·e. Pour l'enseignante, récupérer, ouvrir et fermer 40 fichiers, prendrait trop de temps en classe.
 
 Une autre approche serait de coder dans un fichier Google Docs partagé à toute la classe. L'enseignante a maintenant un moyen de relire au fur et à mesure, détecter les incompréhensions, mais les étudiant·es ont perdu toute l'expérience du développement en local. Dans Google Docs, il n'y a pas de couleur sur le code, pas d'auto-complétion et pas d'erreur de compilation visible dans le code. Tous les raccourcis, le formattage automatique et les informations au survol manquent terriblement. Pour tester leur programme, les étudiant·es doivent constamment copier leur code dans un fichier local.
 
-En conclusion, le problème c'est que l'entrainement est fastidieux pour les étudiants, ce qui implique moins d'exercices effectués, moins de motivation à avancer et freine l'apprentissage en profondeur. Le manque de retour ralentit également la progression des compétences autour de la qualité du code produit. Les enseignant·es n'ont pas accès aux réponses des étudiant·es, ce qui empêche d'avoir une vision précise des incompréhensions et de donner de feedbacks.
+En conclusion, le problème est que l'entrainement est fastidieux pour les étudiants, ce qui implique moins d'exercices effectués, moins de motivation à avancer et freine l'apprentissage en profondeur. Le manque de retour ralentit également la progression des compétences autour de la qualité du code produit. Les enseignant·es n'ont pas accès aux réponses des étudiant·es, ce qui empêche d'avoir une vision précise des incompréhensions et de donner de feedbacks.
 
 // reste evtl le problème de rédiger des tests automatisés pas toujours évident à mettre en place, teste stdin et stdout pas du tout facile
 
@@ -87,7 +87,9 @@ En conclusion, le problème c'est que l'entrainement est fastidieux pour les ét
 // l'existant
 Ce travail de Bachelor vise à poursuivre le développement du projet PLX @plxWebsite, application desktop écrite en Rust, VueJS @VuejsWebsite et TypeScript. Cette application permet aux étudiant·es de se concentrer pleinement sur l'écriture du code. PLX est inspiré de Rustlings (Terminal User Interface pour apprendre le Rust), permettant de s'habituer aux erreurs du compilateur Rust et de prendre en main la syntaxe @RustlingsWebsite. PLX fournit actuellement une expérience locale similaire pour le C et C++.
 
-Pour commencer à s'entrainer, les étudiant·es clonent un repository Git et travaillent localement dans leur IDE favori qui s'exécute en parallèle de PLX. Les scénarios de vérifications, exécutés auparavant manuellement, sont lancés automatiquement à chaque sauvegarde de fichier. Ces suites de tests automatisées, appelées "checks", permettent d'apporter un feedback automatisé rapide, continu et riche. Au lieu de perdre sept minutes sur dix sur des tâches "administratives", PLX en automatise la majorité et permet à l'étudiant·e de réduire ce temps à une minute.
+Pour commencer à s'entrainer, les étudiant·es clonent un repository Git contenant tous les exercices. Ensuites, ils et elles peuvent travailler localement dans leur IDE favori, qui s'exécute en parallèle de PLX. Les scénarios de vérifications, exécutés auparavant manuellement, sont lancés automatiquement à chaque sauvegarde de fichier. Ces suites de tests automatisées, appelées "checks", permettent d'apporter à l'étudiant·e un feedback automatisé immédiat, riche et continu. Au lieu de perdre sept minutes sur dix sur des tâches "administratives", PLX en automatise la majorité et permet à l'étudiant·e de réduire ce temps à une minute.
+
+Ces checks sont rédigés par les enseignant·es. Le titre, la consigne, ainsi que les détails des checks sont tous décrits dans des fichiers texte en format TOML.
 
 // todo yatil des études scientifiques dans l'état de l'art à mentionner ? peut-être qui soutient les défaut du YAML ou d'autres formats ?
 
@@ -123,7 +125,7 @@ Le besoin de feedback humain pour les étudiant·es en plus du feedback automati
 // potentiel utile ?
 // PLX peut à terme aider de nombreux cours à la HEIG-VD (tels que PRG1, PRG2, PCO, SYE...) à passer de longs moments de théorie en session d'entrainement dynamique et très interactive. L'ambition est qu'à terme, cela génère un apprentissage plus profond de modèles mentaux solides chez les étudiants. Cela aidera les étudiants qui ont beaucoup de peine à s'approprier la programmation à avoir moins de difficultés avec ces cours. Et ceux qui sont plus à l'aise pourront développer des compétences encore plus avancées.
 
-=== Défi 1: Comment les enseignants peuvent voir le code et les résultats en temps réel ?
+=== Défi 1: Comment les enseignant·es peuvent voir le code et les résultats en temps réel ?
 
 // todo mix de permet et permettra et permettrait ? que faire ?
 
@@ -172,7 +174,7 @@ Pour faciliter l'adoption de PLX, nous avons besoin d'un format de données simp
 
 Ce format en @exemple-dy-md-start est pensé pour un document lisible par des humains. Cependant, si on voulait pouvoir automatiser l'exécution du code et des étapes manuelles de rentrer le prénom, le nom et de vérifier l'output, nous aurions besoin d'extraire chaque information sans ambiguïté. Hors cette structure, bien que reproductible sur d'autres exercices, n'est pas assez standardisée pour une extraction automatique.
 
-En effet, sans comprendre le langage naturel, comment savoir que `John` et `Doe` doivent être rentrés à la main et ne font pas partie de l'output ? Comment le parseur peut détecter qu'on parle du code d'exit du programme et que ce code doit valoir zéro ? Et si on avait différents scénarios comment pourrait-on les décrire et différencier ? Comment distinguer la consigne utile du reste des instructions générique, comme _en répondant `John` et `Doe` manuellement_, qui ne devrait pas apparaire si le scénario a pu être automatisé?
+En effet, sans comprendre le langage naturel, comment savoir que `John` et `Doe` doivent être rentrés à la main et ne font pas partie de l'output ? Comment le parseur peut détecter qu'on parle du code d'exit du programme et que ce code doit valoir zéro ? Et si on avait différents scénarios comment pourrait-on les décrire et différencier ? Comment distinguer la consigne utile du reste des instructions générique? La partie _en répondant `John` et `Doe` manuellement_ ne devrait pas apparaître si le scénario a pu être automatisé.
 Ce qui peut être clair sur le langage naturel pour les humains du découpage mentale des informations, devient une tâche impossible pour un parseur qui doit être prédictible et rapide (on exclut l'usage de l'intelligence artificielle pour ces raisons).
 
 De plus, ce format possède plusieurs parties qui demandent plus de travail à la rédaction. Le code de la solution est développé dans un fichier `main.c` séparé et doit être copié manuellement. Une partie du texte comme _Assure toi d'avoir la même sortie que ce scénario_ est générique et doit pourtant être constamment répétée à chaque exercice pour introduire le snippet. L'output est à maintenir à jour avec le code de la solution, si celle-ci évolue, on risque d'oublier de mettre à jour la consigne de l'exercice.
@@ -192,7 +194,7 @@ Un autre format plus léger à rédiger est le YAML, regardons ce que cela donne
 Le YAML nous a permis ici de retirer tous les guillemets, les accolades et crochets. Cependant, malgré sa légereté, il contient encore plusieurs points de friction:
 - Les tirets sont nécessaires pour chaque élément de liste et les deux points pour chaque clé
 - Pour avoir plus d'une information par ligne, il faut ajouter une paire d'accolades autour des clés (`- { kind: see, value: Passe une belle journée John Doe ! }`)
-- Les tabulations sont difficiles à gérer dès qu'on dépasse 3-4 niveaux, elles sont aussi nécessaires sur du contenu multiligne
+- Les tabulations sont difficiles à gérer dès qu'on dépasse 3-4 niveaux, elles sont aussi nécessaires pour du contenu multiligne
 - Certaines situations nécessitent encore des guillemets autours des chaines de caractères
 
 L'intérêt clair du YAML, tout comme le JSON est la possibilité de définir des pairs de clés/valeurs, ce qui n'est pas possible en Markdown. On pourrait définir une convention par dessus Markdown: définir qu'un titre de niveau 1 est le titre de l'exercice, qu'un bloc de code sans langage défini est l'output ou encore que le texte entre le titre et l'output est la consigne. Quand on arrive sur des champs plus spécifiques aux exercices de programmation, cela se corce un peu: comment définir le code d'exit attendu, définir la commande pour stopper un programme, ou encore définir les parties de l'output qui sont des entrées utilisateurs ?
@@ -233,14 +235,14 @@ De nombreux autres projets se sont inspirées de ce concept, `clings` pour le C 
 
 Chaque projet se concentre sur un langage de programmation et crée des exercices dédiés. PLX prend une approche différente: en plus d'être une application desktop, il n'y a pas d'exercice proposé et PLX supporte de multiples langages. Le contenu sera géré indépendamment de l'outil, permettant aux enseignant·es d'intégrer leur propre contenu.
 
-Plusieurs plateformes web existent comme CodeCheck, qui permet de fournir un code de solution et d'ajouter des commentaires pour configurer l'exercice. Ainsi un commentaire `//HIDE` va cacher une ligne, `//EDIT` va définir un bloc éditable, `//ARGS` indique des arguments à passer au programme ou encore `//CALL 1 2 3` pour appeler une fonction avec les arguments 1, 2 et 3.
+Plusieurs plateformes web similaires existent, comme CodeCheck, qui permet de fournir un code de solution et d'ajouter des commentaires pour configurer l'exercice. Ainsi un commentaire `//HIDE` va cacher une ligne, `//EDIT` va définir un bloc éditable, `//ARGS` indique des arguments à passer au programme ou encore `//CALL 1 2 3` pour appeler une fonction avec les arguments 1, 2 et 3.
 
 #figure(
   image("../imgs/codecheck-demo.png", width: 70%),
   caption: [Aperçu d'un exercice de Java sur CodeCheck, avec une résultat erroné],
 ) <fig-codecheck-demo>
 
-Le code est exécuté sur le serveur et l'édition se fait dans la navigateur dans un éditeur simplifié. L'avantage est la simplicité d'usage et le système de pseudo commentaires pour configurer l'exercice depuis la solution directement. Comme désavantage par rapport à PLX c'est le temps de compilation qui est plus lent que localement et l'expérience d'édition en ligne reste trop minimale pour passer des heures sur des exercices. Chaque exercice a son propre URL pour l'édition et un autre pour l'entrainement, ce qui peut rendre fastidieux le déploiement de dizaines d'exercices à la chaine.
+Le code est exécuté sur le serveur et l'édition se fait dans la navigateur dans un éditeur simplifié. L'avantage est la simplicité d'usage et le système de pseudo commentaires pour configurer l'exercice depuis la solution directement. Comme désavantage par rapport à PLX c'est le temps de compilation qui est plus lent qu'une compilation en local et l'expérience d'édition en ligne reste trop minimale pour passer des heures sur des exercices. Chaque exercice a son propre URL pour l'édition et un autre pour l'entrainement, ce qui peut rendre fastidieux le déploiement de dizaines d'exercices à la chaine.
 
 Ces solutions existantes sont intéressantes mais ne couvrent qu'une partie des besoins de PLX.
 

@@ -8,7 +8,7 @@ checks:
       - kind: type
         value: John
       - kind: see
-        value: Salut John, qu'est est ton nom de famille ?
+        value: Salut John, quel est ton nom de famille ?
       - kind: type
         value: Doe
       - kind: see

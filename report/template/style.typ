@@ -114,6 +114,7 @@
   )
   // todo extend that to image in SVG, considered as snippet also
 
+  // Justify the text
   set par(justify: true)
   show link: underline
 

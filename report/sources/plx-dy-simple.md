@@ -5,7 +5,7 @@ Assure toi d'avoir la même sortie que ce scénario, en répondant `John` et `Do
 ```
 > ./main
 Quel est ton prénom ? John
-Salut John, qu'est est ton nom de famille ? Doe
+Salut John, quel est ton nom de famille ? Doe
 Passe une belle journée John Doe !
 >
 ```
@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
     fflush(stdout);
     scanf("%s", firstname);
 
-    printf("Salut %s, qu'est est ton nom de famille ? ", firstname);
+    printf("Salut %s, quel est ton nom de famille ? ", firstname);
     fflush(stdout);
     scanf("%s", lastname);
 
