@@ -1,3 +1,9 @@
+AndersEricssonWiki:
+  type: Web
+  url: https://en.wikipedia.org/wiki/K._Anders_Ericsson#cite_note-nytimesobit-1
+  date: 2025
+  title: K. Anders Ericsson - Wikipedia
+
 plxWebsite:
   type: Web
   url: https://plx.rs
@@ -23,6 +29,13 @@ PRG1RecueilExercicesGithub:
   title: GitHub - PRG1-HEIGVD/PRG1_Recueil_Exercices at 6b04c4559d924c394878993c7606e36ae82237ce
   author: Enseignants de PRG1 à la HEIG-VD
 
+PRG1RecueilExercicesGithubExoString:
+  type: Web
+  url: https://github.com/PRG1-HEIGVD/PRG1_Recueil_Exercices/blob/6b04c4559d924c394878993c7606e36ae82237ce/08%20-%20Chaines%20de%20caracteres/04-04%20-%20Prenom%20nom%20et%20acronyme%202.md
+  date: 2023-08-06
+  title: PRG1_Recueil_Exercices/08 - Chaines de caracteres/04-04 - Prenom nom et acronyme 2.md at 6b04c4559d924c394878993c7606e36ae82237ce
+  author: Enseignants de PRG1 à la HEIG-VD
+
 TypstWebsite:
   type: Web
   url: https://typst.app/
@@ -45,6 +58,13 @@ CodecheckJavaExample:
   url: https://codecheck.io/files/wiley/codecheck-bj-4-object-102
   date: 2025
   title: AverageTester.java exercice on CodeCheck
+  author: Horstmann, Cay
+
+HorstmannCodecheck:
+  type: Web
+  url: https://horstmann.com/codecheck/
+  date: 2025
+  title: CodeCheck
   author: Horstmann, Cay
 
 UDLCratesio:
@@ -819,3 +839,17 @@ TauriSpectaCratesio:
   author:
     - Beaumont, Oscar
     - Allan, Brendan
+
+VuejsWebsite:
+  type: Web
+  url: https://vuejs.org/
+  date: 2025
+  title: Vue.js - The Progressive JavaScript Framework
+  author: Evan You et contributeurs
+
+NeovimWebsite:
+  type: Web
+  url: https://neovim.io/
+  date: 2025
+  title: Home - Neovim
+  author: ???

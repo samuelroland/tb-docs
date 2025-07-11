@@ -22,7 +22,6 @@ Vérifie que ton programme ait terminé avec le code de fin 0, en lançant cette
 > echo $?
 0
 ```
-
 <details>
 <summary>Solution</summary>
 

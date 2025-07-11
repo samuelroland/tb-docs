@@ -17,7 +17,7 @@ Les sessions théoriques sont souvent données sous forme magistrale: des slides
 
 Lors des rares sessions d'exercice en classe et durant la révision en dehors des cours, un temps important est perdu à mettre en place les exercices et les vérifications manuelles.
 // garder ? c'est à dire: copier des fichiers, effectuer une première compilation, et résoudre des problèmes de reproductibilité.
-Ce processus fastidieux se fait au détriment de la pratique délibérée, concept popularisé par le psychologue Anders Ericsson dans ses recherches en expertise @peakBook. Cette méthode consiste à travailler de manière concentrée sur des sous-compétences spécifiques. Afin de constamment corriger et affiner son modèle mental, elle demande de recevoir un feedback rapide et régulier. La solidité du modèle mental construit par l'expérience, permet d'attendre un haut niveau d'expertise. #linebreak()
+Ce processus fastidieux se fait au détriment de la pratique délibérée, concept popularisé par le psychologue Anders Ericsson @AndersEricssonWiki dans ses recherches en expertise @peakBook. Il a étudié les points communs dans l'entrainement des champion·nes et expert·es dans de nombreux domaines: sport, échecs, armée, musique, ... En résumé, leur entrainement consiste à travailler de manière concentrée sur des sous-compétences spécifiques. Elle demande de recevoir un feedback rapide et régulier, afin de corriger et affiner constamment son modèle mental. La solidité du modèle mental construit par l'expérience, permet d'atteindre un haut niveau d'expertise. #linebreak()
 Ce travail de Bachelor s'inscrit dans ce contexte et vise à redéfinir l'expérience d'apprentissage et d'enseignement de la programmation en s'inspirant de cette méthode.
 
 // todo aussi expliquer le besoin de fichiers texte ? ou ca doit venir plus loin ?
@@ -25,8 +25,6 @@ Ce travail de Bachelor s'inscrit dans ce contexte et vise à redéfinir l'expér
 #pagebreak()
 == Problèmes de l'expérience actuelle
 Pour mieux comprendre à quel point le processus actuel d'entrainement est fastidieux, regardons un exercice concret de C pour débutant. Une enseignante qui suit une classe de 40 étudiant·es, fournit la consigne suivante sur un serveur, comme premier exercice de la session.
-
-// TODO en français l'exo ??
 
 #roundedbox()[#include "../sources/plx-dy-simple.typ"]
 
@@ -85,7 +83,7 @@ En conclusion, le problème est que l'entrainement est fastidieux pour les étud
 // TODO "poursuivre" au lieu de "développer", okay ?
 
 // l'existant
-Ce travail de Bachelor vise à poursuivre le développement du projet PLX @plxWebsite, application desktop écrite en Rust, VueJS @VuejsWebsite et TypeScript. Cette application permet aux étudiant·es de se concentrer pleinement sur l'écriture du code. PLX est inspiré de Rustlings (Terminal User Interface pour apprendre le Rust), permettant de s'habituer aux erreurs du compilateur Rust et de prendre en main la syntaxe @RustlingsWebsite. PLX fournit actuellement une expérience locale similaire pour le C et C++.
+Ce travail de Bachelor vise à poursuivre le développement du projet PLX @plxWebsite, application desktop écrite en Rust, VueJS @VuejsWebsite et TypeScript. Cette application permet aux étudiant·es de se concentrer pleinement sur l'écriture du code. PLX est inspiré de Rustlings (Terminal User Interface (TUI) pour apprendre le Rust), permettant de s'habituer aux erreurs du compilateur Rust et de prendre en main la syntaxe @RustlingsWebsite. PLX fournit actuellement une expérience locale similaire pour le C et C++.
 
 Pour commencer à s'entrainer, les étudiant·es clonent un repository Git contenant tous les exercices. Ensuites, ils et elles peuvent travailler localement dans leur IDE favori, qui s'exécute en parallèle de PLX. Les scénarios de vérifications, exécutés auparavant manuellement, sont lancés automatiquement à chaque sauvegarde de fichier. Ces suites de tests automatisées, appelées "checks", permettent d'apporter à l'étudiant·e un feedback automatisé immédiat, riche et continu. Au lieu de perdre sept minutes sur dix sur des tâches "administratives", PLX en automatise la majorité et permet à l'étudiant·e de réduire ce temps à une minute.
 
@@ -168,18 +166,40 @@ Un exemple d'usage du Markdown est le recueil d'exercices du cours de PRG1 (cour
 // todo okay de mettre des infos d'opinions ?? je peux pas vraiment citer je crois. -> selon les recherches de l'auteur.
 
 
-Pour faciliter l'adoption de PLX, nous avons besoin d'un format de données simple à prendre en main, pour décrire les différents types d'exercices supportés. Si on reprend l'exercice présenté plus tôt, qu'on le rédige en Markdown, en y ajoutant la solution comme sur le recueil de PRG1, cela donne @exemple-dy-md-start.
+Pour faciliter l'adoption de PLX, nous avons besoin d'un format de données simple à prendre en main, pour décrire les différents types d'exercices supportés. Si on reprend l'exercice présenté plus tôt, qu'on le rédige en Markdown, en y ajoutant la solution dans le même style du recueil de PRG1 @PRG1RecueilExercicesGithubExoString, cela donne le @exemple-dy-md-start.
 
 #figure(raw(block: true, lang: "markdown", read("../sources/plx-dy-simple.md")), caption: [Exemple d'exercice de programmation, rédigé en Markdown]) <exemple-dy-md-start>
 
-Ce format en @exemple-dy-md-start est pensé pour un document lisible par des humains. Cependant, si on voulait pouvoir automatiser l'exécution du code et des étapes manuelles de rentrer le prénom, le nom et de vérifier l'_output_, nous aurions besoin d'extraire chaque information sans ambiguïté. Hors cette structure, bien que reproductible sur d'autres exercices, n'est pas assez standardisée pour une extraction automatique.
+Ce format en @exemple-dy-md-start est pensé pour un document lisible par des humains. Cependant, si on voulait pouvoir automatiser l'exécution du code et des étapes manuelles de rentrer le prénom, le nom et de vérifier l'_output_, nous aurions besoin d'extraire chaque information sans ambiguïté. Hors cette structure, bien que reproductible manuellement sur d'autres exercices, n'est pas assez standardisée pour une extraction automatique.
 
-En effet, sans comprendre le langage naturel, comment savoir que `John` et `Doe` doivent être rentrés à la main et ne font pas partie de l'_output_ ? Comment le parseur peut détecter qu'on parle du code d'exit du programme et que ce code doit valoir zéro ? Et si on avait différents scénarios comment pourrait-on les décrire et différencier ? Comment distinguer la consigne utile du reste des instructions générique? La partie _en répondant `John` et `Doe` manuellement_ ne devrait pas apparaître si le scénario a pu être automatisé.
-Ce qui peut être clair sur le langage naturel pour les humains du découpage mentale des informations, devient une tâche impossible pour un parseur qui doit être prédictible et rapide (on exclut l'usage de l'intelligence artificielle pour ces raisons).
+En effet, sans comprendre le langage naturel, comment savoir que `John` et `Doe` sur l'extrait du @mdextract doivent être rentrés à la main et ne font pas partie de l'_output_ ?
 
-De plus, ce format possède plusieurs parties qui demandent plus de travail à la rédaction. Le code de la solution est développé dans un fichier `main.c` séparé et doit être copié manuellement. Une partie du texte comme _Assure toi d'avoir le même output que ce scénario_ est générique et doit pourtant être constamment répétée à chaque exercice pour introduire le snippet. L'_output_ est à maintenir à jour avec le code de la solution, si celle-ci évolue, on risque d'oublier de mettre à jour la consigne de l'exercice.
+#figure(
+raw(block: true, lang: "markdown", "Assure toi d'avoir la même sortie que ce scénario, en répondant `John` et `Doe` manuellement.
+```
+> ./main
+Quel est ton prénom ? John
+Salut John, quel est ton nom de famille ? Doe
+Passe une belle journée John Doe !
+>
+```"), caption: [Extrait 1 du @exemple-dy-md-start décrivant le scénario à tester]) <mdextract>
 
-Dans le contexte du développement de PLX, la manière la plus rapide et facile à mettre en place serait simplement de définir un schéma JSON à respecter. On aurait d'abord un champ pour le titre (sous la clé `exo` pour raccourcir le mot `exercice`) et la consigne.
+Et si on avait différents scénarios, comment pourrait-on les décrire et différencier ? Comment distinguer la consigne utile du reste des instructions génériques? La partie _en répondant `John` et `Doe` manuellement_ ne devrait pas apparaître si le scénario a pu être automatisé, l'étudiant·e comprendra avec le détails du check.
+
+Sur le @exitextract, comment le parseur peut détecter qu'on parle du code d'exit du programme et que ce code doit valoir zéro ?
+
+#figure(
+raw(block: true, lang: "markdown", "Vérifie que ton programme ait terminé avec le code de fin 0, en lançant cette commande.
+```sh
+> echo $?
+0
+```"), caption: [Extrait 2 du @exemple-dy-md-start décrivant le code de fin]) <exitextract>
+
+Le découpage mentale des informations peut sembler simple en tant qu'humain avec le langage naturel, mais devient une tâche impossible pour un parseur qui doit être fiable. Le langage naturel peut être compris par des modèles de langages mais on exclut l'usage de l'intelligence artificielle pour ce parseur, car nous avons besoin qu'il soit prédictible et rapide.
+
+De plus, ce format possède plusieurs parties qui demandent plus de travail à la rédaction. Le code de la solution est développé dans un fichier `main.c` séparé et doit être copié manuellement. Une partie du texte sur @mdextract comme _Assure toi d'avoir le même output que ce scénario_ est générique et doit pourtant être constamment répétée à chaque exercice pour introduire le snippet. L'_output_ est à maintenir à jour avec le code de la solution, si celle-ci évolue, on risque d'oublier de mettre à jour la consigne de l'exercice.
+
+Maintenant qu'il est clair que le Markdown seul n'est pas adapté, regardons du côté des formats structurés. L'option la plus rapide et facile à mettre en place serait simplement de définir un schéma JSON à respecter. On aurait d'abord un champ pour le titre (sous la clé `exo` pour raccourcir le mot `exercice`) et la consigne.
 
 Ensuite une liste de checks serait fournie. Chaque check serait défini par un titre et une séquence d'opérations à effectuer. Chaque opération serait de type `see` (ce que l'on s'attend à "voir" dans l'_output_), `type` (ce qu'on tape dans le terminal) et finalement `exit` (pour définir le code d'exit attendu). Il serait pratique de définir cette séquence dans un objet, avec en clé `see`, `type` ou `exit` et en valeur, un paramètre. Comme les clés des objets en JSON n'ont pas d'ordre et doivent être uniques @JsonRfcIntro, nous ne pourrions pas répéter plusieurs étapes `see`. Nous devons décrire la séquence comme un tableau d'objets. Voici un exemple d'usage de ce schéma sur le @exemple-dy-json.
 
@@ -216,16 +236,16 @@ Ce deuxième défi demande d'écrire un parseur de cette nouvelle syntaxe. Ce n'
 
 #figure(
   image("../schemas/ide-experience-mental-model-simple.png", width:100%),
-  caption: [Aperçu de l'expérience imaginée de rédaction imaginée dans un IDE],
+  caption: [Aperçu de l'expérience souhaitée de rédaction dans un IDE],
 ) <ide-xp>
 
 On voit dans la @ide-xp que l'intégration inclut deux fonctionnalités principales
-+ le surlignage de code, qui permet de coloriser les préfixes et les propriétés, afin de bien distinguer les préfixes et contenu
-+ intégration avancée des erreurs du parseur et de la documentation à l'éditeur. On le voit en ligne 4 avec l'erreur du nom de check manquant après le préfixe `check`. En ligne 19 une auto-complétion facilite la découverte et rédaction en proposant les clés valides à cette position du curseur.
++ le surlignage de code, qui permet de coloriser les clés et les propriétés, afin de bien distinguer les clés et contenu
++ l'intégration avancée des erreurs du parseur et de la documentation à l'éditeur. On le voit en ligne 4, après la clé `check` une erreur s'affiche pour le nom manquant. En ligne 19, l'auto-complétion facilite la découverte et rédaction en proposant les clés valides à cette position du curseur.
 
-Pour convaincre les plus perplexes des lecteur·ices, il peut être intéressant de comprendre la réflexion stratégique derrière ce projet, maintenant que les solutions standards ont pu être comparées. Là où certain·es auraient simplement pris le YAML, TOML ou un autre format simplement par habitude, l'auteur a fait le choix de ne pas se contenter de l'existant. Dans un contexte professionnelle, il aurait peut-être été difficile de justifier le développement d'une solution, "juste pour optimiser le YAML et le Markdown", dans un contexte académique, nous avons la chance d'avoir du temps.
+Pour convaincre les plus perplexes des lecteur·ices, il peut être intéressant de comprendre la réflexion stratégique derrière ce projet, maintenant que les solutions standards ont pu être comparées. Là où certain·es auraient simplement pris le YAML, TOML ou un autre format connu par habitude, l'auteur a fait le choix de ne pas se contenter de l'existant. Dans un contexte professionnelle, il aurait peut-être été difficile de justifier le développement d'une solution, "juste pour optimiser le YAML et le Markdown", dans un contexte académique, nous avons la chance d'avoir du temps.
 
-La conception de la syntaxe DY est similaire à celle de l'éditeur de texte Neovim (fork moderne de Vim) @NeovimWebsite. Prendre en main Neovim, le personnaliser et s'y habituer prend un temps conséquent. De nombreuses raccourcis d'édition du texte, sont très différents des autres éditeurs. Au lieu de `Ctrl+c` pour copier, on utilise `y`, au lieu de `ctrl+shift+droite, supprimer` pour sélectioner un mot à droite et le supprimer, on tape simplement `dw` (_#strong("d")elete #strong("w")ord_). Tout l'outil a été conçu pour être optimisé en définissant des raccourcis facile et rapide à tapper. Les premières semaines d'usage de l'outil sont pénibles, ce n'est qu'en suite que l'on prend goût à la rapidité et l'agilité d'édition.
+La conception de la syntaxe DY est similaire à celle de l'éditeur de texte Neovim (fork moderne de Vim) @NeovimWebsite. Prendre en main Neovim, le personnaliser et s'y habituer prend un temps conséquent. De nombreuses raccourcis d'édition du texte, sont très différents des autres éditeurs. Au lieu de `Ctrl+c` pour copier, on utilise `y`, au lieu de `ctrl+shift+droite` puis `supprimer` pour sélectioner un mot à droite et le supprimer, on tape simplement `dw` (_#strong("d")elete #strong("w")ord_). Tout l'outil a été conçu pour être optimisé en définissant des raccourcis facile et rapide à tapper. Les premières semaines d'usage de l'outil sont pénibles, ce n'est qu'en suite que l'on prend goût à la rapidité et l'agilité d'édition.
 
 Sur plusieurs années, les enseignant·es passeront des centaines d'heures à retranscrire, modifier ou créer des exercices. L'auteur préfère passer du temps de développement, d'intégration et de documentation, pour optimiser la rédaction à long terme. L'auteur fait le pari qu'un·e enseignant·e non initié·e y gagnera sur le long terme, par rapport au temps de mise en place de l'outil et d'apprentissage durant la première heure. Dans certains contextes, si le YAML n'est pas connu, la syntaxe DY pourrait être même plus simple à prendre en main. Une fois initié à la syntaxe, la rédaction facilitée encourage à rédiger souvent et rapidement de nouveaux exercices, ce qui améliore la quantité et la qualité de la pratique pour les étudiant·es.
 
@@ -233,26 +253,26 @@ Cette nouvelle syntaxe, son parseur et support d'IDE permettront de complètemen
 
 == Solutions existantes <solutions-existantes>
 
-L'idée de faire des exercices de programmation couverts par des suites de tests automatisées n'est pas nouvelle. Comme mentionné dans l'introduction, PLX est inspiré de Rustlings. Cette TUI propose une centaine d'exercices de Rust avec du code à faire compiler ou des tests à faire passer. Le site web de Rustlings recommende de faire ces exercices en parallèle de la lecture du _Rust book_ (la documentation officielle) @RustlingsWebsite.
+Faire des exercices de programmation couverts par des suites de tests automatisées n'est pas une idée nouvelle en soit. Comme mentionné dans l'introduction, PLX est inspiré de Rustlings. Cette TUI propose une centaine d'exercices de Rust avec des erreurs de compilation à corriger ou des tests unitaires à faire passer. Le site web de Rustlings recommande de faire ces exercices en parallèle de la lecture du _Rust book_ (la documentation officielle) @RustlingsWebsite.
 #figure(
   image("../imgs/rustlings-demo.png", width: 80%),
-  caption: [Rustlings en action en haut dans le terminal et VSCode en bas],
+  caption: [Rustlings en action dans le terminal en haut et l'IDE VSCode en bas],
 ) <fig-rustlings-demo>
 
 De nombreux autres projets se sont inspirées de ce concept, `clings` pour le C @ClingsGithub, `golings` pour le Go @GolingsGithub, `ziglings` pour Zig @CodebergZiglings et même `haskellings` pour Haskell @HaskellingsGithub ! Ces projets incluent une suite d'exercice et une TUI pour les exécuter pas à pas, afficher les erreurs de compilation ou les cas de tests qui échouent, pour faciliter la prise en main des débutant·es.
 
 Chaque projet se concentre sur un langage de programmation et crée des exercices dédiés. PLX prend une approche différente: en plus d'être une application desktop, il n'y a pas d'exercice proposé et PLX supporte de multiples langages. Le contenu sera géré indépendamment de l'outil, permettant aux enseignant·es d'intégrer leur propre contenu.
 
-Plusieurs plateformes web similaires existent, comme CodeCheck, qui permet de fournir un code de solution et d'ajouter des commentaires pour configurer l'exercice. Ainsi un commentaire `//HIDE` va cacher une ligne, `//EDIT` va définir un bloc éditable, `//ARGS` indique des arguments à passer au programme ou encore `//CALL 1 2 3` pour appeler une fonction avec les arguments 1, 2 et 3.
+Plusieurs plateformes web similaires existent, comme CodeCheck @HorstmannCodecheck, qui permet de configurer l'exercice en ajoutant des commentaires directement dans le code de la solution. Par exemple, un commentaire `//HIDE` va cacher une ligne, `//EDIT` va définir un bloc éditable, `//ARGS` indique des arguments à passer au programme ou encore `//CALL 1 2 3` pour appeler une fonction avec les arguments 1, 2 et 3.
 
 #figure(
   image("../imgs/codecheck-demo.png", width: 70%),
-  caption: [Aperçu d'un exercice de Java sur CodeCheck, avec une résultat erroné],
+  caption: [Aperçu d'un exercice de Java sur CodeCheck, avec un code qui compile mais un résultat erroné @CodecheckJavaExample],
 ) <fig-codecheck-demo>
 
 Le code est exécuté sur le serveur et l'édition se fait dans la navigateur dans un éditeur simplifié. L'avantage est la simplicité d'usage et le système de pseudo commentaires pour configurer l'exercice depuis la solution directement. Comme désavantage par rapport à PLX c'est le temps de compilation qui est plus lent qu'une compilation en local et l'expérience d'édition en ligne reste trop minimale pour passer des heures sur des exercices. Chaque exercice a son propre URL pour l'édition et un autre pour l'entrainement, ce qui peut rendre fastidieux le déploiement de dizaines d'exercices à la chaine.
 
-Ces solutions existantes sont intéressantes mais ne couvrent qu'une partie des besoins de PLX.
+Ces solutions existantes sont intéressantes mais ne couvrent qu'une partie des besoins de PLX. Le plus gros manque est l'impossibilité de faire des sessions live.
 
 #pagebreak()
 // todo move that somewhere useful once we have bottom page notes

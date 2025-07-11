@@ -8,10 +8,10 @@ Cette partie décrit d'une manière semi-formelle la syntaxe DY et son usage dan
 
 == Définition semi-formelle de la syntaxe DY en abstrait
 
-=== Les préfixes
+=== Les clés
 TODO
 
-=== Les types de préfixes
+=== Les types de clés
 TODO
 
 === Les propriétés
@@ -21,7 +21,7 @@ TODO
 TODO
 
 === Hiérarchie implicite
-Les fins de ligne définissent la fin du contenu pour les préfixes sur une seule ligne. Le préfixe `exo` supporte plusieurs lignes, son contenu se termine ainsi dès qu'un autre préfixe valide est détecté (ici `check`). La hiérarchie est implicite dans la sémantique, un exercice contient un ou plusieurs checks, sans qu'il y ait besoin d'indentation ou d'accolades pour indiquer les relations de parents et enfants. De même, un check contient une séquence d'action à effectuer (`run`, `see`, `type` et `kill`), ces préfixes n'ont de sens qu'à l'intérieur la définition d'un check (uniquement après une ligne préfixée par `check`).
+Les fins de ligne définissent la fin du contenu pour les clés sur une seule ligne. La clé `exo` supporte plusieurs lignes, son contenu se termine ainsi dès qu'une autre clé valide est détecté (ici `check`). La hiérarchie est implicite dans la sémantique, un exercice contient un ou plusieurs checks, sans qu'il y ait besoin d'indentation ou d'accolades pour indiquer les relations de parents et enfants. De même, un check contient une séquence d'action à effectuer (`run`, `see`, `type` et `kill`), ces clés n'ont de sens qu'à l'intérieur la définition d'un check (uniquement après une ligne avec la clé `check`).
 
 TODO
 
@@ -36,8 +36,8 @@ TODO
   caption: [Aperçu des possibilités de DY sur un exercice plus complexe],
 ) <exemple-dy-all>
 
-Le @exemple-dy-all nous montre qu'il existe plusieurs préfixes
-- Le préfixe `exo` introduit un exercice, avec un titre sur la même ligne et le reste de la consigne en Markdown sur les lignes suivantes.
+Le @exemple-dy-all nous montre qu'il existe plusieurs clés
+- La clé `exo` introduit un exercice, avec un titre sur la même ligne et le reste de la consigne en Markdown sur les lignes suivantes.
 - `check` introduit le début d'un check avec un titre, en Markdown également.
 - `run` donne la commande de démarrage du programme.
 - `skip` avec la propriété `.until` permet de cacher toutes les lignes d'output jusqu'à voir la ligne donnée.

@@ -232,13 +232,13 @@ Après quelques recherches avec le tag `parser` sur crates.io @cratesIoParserTag
 À noter aussi l'existence de la crate `serde`, un framework de sérialisation et desérialisation très populaire dans l'écosystème Rust (selon lib.rs @librsMostPopular). Il est notamment utilisé pour les parseurs JSON et TOML. Ce n'est pas une librairie de parsing mais un modèle de donnée basée sur les traits de Rust pour faciliter son travail. Au vu du modèle de données de Serde @serdersDatamodel, qui supporte 29 types de données, ce projet paraît à l'auteur apporter plus de complexités qu'autre chose pour trois raisons :
 + Seulement les strings, listes et structs sont utiles pour PLX. Par exemple, les 12 types de nombres sont inutiles à différencier et seront propre au besoin de la variante.
 + La sérialisation (struct Rust vers syntaxe DY) n'est pas prévue, seul la desérialisation est utile.
-+ Le mappage des préfixes et propriétés par rapport aux attributs des structs Rust qui seront générées, n'est pas du 1:1, cela dépendra de la structure définie pour la variante de PLX.
++ Le mappage des clés et propriétés par rapport aux attributs des structs Rust qui seront générées, n'est pas du 1:1, cela dépendra de la structure définie pour la variante de PLX.
 
 Après ces recherches et quelques essais avec `winnow`, l'auteur a finalement décidé qu'utiliser une librairie était trop compliqué pour le projet et que l'écriture manuelle d'un parseur ferait mieux l'affaire. La syntaxe DY est relativement petite à parser, et sa structure légère et souvent implicite rend compliqué l'usage de librairies pensées pour des langages de programmation très structuré.
 
 Par exemple, une simple expression mathématique `((23+4) * 5)` paraît idéale pour ces outils, les débuts et fin sont claires, une stratégie de combinaisons de parseurs fonctionnerait bien pour les expressions parenthésées, les opérateurs et les nombres. Elles semblent bien adaptées à exprimer l'ignorance des espaces, extraire les nombres tant qu'ils contiennent des chiffres, extraire des opérateurs et les deux opérandes autour...
 
-Pour DY, l'aspect multiligne et le fait que une partie des préfixes est optionnelle, complique l'approche de définir le début et la fin et de combiner récursivement des parseurs comme on ne sait pas facilement où est la fin.
+Pour DY, l'aspect multiligne et le fait qu'une partie des clés est optionnelle, complique l'approche de définir le début et la fin et de combiner récursivement des parseurs comme on ne sait pas facilement où est la fin.
 
 #figure(
 ```
@@ -252,7 +252,7 @@ check la struct a la bonne taille
 see sizeof(Dog) = 12
 exit 0
 ...
-```, caption: [Exemple d'un début d'exercice de code, on voit que la consigne se trouve après la ligne `exo` et continue sur plusieurs lignes jusqu'à qu'on trouve un autre préfixe (ici `checks`). Même problème sur pour la fin du contenu de `see`, jusqu'au prochain `see` ou `exit` ou `check`])
+```, caption: [Exemple d'un début d'exercice de code, on voit que la consigne se trouve après la ligne `exo` et continue sur plusieurs lignes jusqu'à qu'on trouve une autre clé (ici `checks`). Même problème sur pour la fin du contenu de `see`, jusqu'au prochain `see` ou `exit` ou `check`])
 
 // todo la variante, terme correcte ?
 
@@ -481,7 +481,7 @@ Cette décision se justifie notamment par la roadmap de VSCode: entre mars et ma
 L'usage du surlignage sémantique n'est pas au programme de ce travail mais pourra être exploré dans le futur si certains éléments sémantiques pourraient en bénéficier.
 
 === POC de surlignage de notre syntaxe avec Tree-Sitter
-Ce POC vise à prouver que l'usage de Tree-Sitter fonctionne pour coloriser les préfixes et les propriétés de @exo-dy-ts-poc pour ne pas avoir cet affichage noir sur blanc qui ne facilite pas la lecture.
+Ce POC vise à prouver que l'usage de Tree-Sitter fonctionne pour coloriser les clés et les propriétés de @exo-dy-ts-poc pour ne pas avoir cet affichage noir sur blanc qui ne facilite pas la lecture.
 #figure(
 ```
 // Basic MCQ exo
@@ -492,10 +492,10 @@ opt .multiple
 - .ok C is a compiled language
 - C is mostly used for web applications
 ```,
-  caption: [Un exemple de question choix multiple dans un fichier `mcq.dy`, décrite avec la syntaxe DY. Les préfixes sont `exo` (titre) et `opt` (options). Les propriétés sont `.ok` et `.multiple`.]
+  caption: [Un exemple de question choix multiple dans un fichier `mcq.dy`, décrite avec la syntaxe DY. Les clés sont `exo` (titre) et `opt` (options). Les propriétés sont `.ok` et `.multiple`.]
 ) <exo-dy-ts-poc>
 
-Une fois la grammaire mise en place avec la commande `tree-sitter init`, il suffit de remplir le fichier `grammar.js`, avec une ensemble de règles construites via des fonctions fournies par Tree-Sitter et des expressions régulières. `seq` indique une liste de tokens qui viendront en séquence, `choice` permet de tester plusieurs options à la même position. On remarque également la liste des préfixes et propriétés insérés dans les tokens de `prefix` et `property`. La documentation *The Grammar DSL* de la documentation explique toutes les options possibles en détails @TreeSitterGrammarDSL.
+Une fois la grammaire mise en place avec la commande `tree-sitter init`, il suffit de remplir le fichier `grammar.js`, avec une ensemble de règles construites via des fonctions fournies par Tree-Sitter et des expressions régulières. `seq` indique une liste de tokens qui viendront en séquence, `choice` permet de tester plusieurs options à la même position. On remarque également la liste des clés et propriétés insérés dans les tokens de `prefix` et `property`. La documentation *The Grammar DSL* de la documentation explique toutes les options possibles en détails @TreeSitterGrammarDSL.
 #figure(
 ```js
 module.exports = grammar({
@@ -522,7 +522,7 @@ module.exports = grammar({
 On observe dans le @grammar-js-poc plusieurs règles : 
 - `source_file`: décrit le point d'entrée d'un fichier source, défini comme une répétition de ligne.
 - `_line`: une ligne est une séquence d'un choix entre 4 types de lignes qui sont chacune décrites en dessous et un retour à la ligne
-- `prefixed_line`: une ligne préfixée consiste en séquence de token composé d'un préfixe, puis optionnellement d'un ou plusieurs propriétés. Elle se termine optionnellement par un contenu qui commence après un premier espace
+- `prefixed_line`: une ligne préfixée consiste en séquence de token composé d'une clé en préfixe, puis optionnellement d'un ou plusieurs propriétés. Elle se termine optionnellement par un contenu qui commence après un premier espace
 - `commented_line` définit les commentaires comme `//` puis un reste
 - `list_line`, `dash` et le reste des règles suivent la même logique de définition
 
