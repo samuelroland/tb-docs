@@ -6,7 +6,8 @@ Export en PDF [**du rapport final**](rapport-final-tb-plx.pdf), **en cours de r�
 
 1. Installer le [CLI de Typst](https://github.com/typst/typst)
 1. Installer le plugin [`syntastica`](https://github.com/RubixDev/syntastica-typst) localement
-1. Lancer `typst compile main.typ`, cela peut prendre une minute à cause de la coloration avancée de `syntastica`
+1. Lancer `bash watch.sh` pour lancer `typst watch` et avoir un rafraichissement rapide
+1. Lancer `bash build.sh` pour exporter un PDF à rendre, cela peut prendre plusieurs minutes à cause de la coloration avancée de `syntastica`
 
 ## Template utilisé
 
