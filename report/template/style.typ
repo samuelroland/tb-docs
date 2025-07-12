@@ -97,6 +97,7 @@
 }
 
 // My additionnal styling starting at etat de l'art
+// A box with a rounded border of light gray
 #let roundedbox(body) = {
     box(
       inset: 10pt,
@@ -108,7 +109,7 @@
 
 #let MyStyle(body) = {
 
-  // Configure figures
+  // Configure figures supplement color
   let figure_supplement_color = blue
 
   // If the figure contains a #raw snippet (a code block), we use "Snippet" instead of "Figure" as the supplement
@@ -117,9 +118,10 @@
     supplement: "Snippet"
   )
 
-  // Show the figure caption (the text below) with the supplement ("Figure" or "Snippet") in bold
-  // remove the dot after the supplement and after the number
-  // Some a small space above the caption
+// Show the figure caption (the text below) with the correct supplement ("Figure" or "Snippet")
+// Replace "Fig." by "Figure"
+// Remove the dot after the supplement and after the number
+// Some a small space above the caption
   show figure.caption: c => context [
     #v(0.1cm)
     #text(fill: figure_supplement_color)[
@@ -151,10 +153,10 @@
   }
 
   // Disable syntastica as it is slow
-  let syntastica-enabled = false
+  let syntastica-enabled = true
   show raw: it => if syntastica-enabled { align(left)[#syntastica(it, theme: "catppuccin::latte")]} else { it }
 
-  // Display inline code in a small box that retains the correct baseline.
+  // Display inline code in a small box with light gray backround that retains the correct baseline.
   show raw.where(block: false): box.with(
     fill: luma(240),
     inset: (x: 3pt, y: 0pt),
@@ -162,10 +164,10 @@
     radius: 2pt,
   )
 
-
-  // Display block code in a larger block with more padding.
+  // Display block code in a larger block with more padding
+  // include a rounded border around it
+  // Add `fill` attribute to define background color
   show raw.where(block: true): block.with(
-    // fill: rgb(249, 251, 254),
     inset: 10pt,
     radius: 2pt,
     stroke: 1pt + luma(200)
