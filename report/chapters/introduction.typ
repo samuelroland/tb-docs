@@ -34,6 +34,11 @@ Un titre, une consigne et un scénario pour tester le bon fonctionnement sont fo
 
 Une première solution est développée et est prête à être testée après deux minutes. Il lance un terminal, compile le code, rentre `John` et `Doe` et s'assure du résultat. Après relecture de l'_output_ générée, il se rend compte d'une erreur sur `Passe une belle journée Doe !`: seul le nom de famille s'affiche, le prénom a été oublié. Deux minutes pour tester son code se sont écoulées. Après une minute de correction, l'étudiant retourne dans son terminal et recommence le processus de validation. L'exercice est terminé juste à la fin du temps alloué et l'étudiant peut suivre la correction. S'il avait eu une erreur de plus, il aurait eu besoin de quelques minutes de plus. Certain·es étudiant·es à ses côtés n'ont pas eu le temps de finir et doivent s'arrêter.
 
+#figure(
+  image("../schemas/plx-time-gain-before.png", width: 100%),
+  caption: [Résumé visuel du temps estimé passé sur l'exercice par un étudiant débutant],
+)
+
 En résumé, sur les dix minutes seulement trois ont été utilisées pour de l'écriture de code. Tout le reste a été perdu sur des tâches "administratives" autour de l'exercice.
 
 // Problème du manque d'accès aux solutions en live et manque de feedback -> coté étudiants et enseignants
@@ -86,6 +91,11 @@ En conclusion, le problème est que l'entrainement est fastidieux pour les étud
 Ce travail de Bachelor vise à poursuivre le développement du projet PLX @plxWebsite, application desktop écrite en Rust, VueJS @VuejsWebsite et TypeScript. Cette application permet aux étudiant·es de se concentrer pleinement sur l'écriture du code. PLX est inspiré de Rustlings (Terminal User Interface (TUI) pour apprendre le Rust), permettant de s'habituer aux erreurs du compilateur Rust et de prendre en main la syntaxe @RustlingsWebsite. PLX fournit actuellement une expérience locale similaire pour le C et C++.
 
 Pour commencer à s'entrainer, les étudiant·es clonent un repository Git contenant tous les exercices. Ensuites, ils et elles peuvent travailler localement dans leur IDE favori, qui s'exécute en parallèle de PLX. Les scénarios de vérifications, exécutés auparavant manuellement, sont lancés automatiquement à chaque sauvegarde de fichier. Ces suites de tests automatisées, appelées "checks", permettent d'apporter à l'étudiant·e un feedback automatisé immédiat, riche et continu. Au lieu de perdre sept minutes sur dix sur des tâches "administratives", PLX en automatise la majorité et permet à l'étudiant·e de réduire ce temps à une minute.
+
+#figure(
+  image("../schemas/plx-time-gain-comparison.png", width: 100%),
+  caption: [Comparaison du temps nécessaire estimé sans et avec PLX],
+)
 
 Ces checks restent pour l'instant assez primitifs, seulement l'output est comparée à celui attendu. D'autres vérifications plus avancées pourront être supportées dans le futur. Les enseignant·es rédigent le titre, la consigne, ainsi que les détails des checks dans des fichiers texte en format TOML.
 
