@@ -152,8 +152,8 @@
     }
   }
 
-  // Disable syntastica as it is slow
-  let syntastica-enabled = true
+  // Enable syntastica only if the build mode is "full" as it is slow
+  let syntastica-enabled = read("../build.mode.txt") == "full"
   show raw: it => if syntastica-enabled { align(left)[#syntastica(it, theme: "catppuccin::latte")]} else { it }
 
   // Display inline code in a small box with light gray backround that retains the correct baseline.

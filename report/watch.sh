@@ -1,5 +1,6 @@
 #!/bin/bash
-# The fast build in watch mode without the nice colors in code snippets
+# The fast build for redaction. It uses the basic syntax highlighting of Typst.
+# The first build takes a few seconds, then less than a second.
 
 DEST=rapport-final-tb-plx.pdf
 
