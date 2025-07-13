@@ -142,6 +142,9 @@
 
   // Justify the text
   set par(justify: true)
+  // Don't justify text in tables
+  show table: set par(justify: false)
+
   show link: underline
 
   show image: it => {
@@ -172,5 +175,6 @@
     radius: 2pt,
     stroke: 1pt + luma(200)
   )
+
   body
 }
