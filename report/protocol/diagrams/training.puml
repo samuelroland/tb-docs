@@ -14,11 +14,11 @@ skinparam defaultFontSize 15
 ' Include time lines like that
 ' ====== 30s ==
 
-leader -> server: Action SwitchExo intro/salue-moi
-server -> leader: Event ExoSwitched intro/salue-moi
-server -> f2: Event ExoSwitched intro/salue-moi
-server -> f1: Event ExoSwitched intro/salue-moi
-f1 -> f1: Affichage et lancement\nde l'exercice intro/salue-moi
+leader -> server: Action SwitchExo "intro/salue-moi"
+server -> leader: Event ExoSwitched "intro/salue-moi"
+server -> f2: Event ExoSwitched "intro/salue-moi"
+server -> f1: Event ExoSwitched "intro/salue-moi"
+f1 -> f1: Affichage et lancement\nde l'exercice "intro/salue-moi"
 f1 -> f1: Ouvrir l'exercice, modifier et sauver
 f1 -> server: Action SendFile content="code v1" path=main.c
 f1 -> server: Action SendResult type=Passed,...

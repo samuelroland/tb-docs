@@ -12,7 +12,7 @@ follower -> follower: Générer et persister\nclient_id => e9fc3566-32e3-4b98-99
 leader <- leader: Générer et persister client_id =>\nae9b8213-fcf6-40c8-8f35-b6d14f0ace75
 
 ' Follower get an empty list of sessions
-follower -> server: Ouvrir la connexion (TCP + WebSocket handshake)\nws://live.plx.rs:9120?live_protocol_version=0.1.0\n&live_client_id=e9fc3566-32e3-4b98-99b5-35be520d46cb
+follower -> server: Ouvrir la connexion (TCP + WebSocket)\nws://live.plx.rs:9120?live_protocol_version=0.1.0\n&live_client_id=e9fc3566-32e3-4b98-99b5-35be520d46cb
 follower -> server: Action GetSessions\ngroup_id=https://github.com/prg2/prg2.git
 server -> follower: Event SessionsList [  ]
 

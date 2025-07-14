@@ -22,5 +22,6 @@ server -> c4: Event ServerStopped
 server -> c4: Fermeture du websocket
 server -> c3: Event ServerStopped
 server -> c3: Fermeture du websocket
+server -> server: Le processus quitte
 
 @enduml
