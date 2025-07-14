@@ -115,7 +115,7 @@ Voici les actions définies, avec l'événement associé en cas de succès de l'
   table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-SessionStopped.json"))]),
 
   [`Action::SendFile`], [followers], [Envoyer une nouvelle version d'un fichier],[`Event::ForwardResult`], [aux clients leaders de la session],
-  table.cell(colspan: 3, [#raw(block: true, lang: "json", read("messages/Action-SendFile.json"))]),
+  table.cell(colspan: 3, [#raw(block: true, lang: "json", read("messages/Action-SendFile.json"))\Tout le contenu du fichier de code est envoyé peu importe la nature de la modification.]),
   table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-ForwardFile.json"))]),
 
   [`Action::SendResult`], [followers], [Envoyer le résultat d'un check],[`Event::ForwardResult`], [aux clients leaders de la session],
@@ -153,7 +153,7 @@ text(size: 0.8em)[
 ]
 ))
 
-Pour conclure cette liste de messages, une liste des types d'erreur peuvent être reçues du serveur via un `Event::Error`, contenant différents types de `LiveProtocolError`. Ces erreurs peuvent arriver dans différents contextes et ne sont pas toujours liées à une action précise. Une partie des erreurs ne peuvent pas arriver si le client gère correctement son état et ne tente pas des actions non autorisées par son rôle.
+Pour conclure cette liste de messages, voici la liste des types d'erreurs qui peuvent être reçues du serveur via un `Event::Error`, contenant différents types de `LiveProtocolError`. Ces erreurs peuvent arriver dans différents contextes et ne sont pas toujours liées à une action précise. Une partie des erreurs ne peuvent pas arriver si le client gère correctement son état et ne tente pas des actions non autorisées par son rôle.
 // TODO make sure all files are here
 
 #text(size: 0.8em)[
@@ -180,43 +180,45 @@ Pour conclure cette liste de messages, une liste des types d'erreur peuvent êtr
 
 === Diagrammes de séquence
 
-Maintenant que les différents types de messages sont connus, voici quelques diagrammes de séquence pour mieux comprendre le contexte et l'ordre des messages.
+Maintenant que les différents types de messages sont connus, voici quelques diagrammes de séquence pour mieux comprendre le déroulement d'une session et l'ordre des messages.
 
 #figure(
   box(image("diagrams/session.svg", width: 100%)),
-  caption: [Exemple de communication de gestion d'une session],
+  caption: [Exemple de communication avec gestion d'une session],
 )
 // todo bigger width ??
 
 #figure(
   box(image("diagrams/training.svg", width: 100%)),
-  caption: [Exemple de communication pour montrer le transfert des fichiers et des résultats],
+  caption: [Exemple de communication avec transferts des bouts de code et des résultats],
 )
 // todo bigger width ??
 
 #pagebreak()
-Lors de la réception d'un signal d'arrêt (lancé lors d'un `Ctrl+c`), le serveur ne doit pas juste quitter immédiatement. Les sessions en cours doivent être arrêtées et tous les clients doivent recevoir un `Event::ServerStopped` qui informe de l'arrêt du serveur, puis le processus peut quitter.
+Lors de la réception d'un signal d'arrêt (par exemple lors d'un `Ctrl+c`), le processus du serveur ne doit pas quitter immédiatement. Les sessions en cours doivent être arrêtées et tous les clients doivent recevoir un `Event::ServerStopped` qui informe de l'arrêt du serveur.
 #figure(
-  box(image("diagrams/shutdown.svg", width: 80%)),
-  caption: [Exemple de communication pour montrer l'arrêt du serveur, #linebreak()avec différents clients connectés à un session ou non],
+  box(image("diagrams/shutdown.svg", width: 70%)),
+  caption: [Exemple de communication qui montre l'arrêt du serveur, #linebreak()avec différents clients dans une session ou en dehors],
 )
 
 ==== Gestion des pannes
 
-Le serveur n'a rien besoin de persister, toutes les données des sessions peuvent rester en mémoire vive uniquement. Les cas de crash devraient être très rares grâce aux garanties de sécurité mémoire de Rust. Il suffit de configurer le conteneur Docker en mode redémarrage automatique. On suppose aussi que les mises à jour du serveur seront faites en dehors des heures de cours pour limiter les dérangements. Si ces deux situations arrivent pendant que des sessions sont en cours, les participant·es doivent juste recréer ou rejoindre les nouvelles sessions à la main.
+Le serveur n'a rien besoin de persister, toutes les données des sessions peuvent rester en mémoire vive uniquement. Les cas de crash devraient être très rares grâce aux garanties de sécurité mémoire de Rust. On peut aussi configurer le conteneur Docker en mode redémarrage automatique. On suppose aussi que les mises à jour du serveur seront faites en dehors des heures de cours pour limiter les dérangements. Si un redémarrage devaient arriver avec des sessions sont en cours, les participant·es devraient juste recréer ou rejoindre les nouvelles sessions à la main.
 
-Coté des clients, pour simplifier le développement et la logique de reconnexion, les clients n'ont pas besoin de persister l'état de la session, comme l'identifiant de l'exercice en cours. Durant la connexion d'un client, leader ou follower, le serveur doit envoyer le dernier message `SwitchExo` qu'il a reçu par le passé. Pour un client leader, le serveur doit en plus renvoyer tous les derniers `Event::ForwardFile` et `Event::ForwardResult` pour chaque client. Ce transfert est requis pour que l'interface d'avoir le même état qu'avant deconnexion et de ne pas devoir attendre les prochains envois de ces événements pour chaque follower.
+Pour simplifier le développement et la logique de reconnexion, les clients n'ont pas besoin de persister l'état de la session, comme l'identifiant de l'exercice en cours. Durant la connexion d'un client, leader ou follower, le serveur doit renvoyer le dernier message `ExoSwitched` qu'il a envoyé dans cette session. Pour un client leader, le serveur doit aussi lui renvoyer tous les derniers `Event::ForwardFile` et `Event::ForwardResult` pour chaque client follower. Ce transfert est requis pour que l'interface puisse reprendre le même état qu'avant déconnexion #footnote[Autrement, le leader devrait attendre les prochains envois de ces événements pour chaque follower afin d'avoir une interface "à jour".].
 
-Pour un follower déconnecté temporairement, son leader ne devrait pas voir 2 versions du même code avant et après redémarrage, mais uniquement la dernière version à jour. Pour permettre cette expérience, un client qui se reconnecte à une session il doit récupérer le même `client_num` que la dernière fois qu'il était connecté à cette session.
+// todo make sure thats implemented !
+
+Pour un follower déconnecté temporairement, son leader ne devrait pas voir 2 versions du même code avant et après redémarrage, mais uniquement la dernière version. Pour permettre cette expérience, un client qui se reconnecte à une session doit récupérer le même `client_num` qu'avant déconnexion. Le serveur doit maintenir pour chaque session un lien entre `client_id` et `client_num` pour chaque client.
 
 // tester what happening if client is losing connection.
 
 ==== Evolutivité
-Le concept de session lancée par des clients leaders et de synchronisation de données provenant de clients followers vers des clients leaders, peut facilement être étendu à d'autres usages. Si on imagine d'autres types d'exercice que du code comme des exercices à choix multiples, il suffirait d'ajouter une nouvelle action `Action::SendChoice` pour envoyer une réponse et un événement associé (`Event::ForwardChoice`), pour renvoyer cette réponse vers les clients leaders.
+Le concept de session lancée par des leaders et de transfert de données provenant de followers vers des leaders, peut facilement être étendu à d'autres usages. Si on imagine d'autres types d'exercice en informatique comme des choix multiples, il suffirait d'ajouter une nouvelle action `Action::SendChoice` pour envoyer une réponse et un événement associé (`Event::ForwardChoice`), pour renvoyer cette réponse vers les clients leaders.
 
 Dans le futur, si le support de nouveaux formats d'exercices seront supportés par PLX. Si cela implique de changer trop souvent la structure des résultats dans le champ `content.check_result` dans le message `Event::SendResult`, une solution serait de ne pas spécifier la structure exacte de ce sous champ et laisser les clients gérer les structures non définies ou partielles. Cela pourrait éviter de régulièrement devoir augmenter le numéro de version majeure à cause de _breaking change_.
 
-// todo note bas de page breaking change
+// todo note bas de page breaking change ou glossaire ?
 
 // TODO en italic tous les noms en anglais !!!!!!!!!!!
 
