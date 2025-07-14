@@ -167,6 +167,9 @@
     radius: 2pt,
   )
 
+  // Show the text of a footnote a bit smaller
+  show footnote.entry: set text(size: 0.8em)
+
   // Display block code in a larger block with more padding
   // include a rounded border around it
   // Add `fill` attribute to define background color
