@@ -19,6 +19,7 @@ Tous les clients ont accès à tous les exercices, stockés dans des repository 
 
 Nous avons implémenté un nouveau module Rust nommé `live` dans la librairie existante de PLX. Cette librairie est prévue pour un usage interne actuellement et n'est pas pensée pour être réutilisée par d'autres projets. Ce module `live` contient plusieurs fichiers pour implémenter le protocole et le serveur.
 
+=== La librairie et son module `live`
 Dans la @library-live-arch-deps, l'application desktop et le serveur dépendent de cette librairie. L'application desktop dépend du code Rust des modules existants `app`, `core` et `models` qui rendent possible l'entrainement local. Elle dépend aussi de `LiveConfig` pour charger un fichier `live.toml`.
 
 Le fichier `protocol.rs` contient toutes les structures de données autour des messages du protocole: `Session`, `ClientNum`, `ClientRole`, les messages `Action` et `Event` et les types d'erreurs `LiveProtocolError`. Le reste des fichiers implémente les différentes tâches concurrentes gérées par le serveur. Le point d'entrée du serveur est la structure `LiveServer`. Le module `live` dépend aussi de `tokio` pour gérer la concurrence des tâches et `tokio-tungstenite` pour l'implémentation WebSocket.
@@ -30,14 +31,110 @@ Le fichier `protocol.rs` contient toutes les structures de données autour des m
 
 PLX est développé avec Tauri @TauriWebsite, framework permettant de créer des applications desktop en Rust. Tauri est une alternative à ElectronJS @ElectronJs et permet de créer une application desktop basé sur une application web. La partie _frontend_ est écrit en VueJS @VuejsWebsite et reste isolée dans une "fenêtre de navigateur", tandis que la partie _backend_ en Rust permet d'accéder aux fichiers et aux commandes systèmes. Tauri permet ainsi de définir des fonctions Rust exposée au _frontend_, appelée commandes Tauri @TauriCommands.
 
-Sur la @network-arch-ipc-websockets, on voit les différentes communications réseau et processus en jeu. L'application desktop, sur le binaire `plx-desktop`, tourne sur deux processus. Le backend et frontend discutent via le système de communication inter-processus (IPC) de Tauri (qui utilise JSON-RPC @jsonrpcSpec). Les commandes Tauri utilisent notre librairie.
+
+#pagebreak()
+
+=== Les processus en jeu
+Sur la @network-arch-ipc-websockets, on voit les différentes communications réseau et processus en jeu. Le binaire `plx-desktop` lance deux processus. Le backend et frontend discutent via le système de communication inter-processus (IPC) de Tauri (qui utilise JSON-RPC @jsonrpcSpec). Les commandes Tauri utilisent notre librairie. Les commandes Tauri sont appelées depuis `commands.ts` et `shared.ts` contient des types communs.
 
 Le serveur PLX peut être déployé dans un conteneur Docker via la commande `plx server`. Le client est implémenté en TypeScript dans `client.ts` et se connecte au serveur.
 
 #figure(
   image("../schemas/network-arch-ipc-websockets.png", width:80%),
-  caption: [],
+  caption: [Aperçu du réseau et processus qui composent le projet PLX],
 ) <network-arch-ipc-websockets>
+
+// todo les commandes CLI autour du parseur dans tout ça il va où ?
+// todo ref tauri specta et typeshare
+=== Typage des commandes Tauri
+Pour les commandes Tauri mises à disposition du frontend, l'appel d'une commande se fait via une fonction `invoke` faiblement typée: le nom de la commande est une _string_ et un objet doit contenir tous les paramètres. Ces valeurs ne sont pas vérifiés à la compilation, seulement l'exécution cause des erreurs dans la console de la fenêtre du _frontend_. Un exemple est présent sur le @notypescommand.
+
+#figure(
+  text(size: 0.8em)[
+    #grid(columns: 2, rows: 1, align: horizon, column-gutter: 10pt,
+  ```rust
+#[tauri::command]
+pub async fn clone_course(repos: String) -> bool {
+    let base = get_base_directory();
+    GitRepos::from_clone(&repos, &base).is_ok()
+}
+```,
+```js
+import { invoke } from "@tauri-apps/api/core";
+const success = await invoke("clone_course", {
+    repos: "https://github.com/samuelroland/plx-demo"
+});
+```)]
+, caption: [Une commande Tauri en Rust pour cloner le repository d'un cours\ et son appel non typé en JavaScript.]) <notypescommand>
+
+Le projet `tauri-specta` @TauriSpectaCratesio nous permet de générer une définition une fonction bien typée de l'appel à la commande, après avoir annoté la fonction Rust avec `#[specta::specta]`. Il faut aussi annoter tous les types des paramètres passés.
+
+#text(size: 0.8em)[
+#figure(
+```js
+// Commande TypeScript autogénérée
+export const commands = {
+  async cloneCourse(repos: string): Promise<boolean> {
+    return await invoke("clone_course", { repos });
+  }
+}
+// Exemple d'appel dans Home.vue
+const success = await commands.cloneCourse("https://github.com/samuelroland/plx-demo")
+```, caption: [Commande autogénérée en TypeScript et exemple d'appel.])
+]
+
+Si la commande en Rust changeait de nom, de type des paramètres ou de valeur de retour, maintenant que l'appel est typé, le _frontend_ ne compilera plus et le changement nécessaire en TypeScript ne pourrait pas être oublié. Le fichier généré est `desktop/src/ts/commands.ts`.
+
+=== Partage des types
+
+Les structures de données comme `Action`, `Event`, `LiveProtocolError`, `Session`, `CheckStatus` sont également utiles du côté du client TypeScript. On aimerait éviter de devoir définir des types TypeScript manuellement en doublon des types Rust afin de faciliter le développement et les changements du protocole. Il existe plusieurs solutions pour exporter les types Rust vers des types TypeScript équivalent. Le CLI `typeshare` @1passwordTypeshare a permis d'exporter automatiquement les types communs, en activant l'export via une annotation `#[typeshare]`. Le fichier généré est `desktop/src/ts/shared.ts`.
+
+Prenons un exemple avec le résultat d'un check. L'attribut `#[serde...]` demande que le `CheckStatus` soit sérialisé avec un champ discriminant `type` et son contenu sous un champ `content`. Cette conversion est nécessaire pour permettre de générer un équivalent TypeScript.
+
+// TODO should i mention figure x ? for attribute serde
+
+// TODO make sure à jour après intégration finale
+
+#text(size: 0.8em)[
+#grid(columns: (auto, 1fr), rows: 1, align: horizon, column-gutter: 10pt,
+figure(
+```rs
+#[derive(Serialize, Deserialize, Eq, PartialEq, Clone, Debug)]
+#[serde(tag = "type", content = "content")]
+#[typeshare]
+pub enum CheckStatus {
+    Passed,
+    CheckFailed(String),
+    BuildFailed(String),
+    RunFailed(String),
+}
+#[derive(Serialize, Deserialize, Eq, PartialEq, Clone, Debug)]
+#[typeshare]
+pub struct ExoCheckResult {
+    pub index: u16,
+    pub state: CheckStatus,
+}
+```, caption: [2 types Rust pour décrire le résultat d'un check.]),
+figure(
+```js
+export type CheckStatus = 
+  | { type: "Passed", content?: undefined }
+  | { type: "CheckFailed", content: string }
+  | { type: "BuildFailed", content: string }
+  | { type: "RunFailed", content: string };
+
+export interface ExoCheckResult {
+  index: number;
+  state: CheckStatus;
+}
+``` , caption: [Equivalent TypeScript des 2 types. Les types `u16` et `String` ont être pu converti vers `number` et `string`]),
+
+// really named CheckStatus ?
+)
+]
+
+// todo ou mettre ca
+// TODO utile
 
 == Implémentation du serveur
 
@@ -129,93 +226,5 @@ todo lancement d'un exo étudiant, erreur de build
 
 todo code actuel et erreur de build disponible dans le dashboard
 
-=== Partage des types
-Les structures de données du protocole comme `Action`, `Event`, `LiveProtocolError` et d'autres structures utilisées à l'interne de enumérations comme `Session`, `CheckStatus`, ... sont également utiles du côté des clients. Le défi était ainsi d'arriver à exporter ces types Rust vers des types TypeScript équivalent, permettant de faciliter le développement de changements du protocole. La solution n'était pas triviale à mettre en place. Le CLI `typeshare` @1passwordTypeshare a permis d'exporter automatiquement une majorité des types communs, demandant simplement d'annoter chaque structure commune avec `#[typeshare]`.
-
-Prenons un exemple avec le résultat d'un check, sur le @rusttypes. L'attribut `#[serde...]` demande que le `CheckStatus` soit sérialisé avec un champ discriminant `type` et son contenu sous un champ `content`. Cette conversion est nécessaire pour permettre de générer un équivalent TypeScript.
-
-// TODO make sure à jour après intégration finale
-
-#figure(
-```rs
-#[derive(Serialize, Deserialize, Eq, PartialEq, Clone, Debug)]
-#[serde(tag = "type", content = "content")]
-#[typeshare]
-pub enum CheckStatus {
-    Passed,
-    CheckFailed(String),
-    BuildFailed(String),
-    RunFailed(String),
-}
-#[derive(Serialize, Deserialize, Eq, PartialEq, Clone, Debug)]
-#[typeshare]
-pub struct ExoCheckResult {
-    pub index: u16,
-    pub state: CheckStatus,
-}
-```, caption: [2 types Rust pour décrire le résultat d'un check.]) <rusttypes>
-
-#figure(
-```js
-export type CheckStatus = 
-  | { type: "Passed", content?: undefined }
-  | { type: "CheckFailed", content: string }
-  | { type: "BuildFailed", content: string }
-  | { type: "RunFailed", content: string };
-
-export interface ExoCheckResult {
-  index: number;
-  state: CheckStatus;
-}
-``` , caption: [Equivalent TypeScript des 2 types. Les types `u16` et `String` ont être pu converti vers `number` et `string`]);
-
-// really named CheckStatus ?
-
-// todo ref tauri specta et typeshare
-
-Pour les commandes Tauri mises à disposition de l'interface graphique, il restait aussi le problème de l'appel d'une commande avec son nom sous forme de _string_ et de paramètres, qui ne pouvaient pas être vérifiés à la compilation.
-
-#figure(
-  [ ```rust
-#[tauri::command]
-pub async fn clone_course(repos: String) -> bool {
-    let base = get_base_directory();
-    GitRepos::from_clone(&repos, &base, Some(1), true).is_ok()
-}
-```
-```js
-import { invoke } from "@tauri-apps/api/core";
-const success = await invoke("clone_course", {
-    repos: "https://github.com/samuelroland/plx-demo"
-});
-```
-], caption: [Une commande Tauri en Rust pour cloner le repository d'un cours et son appel non typé en JavaScript.])
-
-Pour résoudre ce deuxième défi, un autre outil du nom de `tauri-specta` @TauriSpectaCratesio a permis de générer une définition TypeScript de l'appel à la commande, en annotant la fonction Rust avec `#[specta::specta]`.
-
-#figure(
-```js
-export const commands = {
-  async cloneCourse(repos: string): Promise<boolean> {
-    return await TAURI_INVOKE("clone_course", { repos });
-  }
-} ```, caption: [Version TypeScript autogénérée de l'appel à `clone_course`])
-
-Si la méthode Rust changeait de nom, de type des paramètres ou de valeur de retour, au départ, nous risquerions d'oublier de mettre à jour ces appels. Maintenant que l'appel est typé, le _frontend_ ne compilera plus et le changement nécessaire ne pourra pas être oublié.
-#figure(
-```js
-const success = await commands.cloneCourse("https://github.com/samuelroland/plx-demo")
-``` , caption: [Appel final facilité et typé])
-
-=== Gestion de la connexion
-Une structure `LiveClient` est développée comme classe TypeScript.
-
-=== Gestion des messages
-
-
-
-// todo ou mettre ca
-L'implémentation de la structure de messages est défini en Rust (enumération `Action` et `Event` dans `src/live/protocol.rs`) et également dans les types commun TypeScript (`desktop/src/ts/shared.ts`) générés.
-// TODO utile
 
 #pagebreak()
