@@ -164,7 +164,7 @@ La rédaction de contenu sous forme de fichier textes, au lieu de l'approche cla
 
 // TODO besoin de source ?
 
-Un exemple d'usage du Markdown est le recueil d'exercices du cours de PRG1 (cours de C++) @PRG1RecueilExercicesGithub. On note également l'usage de balises HTML `<details>` et `<summary>`, pour rendre disponible la solution tout en la cachant par défaut. Pour combler le manque de mise en page du Markdown, d'autres enseignant·es utilisent Latex ou Typst @TypstWebsite.
+Un exemple d'usage du Markdown est le recueil d'exercices du cours de PRG2 (cours de C à la HEIG-VD) @PRG2RecueilExercicesGithub. On note également l'usage de balises HTML `<details>` et `<summary>`, pour rendre disponible la solution tout en la cachant par défaut. Pour combler le manque de mise en page du Markdown, d'autres enseignant·es utilisent Latex ou Typst @TypstWebsite.
 
 // - Markdown pas adapté car pas assez structuré pour être parsé sans ambiguité
 // - format structuré facilement parsable trop verbeux
@@ -179,7 +179,7 @@ Un exemple d'usage du Markdown est le recueil d'exercices du cours de PRG1 (cour
 // todo okay de mettre des infos d'opinions ?? je peux pas vraiment citer je crois. -> selon les recherches de l'auteur.
 
 
-Pour faciliter l'adoption de PLX, nous avons besoin d'un format de données simple à prendre en main, pour décrire les différents types d'exercices supportés. Si on reprend l'exercice présenté plus tôt, qu'on le rédige en Markdown, en y ajoutant la solution dans le même style du recueil de PRG1 @PRG1RecueilExercicesGithubExoString, cela donne le @exemple-dy-md-start.
+Pour faciliter l'adoption de PLX, nous avons besoin d'un format de données simple à prendre en main, pour décrire les différents types d'exercices supportés. Si on reprend l'exercice présenté plus tôt, qu'on le rédige en Markdown, en y ajoutant la solution dans le même style du recueil de PRG2 @PRG2RecueilExercicesGithubExoString, cela donne le @exemple-dy-md-start.
 
 #figure(raw(block: true, lang: "markdown", read("../sources/plx-dy-simple.md")), caption: [Exemple d'exercice de programmation, rédigé en Markdown]) <exemple-dy-md-start>
 

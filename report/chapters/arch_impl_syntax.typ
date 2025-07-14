@@ -7,8 +7,8 @@ Cette partie documente la définition et l'implémentation de la syntaxe DY, son
 === Besoin de PLX
 La syntaxe DY ne sera pas propre à PLX, en effet le parseur ne connaitra pas les détails des besoins de description de PLX. Cependant ces besoins influencent ce que la syntaxe 
 
-PLX a besoin de décrire un cours, divisé en compétences, qui elles même regroupe des exercices. Un exercice définit des checks. Voici une liste des informations associés à ces trois objets.
-+ Un cours: un nom (par exemple `Programmation 1`), un code (souvent il existe un raccourci du nom, comme `PRG1`) et une description de l'objectif du cours. Une liste de compétences.
+PLX a besoin de décrire un cours, divisé en compétences, qui regroupent des exercices. Un exercice définit des checks. Voici une liste des informations associés à ces trois objets.
++ Un cours: un nom (par exemple `Programmation 2`), un code (souvent il existe un raccourci du nom, comme `PRG2`) et une description de l'objectif du cours. Une liste de compétences.
 + Une compétence: un nom, une description et un ensemble d'exercices. Une compétence peut aussi être une sous compétence, afin de diviser un niveau de plus et rendre les sous compétences plus spécifiques. Dans un cours existant, les enseignant·es ont la liberté
 + Un exercice: un nom, une consigne et un ou plusieurs checks pour vérifier le comportement d'un programme.
 + Un check: un nom, 

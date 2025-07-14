@@ -1,10 +1,10 @@
 == Définition du protocole
 Ce chapitre définit le protocole de communication qui régit les interactions entre les clients PLX et un serveur PLX.
 
-=== Vue d'ensemble
-Sur le plan technique, il fonctionne sur le protocole WebSocket pour permettre une communication bidirectionnelle. Trois parties composent notre protocole: la gestion de la connexion, la gestion des sessions et le transfert du code et résultats d'un exercice. La particularité du protocole est qu'il n'inclut pas d'authentification. Les clients sont néamoins identifiés par un identifiant unique (`client_id`) permettant de reconnaître un client avant et après une déconnexion temporaire.
+=== Vue d'ensemble du protocole
+Sur le plan technique, il fonctionne sur le protocole WebSocket pour permettre une communication bidirectionnelle. Trois parties composent notre protocole: la gestion de la connexion, la gestion des sessions et le transfert du code et résultats d'un exercice. La particularité du protocole est qu'il n'inclut pas d'authentification. Les clients sont néamoins identifiés par un identifiant unique (`client_id`) permettant de reconnaître un client après une déconnexion temporaire.
 
-Le protocole définit deux types de messages: les clients envoient des actions au serveur (message `Action`) et le serveur leur envoie des événements (message `Event`).
+Le protocole définit deux types de messages: les clients envoient des actions au serveur (message `Action`) et le serveur leur envoie des événements (message `Event`). La plupart des événements sont envoyés du serveur en réponse à des actions reçues.
 
 #figure(
   image("imgs/basic-event-action-flow.png", width: 80%),
@@ -18,16 +18,6 @@ Ce rôle est attribué à chaque client dans une session, avoir un rôle en deho
 
 Un système de gestion des pannes du serveur et des clients est défini, pour éviter de la confusion et la frustration dans l'expérience finale. Les instabilités de Wifi, la batterie vide ou un éventuel crash de l'application ne devrait pas impacter le reste des participant·es de la sessions. Les clients doivent pouvoir afficher dans leur interface quand le serveur s'est éteint en cas de panne ou de mise à jour. Un·e enseignant·e qui se déconnecterait involontairement, n'impacterait pas la présence de la session, qui continuerai d'exister sur le serveur.
 
-=== Vue conceptuelle
-La @high-level-arch montre un aperçu des besoins sur les informations à transmettre et recevoir. PLX a déjà accès aux exercices, stockés dans des repository Git clonés au début du semestre. Une fois une session lancée, le serveur n'a pas besoin de connaître les détails des exercices, il agit principalement comme un relai. Le serveur n'est utile que pour un entrainement dans une session live, PLX peut être utilisé sans serveur pour l'entrainement local.
-
-#figure(
-  image("../schemas/high-level-arch.opti.svg", width:100%),
-  caption: [Architecture haut niveau décrivant les interactions entre les clients PLX et le serveur de session live],
-) <high-level-arch>
-// todo add client without connection to the server
-// todo schéma -> inclusif
-// todo schéma -> update to desktop ui ?
 
 === Définition des sessions live
 Le protocole tourne autour du concept de session, qui peut être vu comme un endroit virtuel temporaire où plusieurs personnes s'entrainent sur les mêmes exercices au même moment. Une partie des personnes ne participent pas directement, mais observent les changements.

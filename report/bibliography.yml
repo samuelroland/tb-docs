@@ -22,19 +22,19 @@ peakBook:
   edition: International Edition
   serial-number: 978-0143192794
 
-PRG1RecueilExercicesGithub:
+PRG2RecueilExercicesGithub:
   type: Web
-  url: https://github.com/PRG1-HEIGVD/PRG1_Recueil_Exercices/tree/6b04c4559d924c394878993c7606e36ae82237ce
-  date: 2025-01-30
-  title: GitHub - PRG1-HEIGVD/PRG1_Recueil_Exercices at 6b04c4559d924c394878993c7606e36ae82237ce
-  author: Enseignants de PRG1 à la HEIG-VD
+  url: https://github.com/PRG2-HEIGVD/PRG2_Recueil_Exercices/tree/1027428583bdfa68b6638d90eaca215ec0647317
+  date: 2025-05-22
+  title: GitHub - PRG2-HEIGVD/PRG2_Recueil_Exercices at 1027428583bdfa68b6638d90eaca215ec0647317
+  author: Enseignants de PRG2 à la HEIG-VD
 
-PRG1RecueilExercicesGithubExoString:
+PRG2RecueilExercicesGithubExoString:
   type: Web
-  url: https://github.com/PRG1-HEIGVD/PRG1_Recueil_Exercices/blob/6b04c4559d924c394878993c7606e36ae82237ce/08%20-%20Chaines%20de%20caracteres/04-04%20-%20Prenom%20nom%20et%20acronyme%202.md
-  date: 2023-08-06
-  title: PRG1_Recueil_Exercices/08 - Chaines de caracteres/04-04 - Prenom nom et acronyme 2.md at 6b04c4559d924c394878993c7606e36ae82237ce
-  author: Enseignants de PRG1 à la HEIG-VD
+  url: https://github.com/PRG2-HEIGVD/PRG2_Recueil_Exercices/blob/1027428583bdfa68b6638d90eaca215ec0647317/C5_Chaines_de_caracteres/05-03-Op%C3%A9rations_sur_les_buffers.md
+  date: 2024-03-19
+  title: PRG2_Recueil_Exercices/C5_Chaines_de_caracteres/05-03-Opérations_sur_les_buffers.md at 1027428583bdfa68b6638d90eaca215ec0647317
+  author: Enseignants de PRG2 à la HEIG-VD
 
 TypstWebsite:
   type: Web
