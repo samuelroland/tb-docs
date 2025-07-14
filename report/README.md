@@ -9,6 +9,10 @@ Export en PDF [**du rapport final**](rapport-final-tb-plx.pdf), **en cours de r�
 1. Lancer `bash watch.sh` pour lancer `typst watch` et avoir un rafraichissement rapide
 1. Lancer `bash build.sh` pour exporter un PDF à rendre, cela peut prendre plusieurs minutes à cause de la coloration avancée de `syntastica`
 
+## Génération dynamiquement
+
+Une partie des figures ou éléments intégrés au rapport sont générés dynamiquement. Un petit CLI Rust du nom de `docsgen` exporte tous les messages du protocoles vers des fichiers JSON dédiés. Les schémas PlantUML sont aussi exportés en SVG. Voir [docsgen/README.md](docsgen/README.md).
+
 ## Template utilisé
 
 Ce rapport est basé sur le [template Typst](https://github.com/DACC4/HEIG-VD-typst-template-for-TB) de [@DACC4](https://github.com/DACC4), publié [sous licence Apache 2.0](https://github.com/DACC4/HEIG-VD-typst-template-for-TB/blob/main/LICENSE). Ce template se base sur la version Latex de Sylvain Pasini.
