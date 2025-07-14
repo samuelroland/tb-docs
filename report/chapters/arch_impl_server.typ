@@ -13,6 +13,32 @@ Tous les clients ont accès à tous les exercices, stockés dans des repository 
 // Inside == Définition du `Live protocol`
 #include "../protocol/protocol.typ"
 
+#pagebreak()
+
+== Vue d'ensemble de l'implémentation
+
+Nous avons implémenté un nouveau module Rust nommé `live` dans la librairie existante de PLX. Cette librairie est prévue pour un usage interne actuellement et n'est pas pensée pour être réutilisée par d'autres projets. Ce module `live` contient plusieurs fichiers pour implémenter le protocole et le serveur.
+
+Dans la @library-live-arch-deps, l'application desktop et le serveur dépendent de cette librairie. L'application desktop dépend du code Rust des modules existants `app`, `core` et `models` qui rendent possible l'entrainement local. Elle dépend aussi de `LiveConfig` pour charger un fichier `live.toml`.
+
+Le fichier `protocol.rs` contient toutes les structures de données autour des messages du protocole: `Session`, `ClientNum`, `ClientRole`, les messages `Action` et `Event` et les types d'erreurs `LiveProtocolError`. Le reste des fichiers implémente les différentes tâches concurrentes gérées par le serveur. Le point d'entrée du serveur est la structure `LiveServer`. Le module `live` dépend aussi de `tokio` pour gérer la concurrence des tâches et `tokio-tungstenite` pour l'implémentation WebSocket.
+
+#figure(
+  image("../schemas/library-live-arch-deps.png", width:70%),
+  caption: [Aperçu du nouveau module `live` de la librairie],
+) <library-live-arch-deps>
+
+PLX est développé avec Tauri @TauriWebsite, framework permettant de créer des applications desktop en Rust. Tauri est une alternative à ElectronJS @ElectronJs et permet de créer une application desktop basé sur une application web. La partie _frontend_ est écrit en VueJS @VuejsWebsite et reste isolée dans une "fenêtre de navigateur", tandis que la partie _backend_ en Rust permet d'accéder aux fichiers et aux commandes systèmes. Tauri permet ainsi de définir des fonctions Rust exposée au _frontend_, appelée commandes Tauri @TauriCommands.
+
+Sur la @network-arch-ipc-websockets, on voit les différentes communications réseau et processus en jeu. L'application desktop, sur le binaire `plx-desktop`, tourne sur deux processus. Le backend et frontend discutent via le système de communication inter-processus (IPC) de Tauri (qui utilise JSON-RPC @jsonrpcSpec). Les commandes Tauri utilisent notre librairie.
+
+Le serveur PLX peut être déployé dans un conteneur Docker via la commande `plx server`. Le client est implémenté en TypeScript dans `client.ts` et se connecte au serveur.
+
+#figure(
+  image("../schemas/network-arch-ipc-websockets.png", width:80%),
+  caption: [],
+) <network-arch-ipc-websockets>
+
 == Implémentation du serveur
 
 === Lancement
@@ -79,11 +105,8 @@ pas de support pour plusieurs leaders
 
 == Implémentation du client
 
-PLX étant une application _desktop_ développée avec Tauri, une partie est développée en Rust, dont la librairie
 
 // todo schéma architecture globale du client
-
-// todo ref tauri !
 
 Le client a été développé dans l'interface graphique de PLX, pour éviter d'avoir une partie des messages qui viennent du coeur Rust et une autre partie qui viennent de l'interface graphique. L'accès au session live est une sorte d'extension gérée uniquement coté de l'interface graphique. A la réception de résultats des checks ou d'erreurs de compilation, soit elle ne fait que l'affichage.
 

@@ -30,7 +30,7 @@ Un problème potentiel de spam est la création automatisée d'autres sessions a
 
 Une personne démarre une session pour un repository qui contient des exercices pour PLX et d'autres rejoignent pour faire ces exercices. Une fois une sélection d'exercices préparée, les exercices sont lancés l'un après l'autre au rythme imposé par le leader. La session vit jusqu'à que le leader l'arrête ou qu'un temps d'expiration côté serveur décide de l'arrêter après un certain temps d'inactivité. L'arrêt d'une session fait quitter tous les clients connectés mais ne coupe pas les connexions WebSocket.
 
-=== Définition et configuration du client
+=== Définition, identifiants et configuration du client
 Un "client" est défini comme la partie logicielle de PLX qui se connecte à un serveur de session live. Un client n'a pas besoin d'être codé dans un langage ou pour une plateforme spécifique, le seul prérequis est la capacité d'utiliser le protocole WebSocket. Chaque client est anonyme (le nom n'est pas envoyé, il ne peut pas être connu de l'enseignant·e facilement), mais s'identifie par un `client_id`, qu'il doit persister. Cet ID doit rester secrète entre le client et serveur, sinon il devient possible de se faire passer pour un autre client, ce qui devient problématique pour un client leader.
 
 Par souci de simplicité, les clients PLX génèrent un UUID version 4 (exemple `1be216e1-220c-4a0e-a582-0572096cea07`) @uuidv4. Le protocole ne définit pas de contrainte sur le contenu de cet identifiant, un autre format de plus grande entropie pourrait facilement être utilisé plus tard, si une sécurité plus accrue devenait nécessaire.
@@ -56,7 +56,7 @@ Le `port` et le `group_id` sont optionnels. La valeur par défaut du port du pro
 // todo default values implemented ??
 
 === Transport, sérialisation et gestion de la connexion
-Ce protocole se base sur le protocole Websocket *RFC 6455* @WSRFC qui est basé sur TCP. Il utilise le port *9120* par défaut, qui a été choisi parmi la liste des ports non assignés publiés par l'IANA @IANAPortsNumbers. Ce port est également configurable si nécessaire. Les messages, transmis dans le type de message `Text` du protocole WebSocket, sont transmis sous forme de JSON sérialisé en chaine de caractères.
+Ce protocole se base sur le protocole Websocket RFC 6455 @WSRFC qui est basé sur TCP. Il utilise le port *9120* par défaut, qui a été choisi parmi la liste des ports non assignés publiés par l'IANA @IANAPortsNumbers. Ce port est également configurable si nécessaire. Les messages, transmis dans le type de message `Text` du protocole WebSocket, sont transmis sous forme de JSON sérialisé en chaine de caractères.
 
 #figure(raw(block: true, lang: "json", read("messages/Action-SendFile.json")), caption: [Un exemple de message en format JSON, ici l'action `SendFile`])
 
@@ -214,9 +214,9 @@ Pour un follower déconnecté temporairement, son leader ne devrait pas voir 2 v
 // tester what happening if client is losing connection.
 
 ==== Evolutivité
-Le concept de session lancée par des leaders et de transfert de données provenant de followers vers des leaders, peut facilement être étendu à d'autres usages. Si on imagine d'autres types d'exercice en informatique comme des choix multiples, il suffirait d'ajouter une nouvelle action `Action::SendChoice` pour envoyer une réponse et un événement associé (`Event::ForwardChoice`), pour renvoyer cette réponse vers les clients leaders.
+Le concept de session lancée par des leaders et de transfert de données provenant de followers vers des leaders, peut facilement être étendu à d'autres contextes d'apprentissage. Si on souhaite pour entrainer en live d'autres types d'exercice, comme des choix multiples, il suffirait d'ajouter une nouvelle action `Action::SendChoice` pour envoyer une réponse et un événement associé (`Event::ForwardChoice`), pour renvoyer cette réponse vers les clients leaders.
 
-Dans le futur, si le support de nouveaux formats d'exercices seront supportés par PLX. Si cela implique de changer trop souvent la structure des résultats dans le champ `content.check_result` dans le message `Event::SendResult`, une solution serait de ne pas spécifier la structure exacte de ce sous champ et laisser les clients gérer les structures non définies ou partielles. Cela pourrait éviter de régulièrement devoir augmenter le numéro de version majeure à cause de _breaking change_.
+Dans le futur, de nouveaux formats d'exercices seront supportés par PLX. Si cela implique de changer trop souvent la structure des résultats dans le champ `content.check_result` dans le message `Event::SendResult`, une solution serait de ne pas spécifier la structure exacte de ce sous champ et laisser les clients gérer les structures non définies ou partielles. Cela pourrait éviter de régulièrement devoir augmenter le numéro de version majeure à cause de _breaking change_.
 
 // todo note bas de page breaking change ou glossaire ?
 
