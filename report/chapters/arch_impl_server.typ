@@ -72,7 +72,7 @@ Le projet `tauri-specta` @TauriSpectaCratesio nous permet de générer une défi
 #text(size: 0.8em)[
 #figure(
 ```js
-// Commande TypeScript autogénérée
+// Commande TypeScript autogénérée par tauri-specta
 export const commands = {
   async cloneCourse(repos: string): Promise<boolean> {
     return await invoke("clone_course", { repos });
@@ -80,7 +80,7 @@ export const commands = {
 }
 // Exemple d'appel dans Home.vue
 const success = await commands.cloneCourse("https://github.com/samuelroland/plx-demo")
-```, caption: [Commande autogénérée en TypeScript et exemple d'appel.])
+```, caption: [Différence d'appel des commandes grâce à `tauri-specta`, par rapport à @notypescommand])
 ]
 
 Si la commande en Rust changeait de nom, de type des paramètres ou de valeur de retour, maintenant que l'appel est typé, le _frontend_ ne compilera plus et le changement nécessaire en TypeScript ne pourrait pas être oublié. Le fichier généré est `desktop/src/ts/commands.ts`.
