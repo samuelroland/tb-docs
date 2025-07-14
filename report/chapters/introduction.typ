@@ -292,7 +292,7 @@ L'auteur de ce travail se permet un certain nombre d'anglicismes quand un équiv
 
 - `POC`: _Proof Of Concept_, preuve qu'un concept fonctionne en pratique. Consiste ici en un petit morceau de code développé juste pour démontrer que le concept est fonctionnel, sans soin particulier apporté à la qualité de l'implémentation. Ce code n'est pas réutilisé par la suite, il sert seulement d'inspiration pour l'implémentation réelle.
 - `output`: flux de texte de la sortie standard du programme / texte affiché dans la console par le programme
-- `exo`: abréviation familière de `exercice`. Elle est utilisée dans la syntaxe DY pour rendre plus concis la rédaction.
+- `exo`: abréviation familière de `exercice`. Elle est utilisée dans la syntaxe DY, le code et le protocole pour rendre la rédaction plus concise.
 - `check`: nom choisi pour décrire un ou plusieurs tests unitaires ou vérifications automatisées du code
 - `Cargo`: le gestionnaire de dépendances, de compilation et de test des projets Rust
 - `crate`: la plus petite unité de compilation avec Cargo, concrètement chaque projet contient un ou plusieurs dossiers avec un `Cargo.toml`, ce sont des crates locales. Les dépendances sont également des crates qui ont été publié sur le registre officiel.

@@ -1,16 +1,14 @@
 = Développement du serveur de session live <arch_impl_server>
 Cette partie documente l'architecture et l'implémentation du serveur de session live, l'implémentation d'un client dans PLX et le protocole définit entre les deux.
 
-La @high-level-arch montre la vue d'ensemble des composants logiciels avec trois clients. Le serveur de session live est accessible par tous les clients. Les clients des étudiant·es transmettent et recoivent d'autres informations que les clients des enseignant·es. PLX a déjà accès aux exercices, stockés dans des repository Git. Le parseur s'exécute sur les clients pour extraire les informations du cours, des compétences et des exercices. Ainsi le serveur n'a pas besoin de connaître les détails des exercices, il agit principalement comme un relai pour les participant·es d'une même session. Le serveur n'est utile que pour participer à des sessions live, PLX peut continuer d'être utilisé sans serveur pour l'entrainement seul·e.
+La @high-level-arch montre la vue d'ensemble des composants logiciels avec trois clients. Le serveur de session live est accessible par tous les clients. Les clients des étudiant·es transmettent et recoivent d'autres informations que les clients des enseignant·es.
+
+Tous les clients ont accès à tous les exercices, stockés dans des repository Git. Le parseur s'exécute sur les clients pour extraire les informations du cours, des compétences et des exercices. Le serveur n'a pas besoin de connaître les détails des exercices, il ne sert que de relai pour les participant·es d'une même session. Le serveur n'est utile que pour participer à des sessions live, PLX peut continuer d'être utilisé sans serveur pour l'entrainement seul·e.
 
 #figure(
   image("../schemas/high-level-arch.png", width:100%),
   caption: [Vue d'ensemble avec le serveur de session live, des clients, et notre parseur],
 ) <high-level-arch>
-// todo add client without connection to the server
-// todo schéma -> inclusif
-// todo schéma -> update to desktop ui ?
-
 
 // Inside == Définition du `Live protocol`
 #include "../protocol/protocol.typ"
@@ -190,5 +188,11 @@ const success = await commands.cloneCourse("https://github.com/samuelroland/plx-
 Une structure `LiveClient` est développée comme classe TypeScript.
 
 === Gestion des messages
+
+
+
+// todo ou mettre ca
+L'implémentation de la structure de messages est défini en Rust (enumération `Action` et `Event` dans `src/live/protocol.rs`) et également dans les types commun TypeScript (`desktop/src/ts/shared.ts`) générés.
+// TODO utile
 
 #pagebreak()

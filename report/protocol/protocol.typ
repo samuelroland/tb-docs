@@ -11,49 +11,40 @@ Le protocole définit deux types de messages: les clients envoient des actions a
   caption: [Les deux types de messages ne sont envoyés que dans une direction],
 ) <fig-basic-event-action-flow>
 
-Ne pas avoir de système de compte implique que tous les clients sont égaux par défaut. Pour éviter que n'importe quel client puisse contrôler une session en cours et arrive à changer d'exercice ou arrêter la session, un système de rôle est défini. Nous aurions pu définir un rôle enseignant·e et étudiant·e, mais cela exclut d'autres contextes. Par exemple, lorsque des assistant·es sont présent·es ou qu'un groupe d'étudiant·es révisent ensemble, en dehors des cours. Nous avons besoin de définir deux rôles qui permettent de distinguer les clients qui gèrent une session et les autres qui y participent. Nous choisissons ainsi de les nommer respectivement *leader* et *follower*. Le serveur peut ainsi vérifier à chaque `Action` envoyée que son rôle autorise l'action.
+Ne pas avoir de système de compte implique que tous les clients sont égaux par défaut. Pour éviter que n'importe quel client puisse contrôler une session en cours et arrive à changer d'exercice ou arrêter la session, un système de rôle est défini. Nous aurions pu définir un rôle enseignant·e et étudiant·e, mais cela exclut d'autres contextes: lorsque des assistant·es sont présent·es ou qu'un groupe d'étudiant·es révisent ensemble, en dehors des cours. Nous avons besoin de définir deux rôles qui permettent de distinguer les clients qui gèrent une session et les autres qui y participent. Nous choisissons ainsi de les nommer respectivement *leader* et *follower*. Le serveur peut ainsi vérifier à chaque `Action` reçue que le rôle du client autorise l'action.
 
-Ce rôle est attribué à chaque client dans une session, avoir un rôle en dehors d'une session ne fait pas de sens. Les clients followers suivent les exercices lancés par les clients leaders et envoient le code et les résultats des checks à chaque changement. Les clients leaders ne participent pas aux exercices, mais le serveur leur transfère chaque modification envoyée par les clients followers. Le protocole n'empêche pas d'avoir plusieurs leaders par session, pour permettre certains contextes avec plusieurs enseignant·es ou des assistant·es présent·es pour aider à relire tous les morceaux de code envoyés.
+Ce rôle est attribué à chaque client dans une session, avoir un rôle en dehors d'une session ne fait pas de sens. Les clients followers suivent les exercices lancés par les clients leaders et envoient le code et les résultats des checks à chaque changement. Les clients leaders ne participent pas aux exercices, mais le serveur leur transfère chaque modification envoyée par les clients followers. Le protocole n'empêche pas d'avoir plusieurs leaders par session, pour permettre certains contextes avec plusieurs enseignant·es ou assistant·es présent·es, pour aider à relire tous les morceaux de code envoyés.
 // TODO really la dernière phrase ?
 
-Un système de gestion des pannes du serveur et des clients est défini, pour éviter de la confusion et la frustration dans l'expérience finale. Les instabilités de Wifi, la batterie vide ou un éventuel crash de l'application ne devrait pas impacter le reste des participant·es de la sessions. Les clients doivent pouvoir afficher dans leur interface quand le serveur s'est éteint en cas de panne ou de mise à jour. Un·e enseignant·e qui se déconnecterait involontairement, n'impacterait pas la présence de la session, qui continuerai d'exister sur le serveur.
+Un système de gestion des pannes du serveur et des clients est défini, pour éviter d'engendrer de la confusion dans l'expérience finale. Les instabilités de Wifi, la batterie vide ou un éventuel crash de l'application ne devrait pas impacter le reste des participant·es de la session. Quand le serveur s'éteint, en cas de panne ou de mise à jour, les clients doivent pouvoir afficher une alerte dans leur interface. Un·e enseignant·e qui se déconnecte involontairement, n'impacte pas la présence de la session, qui continuera d'exister sur le serveur.
 
 
 === Définition des sessions live
-Le protocole tourne autour du concept de session, qui peut être vu comme un endroit virtuel temporaire où plusieurs personnes s'entrainent sur les mêmes exercices au même moment. Une partie des personnes ne participent pas directement, mais observent les changements.
+Le protocole tourne autour du concept de _session live_, qui peut être vu comme un endroit virtuel temporaire où plusieurs personnes s'entrainent sur les mêmes exercices au même moment. Une partie des personnes ne participent pas directement, mais observent l'entrainement des autres.
 
-Une session est définie par un titre et un ID textuel de groupe, cette combinaison est unique sur le serveur. Cet ID de groupe est complètement arbitraire. Par défaut, le client PLX va prendre le lien HTTPS du repository Git pour regrouper les sessions du même cours. Dans le cas d'un fork du cours qui souhaiterait apparaître dans la même liste, cet ID peut être reconfiguré. Cette ID peut paraitre inutile, mais elle présente deux intérêts importants: une amélioration de l'expérience et une limitation du spam.
+Une session est définie par un nom et un ID de groupe (`group_id`), cette combinaison est unique sur le serveur. Cet ID textuel de groupe est complètement arbitraire. Par défaut, le client PLX va prendre le lien HTTPS du repository Git pour regrouper les sessions du même cours. Dans le cas d'un fork du cours qui souhaiterait apparaître dans la même liste, cet ID peut être reconfiguré. Cette ID peut paraitre inutile, mais elle présente deux intérêts importants: une simplification de l'accès à une session et une limitation du spam.
 
-Si 100 sessions live tournent en même temps, seules les sessions du cours seront listées. Si 1-6 enseignant·es enseignent un cours en même temps, la liste ne sera que de 1-6 entrées, ce qui simplifie l'accès à la bonne session. Le titre de la session sert aux étudiant·es à trouver celle qui les intéressent.
+Si 100 sessions live tournent en même temps, il serait difficile de trouver une session en particulier parmi une liste de 100 entrées. Ainsi, graĉe au regroupement par `group_id`, seules les sessions du cours seront listées. Si 1-6 enseignant·es enseignent un cours en même temps, la liste ne sera longue que de 1-6 entrées et le nom de la session sera suffisant pour que les étudiant·es puissent trouver celle qui les intéressent.
 
-Un problème potentiel de spam est la création automatisée d'autres sessions avec des noms très proches des sessions légitimes pour tromper les étudiant·es. Un autre cas encore plus ennuyant est l'envoi de morceau de code aléatoire de centaines de clients fictifs. Cette attaque rendrait le tableau de bord des leaders inutilisable, puisque les bouts de code envoyés des 20 étudiant·es seraient perdu au milieu de centaines d'autres. Puisqu'il est nécessaire de connaître le lien d'un repository Git d'un cours PLX pour connaître une partie de la liste des sessions en cours, ce genre d'attaque est déjà rendue plus difficile.
+Un problème potentiel de spam est la création automatisée d'autres sessions avec des noms très proches des sessions légitimes pour tromper les étudiant·es. Un autre cas encore plus ennuyant de pollution d'une session, est l'envoi de morceau de code aléatoire de centaines de clients fictifs. Cette attaque rendrait le tableau de bord des enseignant·es inutilisable, comme le code des 20 étudiant·es seraient noyés au milieu de centaines d'autres. Puisqu'il est nécessaire de connaître le lien d'un repository Git d'un cours PLX, ce qui ne donne accès à une partie de la liste des sessions en cours du serveur, ce genre d'attaque est déjà rendue plus difficile pour un·e attaquant·e externe à l'école.
 
-Une personne démarre une session pour un repository qui contient des exercices pour PLX, en choisit une sélection et d'autres rejoignent pour faire ces exercices. La session vit jusqu'à que la personne qui l'a démarrée décide de l'arrêter ou qu'un temps d'expiration côté serveur décide de l'arrêter après un certain temps d'inactivité. L'arrêt d'une session déconnecte tous les clients connectés.
-
-// TODO ajouter notion de sans compte, sécurité particulière,
-// sans avoir de système d'authentification.
-// rate limiting ?
-// éviter le spam ?
-//
-// Modèle de sécurité
-// pas de compte + considère qu'il n'y aura pas de spam + mesure cotés client pour filtrer un potentiel spam
-// mesure de trust on first use pour vérifier l'identité du prof
+Une personne démarre une session pour un repository qui contient des exercices pour PLX et d'autres rejoignent pour faire ces exercices. Une fois une sélection d'exercices préparée, les exercices sont lancés l'un après l'autre au rythme imposé par le leader. La session vit jusqu'à que le leader l'arrête ou qu'un temps d'expiration côté serveur décide de l'arrêter après un certain temps d'inactivité. L'arrêt d'une session fait quitter tous les clients connectés mais ne coupe pas les connexions WebSocket.
 
 === Définition et configuration du client
-Un "client" est défini comme la partie logicielle de PLX qui se connecte à un serveur de session live. Un client n'a pas besoin d'être codé dans un langage ou pour une plateforme spécifique, le seul prérequis est la capacité d'utiliser le protocole WebSocket. Chaque client est anonyme (le nom n'est pas envoyé, il ne peut pas être connu de l'enseignant·e facilement), mais s'identifie par un `client_id`, qu'il doit persister. Cet ID doit rester secrète entre le client et serveur, sinon il devient possible de se faire passer pour un autre client. Cela pose surtout des problèmes lorsque ce même client gère des sessions.
+Un "client" est défini comme la partie logicielle de PLX qui se connecte à un serveur de session live. Un client n'a pas besoin d'être codé dans un langage ou pour une plateforme spécifique, le seul prérequis est la capacité d'utiliser le protocole WebSocket. Chaque client est anonyme (le nom n'est pas envoyé, il ne peut pas être connu de l'enseignant·e facilement), mais s'identifie par un `client_id`, qu'il doit persister. Cet ID doit rester secrète entre le client et serveur, sinon il devient possible de se faire passer pour un autre client, ce qui devient problématique pour un client leader.
 
-Par souci de simplicité, les clients PLX génèrent un UUID (exemple `1be216e1-220c-4a0e-a582-0572096cea07`) dans sa version 4 @uuidv4. Le protocole ne définit pas le format de cet identifiant, un autre format de plus grande entropie pourrait facilement être utilisé plus tard, si une sécurité plus accrue devenait nécessaire.
+Par souci de simplicité, les clients PLX génèrent un UUID version 4 (exemple `1be216e1-220c-4a0e-a582-0572096cea07`) @uuidv4. Le protocole ne définit pas de contrainte sur le contenu de cet identifiant, un autre format de plus grande entropie pourrait facilement être utilisé plus tard, si une sécurité plus accrue devenait nécessaire.
 
-Une fois une session rejoints, les clients se voient assignés un `client_num`, numéro entier incrémentale (partant de zéro) attribué par le serveur dans l'ordre d'arrivée dans la session. Ces numéros de clients ont deux utilités. La première est d'identifier coté clients leaders, quel bout de code ou résultat vient du même client. Le `client_id` doit rester secret et ne doit pas être envoyés vers un autre client. La deuxième utilité est de permettre aux participant·es de mentionner à l'oral leur numéro, par exemple: _Je ne comprends pas l'erreur, est-ce que vous pouvez me dire pourquoi mon code ne compile pas, en numéro 8 ?_.
+Les clients leader ont besoin d'identifier la source du message transféré. Est-ce qu'un bout de code vient d'un nouveau client ou correspond à une mise à jour d'un client existant ? Le `client_id` doit rester secret et ne doit pas être envoyé vers un autre client, il ne peut pas être utilisé pour ce problème. Nous avons besoin d'un autre identifiant de nature temporaire. Nous souhaitons garder l'intérêt de l'anonymité, cet identifiant doit être différent à chaque session pour un client donné.
 
-// todo add UUID def ?
+La solution choisie consiste à générer un numéro de client `client_num`, valeur entière incrémentale (partant de zéro), attribué par le serveur dans l'ordre d'arrivée dans la session. L'ordre d'arrivée étant très souvent différent, chaque client devrait généralement avec un numéro différent. La deuxième utilité de ce numéro est de permettre aux participant·es de mentionner à l'oral un code spécifique, par exemple: _Je ne comprends pas l'erreur, est-ce que vous pouvez me dire pourquoi mon code ne compile pas, en numéro 8 ?_ Ou encore _Sur le code 23 que vous aviez montré avant, est-ce que l'approche était meilleure que ce code 12 ?_
 
 Un client ne peut pas se connecter plusieurs fois simultanément au même serveur. Cela peut arriver lorsque l'on démarre l'application deux fois, le même `client_id` sera utilisé sur deux connexions WebSocket distinctes. Lors de la deuxième connexion, la première est fermée par le serveur après l'envoi d'une erreur. Une fois connecté, chaque client ne peut rejoindre qu'une session à la fois.
 
 // todo check fermeture connexion du serveur implémenté ??
 // todo check erreur incluse plus bas
 
-Pour qu'un client puisse se connecter au serveur, un repository d'un cours PLX doit contenir à sa racine un fichier `live.toml` avec les entrées suivantes visibles sur le @livetoml.
+Pour qu'un client puisse se connecter au serveur, un repository d'un cours PLX doit contenir à sa racine un fichier `live.toml` avec les entrées visibles sur le @livetoml.
 #figure(
 ```toml
 # This is the configuration used to connect to a live server
@@ -61,16 +52,19 @@ domain = "live.plx.rs"
 port = 9120
 group_id = "https://github.com/samuelroland/plx-demo.git"
 ``` , caption: [Exemple de configuration `live.toml`]) <livetoml>
-Le `port` et le `group_id` sont optionnels: la valeur par défaut du port du protocole est utilisée et le `group_id` peut être récupéré via l'origine du repository cloné.
+Le `port` et le `group_id` sont optionnels. La valeur par défaut du port du protocole est utilisée et le `group_id` par défaut peut être récupéré via l'origine du repository cloné.
 // todo default values implemented ??
 
 === Transport, sérialisation et gestion de la connexion
-Ce protocole se base sur le protocole Websocket *RFC 6455* @WSRFC qui est basé sur TCP. Il utilise le port *9120* par défaut, qui a été choisi parmi la liste des ports non assignés publiés par l'IANA @IANAPortsNumbers. Ce port est également configurable s'il est nécessaire d'avoir plusieurs serveurs sur la même adresse IP ou s'il était déjà occupé par un autre logiciel. Les messages, transmis dans le type de message `Text` du protocole WebSocket, sont transmis sous forme de JSON sérialisé en chaine de caractères.
+Ce protocole se base sur le protocole Websocket *RFC 6455* @WSRFC qui est basé sur TCP. Il utilise le port *9120* par défaut, qui a été choisi parmi la liste des ports non assignés publiés par l'IANA @IANAPortsNumbers. Ce port est également configurable si nécessaire. Les messages, transmis dans le type de message `Text` du protocole WebSocket, sont transmis sous forme de JSON sérialisé en chaine de caractères.
 
+#figure(raw(block: true, lang: "json", read("messages/Action-SendFile.json")), caption: [Un exemple de message en format JSON, ici l'action `SendFile`])
 
 Pour que le serveur et les clients connectés puissent savoir s'ils communiquent avec une version compatible, il est nécessaire d'envoyer un numéro de version de ce protocole à la première connexion. C'est le serveur qui sera souvent le plus à jour et décidera d'accepter ou refuser la connexion, en renvoyant un code HTTP 400 s'il la refuse.
 
-Pour se connecter les clients, comme le montre le @wsurl doivent indiquer `live_protocol_version` est la version du protocole supportée par le client et `live_client_id` est le `client_id` présenté précédemment. Si cette première requête ne contient pas ces informations, le serveur la refusera également.
+// todo check le 400 
+
+Comme le montre le @wsurl, les clients doivent se connecter en indiquant la version du protocole supportée par le client (`live_protocol_version`) et le `client_id` présenté précédemment (`live_client_id`). Si cette première requête ne contient pas ces informations, le serveur la refusera également.
 
 #figure(
 text(size: 0.9em)[
@@ -79,23 +73,19 @@ ws://live.plx.rs:9120?live_protocol_version=0.1.0&live_client_id=e9fc3566-32e3-4
 ```
 ], caption: [Lien de connexion en WebSocket]) <wsurl>
 
-Pour ce numéro de version on utilise le Semantic Versionning 2.0.0 @SemverWebsite. Le numéro actuel est `0.1.0` et restera sur la version majeur zéro (`0.x.y`) durant la suite du développement, jusqu'à que le protocole ait pris en maturité.
-
 Les navigateurs web ne pouvant pas définir des entêtes HTTPs via l'API `WebSocket`, il est nécessaire de passer via la querystring.
 // todo ref biblio
 
-La connexion WebSocket devrait se terminer comme le protocole WebSocket le définit, c'est à dire en fermant proprement la connexion WebSocket avec un message de type `Close`.
-// todo ref et check ?
+Pour ce numéro de version on utilise le Semantic Versionning 2.0.0 @SemverWebsite. Le numéro actuel est `0.1.0` et restera sur la version majeur zéro (`0.x.y`) durant la suite du développement, jusqu'à que le protocole ait pris de la maturité.
 
-#figure(raw(block: true, lang: "json", read("messages/Action-SendFile.json")), caption: [Un exemple de message en format JSON, ici l'action `SendFile`])
+La connexion WebSocket devrait se terminer comme le protocole WebSocket le définit, c'est à dire en fermant proprement la connexion WebSocket avec un message de type `Close`.
+// todo ref et check ? utile ?
+
 
 === Messages
-Voici les actions définies, avec l'événement associé en cas de succès de l'action. La 4ème colonne indique les destinataires de l'événement.
-
-Tous les champs et le message final en JSON doivent être encodés en UTF-8. Toutes les dates sont générées par le serveur en UTC, seulement l'affichage s'adapte au fuseau horaire local. Les dates sont sérialisées sous forme de _timestamp_, c'est à dire en nombre de secondes depuis l'époque Unix (1er janvier 1970).
+Voici les actions définies, avec l'événement associé en cas de succès de l'action. Tous les champs et le message final en JSON doivent être encodés en UTF-8. Toutes les dates sont générées par le serveur en UTC. Les dates sont sérialisées sous forme de _timestamp_ #footnote[le nombre de secondes depuis l'époque Unix (1er janvier 1970).].
 // TODO ref biblio
 
-L'implémentation de la structure de messages est défini en Rust (`src/live/msg.rs`) et également dans les bindings TypeScript (`desktop/src/ts/bindings.ts`) générés.
 
 // TODO: make sure all messages are here !!!!!
 // see #include "messages/messages.typ"
@@ -104,23 +94,23 @@ L'implémentation de la structure de messages est défini en Rust (`src/live/msg
 #table(
   columns: (3fr, 2fr, 4fr, 4fr, 4fr),
   stroke: 1pt + gray,
-  [*Identifiant*], [*Clients#linebreak()autorisés*], [*But*],[*Evénement associé*],[*Evénement envoyé à*],
+  [*Identifiant*], [*Clients#linebreak()autorisés*], [*But*],[*Evénement associé*],[*Evénement envoyé*],
   [`Action::StartSession`], [tous], [Démarrer une session],[`Event::SessionJoined`], [même client],
   table.cell(colspan: 3, [#raw(block: true, lang: "json", read("messages/Action-StartSession.json"))]),
-  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-SessionJoined.json"))]),
+  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-SessionJoined.json"))\Le numéro retourné est le `client_num`.]),
 
-  [`Action::GetSessions`], [tous], [Lister les sessions ouvertes pour un `group_id` donné],[`Event::SessionsList`], [même client],
+  [`Action::GetSessions`], [tous], [Lister les sessions ouvertes pour un `group_id` donné],[`Event::SessionsList`], [au même client],
   table.cell(colspan: 3, [#raw(block: true, lang: "json", read("messages/Action-GetSessions.json"))]),
   table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-SessionsList.json"))]),
 
-  [`Action::JoinSession`], [tous], [Rejoindre une session en cours],[`Event::SessionJoined`], [même client],
+  [`Action::JoinSession`], [tous], [Rejoindre une session en cours],[`Event::SessionJoined`], [au même client],
   table.cell(colspan: 3,[#raw(block: true, lang: "json", read("messages/Action-JoinSession.json"))]),
-  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-SessionJoined.json"))]),
+  table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-SessionJoined.json"))\C'est le même message pour les leaders et followers.]),
 
-  [`Action::LeaveSession`], [tous], [Quitter une session],[`Event::SessionLeaved`], [même client],
+  [`Action::LeaveSession`], [tous], [Quitter la session en cours],[`Event::SessionLeaved`], [au même client],
   table.cell(colspan: 3, [#raw(block: true, lang: "json", read("messages/Action-LeaveSession.json"))]),
   table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-SessionLeaved.json"))]),
-  [`Action::StopSession`], [le leader qui a démarré la session], [Arrêter une session],[`Event::SessionStopped`], [tous les clients de la session],
+  [`Action::StopSession`], [le leader qui a démarré la session], [Arrêter la session en cours],[`Event::SessionStopped`], [à tous les clients de la session],
   table.cell(colspan: 3,[#raw(block: true, lang: "json", read("messages/Action-StopSession.json"))]),
   table.cell(colspan: 2, [#raw(block: true, lang: "json", read("messages/Event-SessionStopped.json"))]),
 
@@ -145,8 +135,9 @@ L'implémentation de la structure de messages est défini en Rust (`src/live/msg
 )
 ]
 
+#pagebreak()
 
-Voici les événements non couverts précédemment. L'événement `Stats` sur le @statsevent est envoyé aux leaders à chaque fois qu'un client rejoint ou quitte la session, excepté quand le leader créateur rejoint. L'événement `ServerStopped` sur le @serverstoppedevent est envoyé du serveur à tous les clients lorsqu'il doit s'arrêter.
+Il reste encore des événements indépendants. L'événement `Stats` sur le @statsevent est envoyé aux leaders à chaque fois qu'un client rejoint ou quitte la session, excepté quand le leader créateur rejoint. L'événement `ServerStopped` sur le @serverstoppedevent est envoyé à tous les clients lorsqu'il doit s'arrêter.
 
 #align(center,
 grid(
@@ -162,7 +153,7 @@ text(size: 0.8em)[
 ]
 ))
 
-Pour conclure cette liste de messages, une liste des types d'erreur peuvent être reçues du serveur via un `Event::Error`, contenant différents types de `LiveProtocolError`. Ces erreurs peuvent arriver dans différents contextes et ne sont pas toujours liées à une action précise. Une partie des erreurs ne peut pas arriver si le client gère correctement son état et ne tente pas des actions non autorisées par son rôle. Il faut bien sûr gérer les cas où le client aurait été modifié pour être malicieux ou simplement par erreur de logique, le serveur doit réagir correctement.
+Pour conclure cette liste de messages, une liste des types d'erreur peuvent être reçues du serveur via un `Event::Error`, contenant différents types de `LiveProtocolError`. Ces erreurs peuvent arriver dans différents contextes et ne sont pas toujours liées à une action précise. Une partie des erreurs ne peuvent pas arriver si le client gère correctement son état et ne tente pas des actions non autorisées par son rôle.
 // TODO make sure all files are here
 
 #text(size: 0.8em)[
@@ -183,6 +174,7 @@ Pour conclure cette liste de messages, une liste des types d'erreur peuvent êtr
 
 // - Client: En tant que client follower, configurer le mode du broadcast: sa fréquence (live, ou quelques secondes), le type de changement à recevoir (tout, seulement les checks) ou lancer une mise à jour maintenant
 // - Client: Mettre en pause le streaming des changements du serveur vers le client // système d'activation et désactivation de l'abonnement ? meilleur wording ?
+
 
 #pagebreak()
 
