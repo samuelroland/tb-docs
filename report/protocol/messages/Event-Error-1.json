@@ -2,6 +2,6 @@
   "type": "Error",
   "content": {
     "type": "FailedToJoinSession",
-    "content": "No session found with this name in this group id"
+    "reason": "No session found with this name in this group id"
   }
 }

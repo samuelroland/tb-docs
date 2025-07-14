@@ -8,12 +8,9 @@ use std::{
 
 use chrono::{DateTime, Utc};
 use colored::Colorize;
-use plx::live::{
-    msg::{
-        Action, CheckStatus, ClientNum, Event, ExoCheckResult, ForwardedFile, ForwardedResult,
-        LiveProtocolError,
-    },
-    session::Session,
+use plx::live::protocol::{
+    Action, CheckStatus, ClientNum, Event, ExoCheckResult, ForwardedFile, ForwardedResult,
+    LiveProtocolError, Session, SessionStats,
 };
 use walkdir::WalkDir;
 
@@ -159,7 +156,7 @@ fn export_protocol_messages() {
                 group_id: "https://github.com/prg2/prg2.git".to_string(),
             },
         ]),
-        Event::Stats(plx::live::msg::SessionStats {
+        Event::Stats(SessionStats {
             followers_count: 32,
             leaders_count: 2,
         }),

@@ -2,6 +2,6 @@
   "type": "Error",
   "content": {
     "type": "FailedToStartSession",
-    "content": "There is already a session with the same group id and name combination."
+    "reason": "There is already a session with the same group id and name combination."
   }
 }

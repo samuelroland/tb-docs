@@ -2,6 +2,6 @@
   "type": "Error",
   "content": {
     "type": "ActionOnlyForLeader",
-    "content": "switch of exo"
+    "reason": "switch of exo"
   }
 }
