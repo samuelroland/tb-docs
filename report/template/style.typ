@@ -149,7 +149,17 @@
 
   show image: it => {
     if str.ends-with(it.source, "svg") {
-      roundedbox(it)
+      // Hacky exception for syntax SVG where we need to put a bit more padding at the bottom and remove the big inset
+      if it.source.contains("syntax/") {
+        box(
+          inset: (bottom: 7pt, x: 4pt),
+          outset: (bottom: 0pt),
+          radius: 2pt,
+          stroke: 1pt + luma(200),
+        )[#it]
+      } else {
+          roundedbox(it)
+      }
     } else {
       it
     }
