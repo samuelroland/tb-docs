@@ -1,14 +1,19 @@
 // We use the strum crate with AsRefStr derive macro to be able to get the enum variant name by event.as_ref() on the Event enum for example
 use std::{
-    ffi::OsStr,
+    env::consts::OS,
+    ffi::{OsStr, OsString},
+    fmt::format,
     fs::{create_dir, read, remove_dir_all, rename, write},
     path::PathBuf,
+    process::Command,
     time::SystemTime,
 };
 
+use anstyle::Color;
+use anstyle_svg::Term;
 use chrono::{DateTime, Utc};
 use colored::Colorize;
-use plx::live::protocol::{
+use plx_core::live::protocol::{
     Action, CheckStatus, ClientNum, Event, ExoCheckResult, ForwardedFile, ForwardedResult,
     LiveProtocolError, Session, SessionStats,
 };
@@ -117,7 +122,6 @@ fn save_protocol_message_with_filename_and_caption<T>(
         ));
 
         i += 1;
-        dbg!(&file_destination);
     }
     // Copy the existing file !
     if i == 3 {
@@ -130,7 +134,6 @@ fn save_protocol_message_with_filename_and_caption<T>(
                 .unwrap(),
             1
         ));
-        dbg!("rename", &first_file_destination, &new_name_first_file);
         std::fs::copy(&first_file_destination, &new_name_first_file).unwrap();
     }
     files.push((file_destination.to_str().unwrap().to_string(), caption));
@@ -303,18 +306,117 @@ int main(int argc, char *argv[]) {
     println!("{}", "Saved messages.typ !\n".blue());
 }
 
+/// Given some DY spec and texts, export the different state of each step to document them
+fn export_parser_steps() {
+    let base_path = "../syntax";
+    let dy_paths: Vec<PathBuf> = WalkDir::new(base_path)
+        .follow_links(true)
+        .into_iter()
+        .filter_entry(|entry| {
+            entry.file_type().is_dir() || entry.path().extension() == Some(OsStr::new("dy"))
+        })
+        .filter_map(Result::ok)
+        .filter(|e| e.file_type().is_file())
+        .map(|e| e.into_path())
+        .collect();
+
+    for file in dy_paths {
+        // Export the highligthed code !
+        let mut output = file.clone();
+        output.set_extension("svg");
+        let output_path = file.parent().unwrap().join(output.file_name().unwrap());
+        let mut cmd = Command::new("tree-sitter");
+        cmd.args(vec!["highlight", file.to_str().unwrap()])
+            .current_dir(base_path)
+            .env("CLICOLOR_FORCE", "true");
+
+        export_command_output_to_svg(&mut cmd, &output_path, None);
+        println!(
+            "#figure(
+  image(\"{}\", width: 100%),
+  caption: [TODO `{}`],
+)",
+            output_path.to_str().unwrap(),
+            file.file_name().unwrap().to_str().unwrap()
+        );
+
+        // Export the "plx parse" version
+        let mut output_path = file.clone();
+        output_path.set_file_name(format!(
+            "{}-parsed.svg",
+            file.file_stem().unwrap().to_string_lossy()
+        ));
+        let short_relative_filename = format!(
+            "{}/{}",
+            file.parent()
+                .unwrap()
+                .file_name()
+                .unwrap()
+                .to_str()
+                .unwrap(),
+            file.file_name().unwrap().to_str().unwrap()
+        );
+        let mut cmd = Command::new("plx");
+        cmd.args(vec!["parse", &short_relative_filename])
+            .current_dir(base_path)
+            .env("CLICOLOR_FORCE", "true");
+
+        export_command_output_to_svg(
+            &mut cmd,
+            &output_path,
+            Some(format!(
+                "{}",
+                format!("plx parse {short_relative_filename}").bold()
+            )),
+        );
+
+        println!(
+            "#figure(
+  image(\"{}\", width: 100%),
+  caption: [TODO],
+)",
+            output_path.to_str().unwrap(),
+        );
+    }
+}
+
+fn export_command_output_to_svg(
+    cmd: &mut Command,
+    svg_filename: &PathBuf,
+    included_command: Option<String>,
+) {
+    let result = cmd.output().unwrap();
+    // TODO: that's a bit cheating but stderr come first if parse is successful
+    let mut ansi_output = String::from_utf8(result.stderr).unwrap();
+    ansi_output.push_str(&String::from_utf8(result.stdout).unwrap());
+    let mut start = match included_command {
+        Some(command) => format!("> {command}\n"),
+        None => String::default(),
+    };
+    start.push_str(ansi_output.trim());
+    let svg = Term::new()
+        .min_width_px(700)
+        .fg_color(Color::Ansi(anstyle::AnsiColor::Black))
+        .background(false)
+        .render_svg(&start);
+    // svg.replace("", to)
+
+    std::fs::write(svg_filename, svg).unwrap();
+}
+
 fn main() {
     // Trash existing files under messages folder to avoid old Message files
-    let dest_folder = get_destination();
-    if dest_folder.exists() {
-        remove_dir_all(&dest_folder).unwrap();
-    }
-    let _ = create_dir(&dest_folder);
-    export_protocol_messages();
-    export_plantuml_diagrams().unwrap();
-
-    println!(
-        "\nNote: remember to manually update LiveProtocolError list of errors if you added one manually !"
-    );
-    println!("Note: remember to add other messages instances if new ones are created !");
+    // let dest_folder = get_destination();
+    // if dest_folder.exists() {
+    //     remove_dir_all(&dest_folder).unwrap();
+    // }
+    // let _ = create_dir(&dest_folder);
+    export_parser_steps();
+    // export_protocol_messages();
+    // export_plantuml_diagrams().unwrap();
+    //
+    // println!(
+    //     "\nNote: remember to manually update LiveProtocolError list of errors if you added one manually !"
+    // );
+    // println!("Note: remember to add other messages instances if new ones are created !");
 }
