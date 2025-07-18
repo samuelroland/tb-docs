@@ -1,0 +1,50 @@
+<svg width="720px" height="272px" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .fg { fill: #000000 }
+    .bg { background: #000000 }
+    .fg-cyan { fill: #00AAAA }
+    .fg-red { fill: #AA0000 }
+    .container {
+      padding: 0 10px;
+      line-height: 18px;
+    }
+    .bold { font-weight: bold; }
+    tspan {
+      font: 14px SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+      white-space: pre;
+      line-height: 18px;
+    }
+  </style>
+
+  <text xml:space="preserve" class="container fg">
+    <tspan x="10px" y="28px"><tspan>&gt; </tspan><tspan class="bold">plx parse skills-error/skills.dy</tspan>
+</tspan>
+    <tspan x="10px" y="46px"><tspan class="fg-red">Found 3 items in skills-error/skills.dy with 3 errors.</tspan>
+</tspan>
+    <tspan x="10px" y="64px">
+</tspan>
+    <tspan x="10px" y="82px"><tspan class="fg-cyan bold">Error at skills-error/skills.dy:0:0</tspan>
+</tspan>
+    <tspan x="10px" y="100px"><tspan>skill Introduction</tspan>
+</tspan>
+    <tspan x="10px" y="118px"><tspan class="fg-red">|</tspan><tspan class="fg-red bold"> Missing required key 'dir'</tspan>
+</tspan>
+    <tspan x="10px" y="136px">
+</tspan>
+    <tspan x="10px" y="154px"><tspan class="fg-cyan bold">Error at skills-error/skills.dy:3:0</tspan>
+</tspan>
+    <tspan x="10px" y="172px"><tspan>enums/test</tspan>
+</tspan>
+    <tspan x="10px" y="190px"><tspan class="fg-red">^^^^^^^^^^</tspan><tspan class="fg-red bold"> Invalid multiline content found after the 'dir' key which is single line</tspan>
+</tspan>
+    <tspan x="10px" y="208px">
+</tspan>
+    <tspan x="10px" y="226px"><tspan class="fg-cyan bold">Error at skills-error/skills.dy:4:5</tspan>
+</tspan>
+    <tspan x="10px" y="244px"><tspan>skill</tspan>
+</tspan>
+    <tspan x="10px" y="262px"><tspan>     </tspan><tspan class="fg-red">|</tspan><tspan class="fg-red bold"> Missing a value for the required key 'skill'</tspan>
+</tspan>
+  </text>
+
+</svg>

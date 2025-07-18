@@ -1,0 +1,50 @@
+<svg width="720px" height="272px" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .fg { fill: #000000 }
+    .bg { background: #000000 }
+    .fg-cyan { fill: #00AAAA }
+    .fg-red { fill: #AA0000 }
+    .container {
+      padding: 0 10px;
+      line-height: 18px;
+    }
+    .bold { font-weight: bold; }
+    tspan {
+      font: 14px SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+      white-space: pre;
+      line-height: 18px;
+    }
+  </style>
+
+  <text xml:space="preserve" class="container fg">
+    <tspan x="10px" y="28px"><tspan>&gt; </tspan><tspan class="bold">plx parse course-error/course.dy</tspan>
+</tspan>
+    <tspan x="10px" y="46px"><tspan class="fg-red">Found 1 item in course-error/course.dy with 3 errors.</tspan>
+</tspan>
+    <tspan x="10px" y="64px">
+</tspan>
+    <tspan x="10px" y="82px"><tspan class="fg-cyan bold">Error at course-error/course.dy:1:0</tspan>
+</tspan>
+    <tspan x="10px" y="100px"><tspan>code PRG1</tspan>
+</tspan>
+    <tspan x="10px" y="118px"><tspan class="fg-red">^^^^</tspan><tspan class="fg-red bold"> The 'code' key can be only used under a `??`</tspan>
+</tspan>
+    <tspan x="10px" y="136px">
+</tspan>
+    <tspan x="10px" y="154px"><tspan class="fg-cyan bold">Error at course-error/course.dy:2:0</tspan>
+</tspan>
+    <tspan x="10px" y="172px"><tspan>course Programmation 1</tspan>
+</tspan>
+    <tspan x="10px" y="190px"><tspan class="fg-red">|</tspan><tspan class="fg-red bold"> Missing required key 'goal'</tspan>
+</tspan>
+    <tspan x="10px" y="208px">
+</tspan>
+    <tspan x="10px" y="226px"><tspan class="fg-cyan bold">Error at course-error/course.dy:2:0</tspan>
+</tspan>
+    <tspan x="10px" y="244px"><tspan>course Programmation 1</tspan>
+</tspan>
+    <tspan x="10px" y="262px"><tspan class="fg-red">|</tspan><tspan class="fg-red bold"> Missing required key 'code'</tspan>
+</tspan>
+  </text>
+
+</svg>

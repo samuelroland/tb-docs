@@ -1,0 +1,31 @@
+<svg width="720px" height="92px" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .fg { fill: #000000 }
+    .bg { background: #000000 }
+    .fg-rgb-20A8C3 { fill: #20A8C3 }
+    .fg-rgb-737A7E { fill: #737A7E }
+    .container {
+      padding: 0 10px;
+      line-height: 18px;
+    }
+    .bold { font-weight: bold; }
+    .italic { font-style: italic; }
+    tspan {
+      font: 14px SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+      white-space: pre;
+      line-height: 18px;
+    }
+  </style>
+
+  <text xml:space="preserve" class="container fg">
+    <tspan x="10px" y="28px"><tspan class="fg-rgb-737A7E italic">// Définition du cours</tspan>
+</tspan>
+    <tspan x="10px" y="46px"><tspan class="fg-rgb-20A8C3 bold">course</tspan><tspan> Programmation 1</tspan>
+</tspan>
+    <tspan x="10px" y="64px"><tspan class="fg-rgb-20A8C3 bold">code</tspan><tspan> PRG1</tspan>
+</tspan>
+    <tspan x="10px" y="82px"><tspan class="fg-rgb-20A8C3 bold">goal</tspan><tspan> Apprendre des bases solides du C++</tspan>
+</tspan>
+  </text>
+
+</svg>

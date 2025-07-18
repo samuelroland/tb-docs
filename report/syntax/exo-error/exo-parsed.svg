@@ -1,0 +1,50 @@
+<svg width="776px" height="272px" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .fg { fill: #000000 }
+    .bg { background: #000000 }
+    .fg-cyan { fill: #00AAAA }
+    .fg-red { fill: #AA0000 }
+    .container {
+      padding: 0 10px;
+      line-height: 18px;
+    }
+    .bold { font-weight: bold; }
+    tspan {
+      font: 14px SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+      white-space: pre;
+      line-height: 18px;
+    }
+  </style>
+
+  <text xml:space="preserve" class="container fg">
+    <tspan x="10px" y="28px"><tspan>&gt; </tspan><tspan class="bold">plx parse exo-error/exo.dy</tspan>
+</tspan>
+    <tspan x="10px" y="46px"><tspan class="fg-red">Found 1 item in exo-error/exo.dy with 3 errors.</tspan>
+</tspan>
+    <tspan x="10px" y="64px">
+</tspan>
+    <tspan x="10px" y="82px"><tspan class="fg-cyan bold">Error at exo-error/exo.dy:3:0</tspan>
+</tspan>
+    <tspan x="10px" y="100px"><tspan>check Salue la personne donnée en argument</tspan>
+</tspan>
+    <tspan x="10px" y="118px"><tspan class="fg-red">|</tspan><tspan class="fg-red bold"> Missing required key 'see'</tspan>
+</tspan>
+    <tspan x="10px" y="136px">
+</tspan>
+    <tspan x="10px" y="154px"><tspan class="fg-cyan bold">Error at exo-error/exo.dy:5:0</tspan>
+</tspan>
+    <tspan x="10px" y="172px"><tspan>args John</tspan>
+</tspan>
+    <tspan x="10px" y="190px"><tspan class="fg-red">^^^^</tspan><tspan class="fg-red bold"> The 'args' key can only be used once at this level</tspan>
+</tspan>
+    <tspan x="10px" y="208px">
+</tspan>
+    <tspan x="10px" y="226px"><tspan class="fg-cyan bold">Error at exo-error/exo.dy:7:5</tspan>
+</tspan>
+    <tspan x="10px" y="244px"><tspan>exit one</tspan>
+</tspan>
+    <tspan x="10px" y="262px"><tspan>     </tspan><tspan class="fg-red">^^^</tspan><tspan class="fg-red bold"> Couldn't parse the given value as the program's exit code (signed 32bits integer)</tspan>
+</tspan>
+  </text>
+
+</svg>

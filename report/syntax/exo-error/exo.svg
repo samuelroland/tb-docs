@@ -1,0 +1,39 @@
+<svg width="720px" height="164px" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .fg { fill: #000000 }
+    .bg { background: #000000 }
+    .fg-rgb-20A8C3 { fill: #20A8C3 }
+    .fg-rgb-737A7E { fill: #737A7E }
+    .container {
+      padding: 0 10px;
+      line-height: 18px;
+    }
+    .bold { font-weight: bold; }
+    .italic { font-style: italic; }
+    tspan {
+      font: 14px SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+      white-space: pre;
+      line-height: 18px;
+    }
+  </style>
+
+  <text xml:space="preserve" class="container fg">
+    <tspan x="10px" y="28px"><tspan class="fg-rgb-20A8C3 bold">exo</tspan>
+</tspan>
+    <tspan x="10px" y="46px"><tspan>Exo tout cassé...</tspan>
+</tspan>
+    <tspan x="10px" y="64px">
+</tspan>
+    <tspan x="10px" y="82px"><tspan class="fg-rgb-20A8C3 bold">check</tspan><tspan> Salue la personne donnée en argument</tspan>
+</tspan>
+    <tspan x="10px" y="100px"><tspan class="fg-rgb-20A8C3 bold">args</tspan><tspan> John Doe</tspan>
+</tspan>
+    <tspan x="10px" y="118px"><tspan class="fg-rgb-20A8C3 bold">args</tspan><tspan> John</tspan>
+</tspan>
+    <tspan x="10px" y="136px"><tspan class="fg-rgb-737A7E italic">// see Quel âge as-tu ?</tspan>
+</tspan>
+    <tspan x="10px" y="154px"><tspan class="fg-rgb-20A8C3 bold">exit</tspan><tspan> one</tspan>
+</tspan>
+  </text>
+
+</svg>

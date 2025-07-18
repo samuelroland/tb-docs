@@ -1,0 +1,81 @@
+<svg width="720px" height="560px" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .fg { fill: #000000 }
+    .bg { background: #000000 }
+    .fg-green { fill: #00AA00 }
+    .container {
+      padding: 0 10px;
+      line-height: 18px;
+    }
+    .bold { font-weight: bold; }
+    tspan {
+      font: 14px SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+      white-space: pre;
+      line-height: 18px;
+    }
+  </style>
+
+  <text xml:space="preserve" class="container fg">
+    <tspan x="10px" y="28px"><tspan>&gt; </tspan><tspan class="bold">plx parse exo/exo.dy</tspan>
+</tspan>
+    <tspan x="10px" y="46px"><tspan class="fg-green">Found 1 items in exo/exo.dy with no error!</tspan>
+</tspan>
+    <tspan x="10px" y="64px"><tspan>{</tspan>
+</tspan>
+    <tspan x="10px" y="82px"><tspan>  "name": "Salue-moi",</tspan>
+</tspan>
+    <tspan x="10px" y="100px"><tspan>  "instruction": "Un petit programme qui te salue avec ton nom complet.",</tspan>
+</tspan>
+    <tspan x="10px" y="118px"><tspan>  "checks": [</tspan>
+</tspan>
+    <tspan x="10px" y="136px"><tspan>    {</tspan>
+</tspan>
+    <tspan x="10px" y="154px"><tspan>      "name": "Il est possible d'être salué avec son nom complet",</tspan>
+</tspan>
+    <tspan x="10px" y="172px"><tspan>      "args": [],</tspan>
+</tspan>
+    <tspan x="10px" y="190px"><tspan>      "exit": 0,</tspan>
+</tspan>
+    <tspan x="10px" y="208px"><tspan>      "sequence": [</tspan>
+</tspan>
+    <tspan x="10px" y="226px"><tspan>        {</tspan>
+</tspan>
+    <tspan x="10px" y="244px"><tspan>          "See": "Quel est ton prénom ?"</tspan>
+</tspan>
+    <tspan x="10px" y="262px"><tspan>        },</tspan>
+</tspan>
+    <tspan x="10px" y="280px"><tspan>        {</tspan>
+</tspan>
+    <tspan x="10px" y="298px"><tspan>          "Type": "John"</tspan>
+</tspan>
+    <tspan x="10px" y="316px"><tspan>        },</tspan>
+</tspan>
+    <tspan x="10px" y="334px"><tspan>        {</tspan>
+</tspan>
+    <tspan x="10px" y="352px"><tspan>          "See": "Salut John, quel est ton nom de famille ?"</tspan>
+</tspan>
+    <tspan x="10px" y="370px"><tspan>        },</tspan>
+</tspan>
+    <tspan x="10px" y="388px"><tspan>        {</tspan>
+</tspan>
+    <tspan x="10px" y="406px"><tspan>          "Type": "Doe"</tspan>
+</tspan>
+    <tspan x="10px" y="424px"><tspan>        },</tspan>
+</tspan>
+    <tspan x="10px" y="442px"><tspan>        {</tspan>
+</tspan>
+    <tspan x="10px" y="460px"><tspan>          "See": "Passe une belle journée John Doe !"</tspan>
+</tspan>
+    <tspan x="10px" y="478px"><tspan>        }</tspan>
+</tspan>
+    <tspan x="10px" y="496px"><tspan>      ]</tspan>
+</tspan>
+    <tspan x="10px" y="514px"><tspan>    }</tspan>
+</tspan>
+    <tspan x="10px" y="532px"><tspan>  ]</tspan>
+</tspan>
+    <tspan x="10px" y="550px"><tspan>}</tspan>
+</tspan>
+  </text>
+
+</svg>

@@ -1,0 +1,41 @@
+<svg width="720px" height="200px" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .fg { fill: #000000 }
+    .bg { background: #000000 }
+    .fg-rgb-20A8C3 { fill: #20A8C3 }
+    .container {
+      padding: 0 10px;
+      line-height: 18px;
+    }
+    .bold { font-weight: bold; }
+    tspan {
+      font: 14px SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+      white-space: pre;
+      line-height: 18px;
+    }
+  </style>
+
+  <text xml:space="preserve" class="container fg">
+    <tspan x="10px" y="28px"><tspan class="fg-rgb-20A8C3 bold">skill</tspan><tspan> Introduction</tspan>
+</tspan>
+    <tspan x="10px" y="46px"><tspan class="fg-rgb-20A8C3 bold">dir</tspan><tspan> intro</tspan>
+</tspan>
+    <tspan x="10px" y="64px"><tspan class="fg-rgb-20A8C3 bold">skill</tspan><tspan> Enumerations</tspan>
+</tspan>
+    <tspan x="10px" y="82px"><tspan class="fg-rgb-20A8C3 bold">dir</tspan><tspan> enums</tspan>
+</tspan>
+    <tspan x="10px" y="100px"><tspan class="fg-rgb-20A8C3 bold">skill</tspan><tspan> Structures</tspan>
+</tspan>
+    <tspan x="10px" y="118px"><tspan class="fg-rgb-20A8C3 bold">dir</tspan><tspan> structs</tspan>
+</tspan>
+    <tspan x="10px" y="136px"><tspan class="fg-rgb-20A8C3 bold">skill</tspan><tspan> Pointers and memory</tspan>
+</tspan>
+    <tspan x="10px" y="154px"><tspan class="fg-rgb-20A8C3 bold">dir</tspan><tspan> pointers</tspan>
+</tspan>
+    <tspan x="10px" y="172px"><tspan class="fg-rgb-20A8C3 bold">skill</tspan><tspan> Parsing</tspan>
+</tspan>
+    <tspan x="10px" y="190px"><tspan class="fg-rgb-20A8C3 bold">dir</tspan><tspan> parsing</tspan>
+</tspan>
+  </text>
+
+</svg>
