@@ -1,17 +1,17 @@
 = État de l'art
 
+Cette section explore l'état de l'art de cinq sujets liés aux deux défis de ce travail. Avant de développer la syntaxe DY, une recherche est faite autour des *syntaxes existantes moins répandues* qui ont des objectifs proches à la notre. *Les librairies de parsing* en Rust sont discutées ensuite pour comprendre si elles peuvent nous aider à l'implémentation du parseur. Pour inclure la compréhension du parseur directement dans les IDE, nous verrons comment *les serveurs de language* permettent d'améliorer grandement l'expérience d'édition. Nous parlerons également des techniques de *surlignage de code*, dans les IDEs et sur le web, qui permettent de rendre notre syntaxe agréable à lire.
+
+Pour conclure ces recherches, le défi du serveur de session live a demandé d'explorer les *protocoles de communication bidirectionnels*, pour nous permettre d'envoyer et recevoir des messages en temps réel. Ce dernier sujet inclut aussi une comparaison entre *formats textes et binaires de sérialisation* des messages.
+
+En plus de la comparaison des solutions existantes, quelques *POCs* ont été développés pour découvrir et tester le fonctionnement des solutions choisies.
+
 == Format de données humainement éditables existants
-Nous avons introduit plus tôt une nouvelle syntaxe DY, mais avant de commencer le développement, il est nécessaire de chercher les syntaxes existantes qui visent les mêmes objectifs et voir si elles peuvent être supportée en Rust, afin de justifier le choix de cette invention.
+Avant de commencer ce travail conséquent de créer une nouvelle syntaxe, il est nécessaire de s'assurer qu'il n'existe pas d'autres librairies qui existent déjà et qui pourraient apporter la même expérience, simplicité et rapidité de rédaction. Nous avons aussi besoin d'avoir une intégration Rust puisque PLX est développé en Rust. Nous cherchons aussi une validation du contenu intégrée à l'éditeur, pour éviter des allers retours constants entre l'éditeur et l'affichage d'erreurs de rédaction dans PLX.
 
-On ignore le XML et JSON qui sont parfaitement adaptés pour des configurations, de la sérialisation et de l'échange de donnée et sont pour la plupart facilement lisible. Cependant, la quantité de séparateurs et délimiteurs en plus du contenu qu'ils n'ont pas été optimisés pour la rédaction par des humains.
+Les parseurs JSON vérifie que le document est correcte mais le choix des clés et valeurs n'est pas vérifié. C'est pour cette raison que le projet JSON Schema @JsonSchemaWebsite existe. Il permet de définir un schéma JSON qui définit un ensemble de clés valides, les types attendus pour chaque valeur, les champs requis et optionnels ou encore documenter la signification des clés. L'intégration de ce projet dans l'IDE permet d'intégrer des erreurs lorsque des structures ne respecte pas le schéma et facilite la rédaction avec l'auto-complétion des clés et valeurs. Nous cherchons une solution qui mixe ces 2 concepts de la définition de la syntaxe et du schéma, dans un seul outil.
 
-Le YAML et le TOML, bien que plus léger que le JSON, inclue de nombreux types de données autres que les strings, des tabulations et des guillemets, ce qui rend la rédaction plus fastidieuse qu'en Markdown. Le Markdown a le défaut de ne pas être assez structuré pour être parsé par une machine. En termes de rédaction, on cherche quelque chose du niveau de simplicité du Markdown, mais avec une validation poussée et spécifique au projet qui définit le schéma et les règles de validation.
-
-Ces recherches se focalisent sur les syntaxes qui ne sont pas spécifiques à un domaine ou qui seraient complètement déliées de l'informatique ou de l'éducation. Ainsi, l'auteur ne présente pas Cooklang @cooklangMention, qui se veut un langage de balise pour les recettes de cuisines, même si l'implémentation du parseur en Rust @cooklangParserInRust pourra servir pour d'autres recherches.
-
-On ignore également les projets qui créent une syntaxe très proche du Rust, comme la Rusty Object Notation (RON) @ronMention, à cause de la contrainte de connaître un peu la syntaxe du Rust et surtout parce qu'elle ne simplifie pas vraiment l'écriture comparée à du YAML. On ignore aussi les projets dont la spécification ou l'implémentation est en état de "brouillon" et n'est pas encore utilisable en production.
-
-Différentes manières de les nommer existent : langage de balise (_markup language_), format de donnée, syntaxes, langage de donnée, langage spécifique à un domaine (_Domain Specific Language_ - DSL), ... Pour trouver les projets suivants, la recherche a principalement été faite avec les mots-clés suivants sur Google, la barre de recherche de Github.com et de crates.io: `data format`, `human friendly`, `human writable`, `human readable`.
+La recherche se concentre sur les projets qui visent à créer des alternatives aux formats bien répandus ou qui ont un lien avec l'éducation. On ignore aussi les projets dont la spécification ou l'implémentation n'est pas encore utilisable en production. Ainsi, le langage de balise pour les recettes de cuisines Cooklang @cooklangMention n'est pas présenté. La recherche n'est pas évidente comme il existe de nombreuses manières de nommer ce que l'on cherche: langage de balise (_markup language_), format de donnée, syntaxe, langage de donnée, langage spécifique à un domaine (_Domain Specific Language_ - DSL), ... La recherche a principalement été faite en anglais avec les mots-clés suivants la barre de recherche de Google, Github.com et de crates.io: `data format`, `syntax`, `human friendly`, `alternative to YAML`, `human writable`, et `human readable`.
 
 === KHI - Le langage de données universel
 D'abord nommée UDL (_Universal Data Language_) @UDLCratesio, cette syntaxe a été inventée pour mixer les possibilités du JSON, YAML, TOML, XML, CSV et Latex, afin de supporter toutes les structures de données modernes. Plus concrètement, les balises, les structs, les listes, les tuples, les tables/matrices, les enums, les arbres hiérarchiques sont supportés. Les objectifs sont la polyvalence, un format source (fait pour être rédigé à la main), l'esthétisme et la simplicité.
@@ -216,7 +216,7 @@ En plus des autres désavantages restant de hiérarchie avec `{` `}` et guilleme
 En conclusion, au vu du nombre de tentatives/variantes trouvées, on voit que la verbosité des formats largement répandus du XML, JSON et même du YAML est un problème qui ne touche pas que l'auteur. La diminution de la verbosité des syntaxes décrites en-dessus cible des usages plus avancés de structure de données et types variés. L'auteur pense pouvoir proposer une approche encore plus légère et plus simple, inspirée du Markdown, reprenant les avantages du YAML mais sans les tabulations et uniquement basé sur les strings et les listes.
 
 #pagebreak()
-== Librairies existantes de parsing en Rust
+== Librairies de parsing en Rust
 Après s'être intéressé aux syntaxes existantes, nous nous intéressons maintenant aux solutions existantes pour simplifier ce parsing de cette nouvelle syntaxe en Rust.
 
 Après quelques recherches avec le tag `parser` sur crates.io @cratesIoParserTagsList, j'ai trouvé la liste de librairies suivantes :
@@ -257,7 +257,7 @@ exit 0
 // todo la variante, terme correcte ?
 
 #pagebreak()
-== Les serveurs de langage et librairies Rust existantes
+== Les serveurs de langage et librairies Rust
 Une part importante du support d'un langage dans un éditeur, consiste en l'intégration des erreurs, l'auto-complétion, les propositions de corrections, des informations au survol... et de nombreuses fonctionnalités qui améliorent la compréhension ou l'interaction. L'avantage d'avoir les erreurs de compilation directement soulignées dans l'éditeur, permet de voir et corriger immédiatement les problèmes sans lancer une compilation manuelle dans une interface séparée.
 
 Contrairement au surlignage de code, ces fonctionnalités demandent une compréhension beaucoup plus fine, ils sont implémentés dans des processus séparés de l'éditeur (aucun langage de programmation n'est ainsi imposé). Ces processus séparés sont appelés des serveurs de langage (_language server_). Les éditeurs qui intègrent Tree-Sitter développent un client LSP qui se charge de lancer ce serveur, de lancer des requêtes et d'intégrer les données des réponses dans leur interface visuelle.
@@ -576,7 +576,7 @@ Le surlignage sémantique pourrait être utile en attendant l'intégration de Tr
 
 #pagebreak()
 
-== Protocoles de synchronisation et formats de sérialisation existants
+== Protocoles de communication bidirectionnels et formats de sérialisation
 Le serveur de gestion de sessions live a besoin d'un système de communication bidirectionnelle en temps réel, afin de transmettre le code et les résultats des étudiants. Ces messages seront transformés dans un format standard, facile à sérialiser et désérialiser en Rust. Cette section explore les formats textuels et binaires disponibles, ainsi que les protocoles de communication bidirectionnelle.
 
 === JSON
