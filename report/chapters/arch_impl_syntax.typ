@@ -96,23 +96,41 @@ TODO
 TODO
 
 #figure(
+  image("../syntax/specs/course.spec.svg", width: 50%),
+  caption: [Aperçu graphique de la spec DY des cours.],
+)
+#figure(
+  image("../syntax/specs/skills.spec.svg", width: 50%),
+  caption: [Aperçu graphique de la spec DY des compétences.],
+)
+
+#figure(
+  image("../syntax/specs/exo.spec.svg", width: 90%),
+  caption: [Aperçu graphique de la spec DY des exercices PLX.],
+)
+
+
+#pagebreak()
+#figure(
   image("../syntax/course/course.svg", width: 100%),
-  caption: [TODO `course.dy`],
+  caption: [Définition d'un cours PLX dans un fichier `course.dy`],
 )
 #figure(
   image("../syntax/course/course-parsed.svg", width: 100%),
-  caption: [TODO],
+  caption: [Equivalent extrait du parseur et affiché en JSON],
 )
 
+#pagebreak()
 #figure(
   image("../syntax/course-error/course.svg", width: 100%),
-  caption: [TODO `course.dy`],
+  caption: [Définition incorrecte d'un cours PLX dans un fichier `course.dy`.\ Le `goal` manque et le `code` doit être placé après la clé `course`.],
 )
 #figure(
   image("../syntax/course-error/course-parsed.svg", width: 100%),
-  caption: [TODO],
+  caption: [Les erreurs ont été détectées par le parseur],
 )
 
+#pagebreak()
 #figure(
   image("../syntax/skills/skills.svg", width: 100%),
   caption: [TODO `skills.dy`],
@@ -121,6 +139,7 @@ TODO
   image("../syntax/skills/skills-parsed.svg", width: 100%),
   caption: [TODO],
 )
+#pagebreak()
 #figure(
   image("../syntax/skills-error/skills.svg", width: 100%),
   caption: [TODO `skills.dy`],
@@ -131,6 +150,7 @@ TODO
 )
 
 
+#pagebreak()
 #figure(
   image("../syntax/exo/exo.svg", width: 100%),
   caption: [TODO `exo.dy`],
@@ -139,6 +159,8 @@ TODO
   image("../syntax/exo/exo-parsed.svg", width: 100%),
   caption: [TODO],
 )
+
+#pagebreak()
 #figure(
   image("../syntax/exo-error/exo.svg", width: 100%),
   caption: [TODO `exo.dy`],

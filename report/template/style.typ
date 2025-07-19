@@ -150,7 +150,9 @@
   show image: it => {
     if str.ends-with(it.source, "svg") {
       // Hacky exception for syntax SVG where we need to put a bit more padding at the bottom and remove the big inset
-      if it.source.contains("syntax/") {
+      if it.source.contains("specs/") {
+        it
+      } else if it.source.contains("syntax/") {
         box(
           inset: (bottom: 7pt, x: 4pt),
           outset: (bottom: 0pt),
