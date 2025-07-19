@@ -4,7 +4,11 @@ Cette section explore l'état de l'art de cinq sujets liés aux deux défis de c
 
 Pour conclure ces recherches, le défi du serveur de session live a demandé d'explorer les *protocoles de communication bidirectionnels*, pour nous permettre d'envoyer et recevoir des messages en temps réel. Ce dernier sujet inclut aussi une comparaison entre *formats textes et binaires de sérialisation* des messages.
 
-En plus de la comparaison des solutions existantes, quelques *POCs* ont été développés pour découvrir et tester le fonctionnement des solutions choisies.
+En plus de la comparaison des solutions existantes, quelques *POCs* ont été développés pour découvrir et tester le fonctionnement des solutions choisies. Les POC ont été implémenté dans le dossier `pocs` du repository Git de la documentation du projet. Ce dossier est accessible sur #link("https://github.com/samuelroland/tb-docs/tree/main/pocs")
+// todo lien en bibliographie aussi ?
+
+// TODO: lien qqepart des 2-3 repos ?
+
 
 == Format de données humainement éditables existants
 Avant de commencer ce travail conséquent de créer une nouvelle syntaxe, il est nécessaire de s'assurer qu'il n'existe pas d'autres librairies qui existent déjà et qui pourraient apporter la même expérience, simplicité et rapidité de rédaction. Nous avons aussi besoin d'avoir une intégration Rust puisque PLX est développé en Rust. Nous cherchons aussi une validation du contenu intégrée à l'éditeur, pour éviter des allers retours constants entre l'éditeur et l'affichage d'erreurs de rédaction dans PLX.
@@ -348,20 +352,23 @@ Le code qui gère la requête du type `GotoDefinition` est visible en @gotodefrs
   caption: [Extrait de `goto_def.rs` modifié qui retourne un emplacement `Location` dans une réponse `GotoDefinitionResponse`],
 ) <gotodefrs>
 
-#pagebreak()
+== Surlignage du code
 
-== Systèmes de surglignage de code
-Les IDE modernes supportent possèdent des systèmes de surlignage de code (ou surlignage syntaxique - _syntax highlighting_) permettant de rendre le code plus lisible en colorisant les mots, caractères ou groupe de symboles de même type (séparateur, opérateur, mot clé du langage, variable, fonction, constante...). Ces systèmes se distinguent par leurs possibilités d'intégration. Les thèmes intégrés aux IDE peuvent définir directement les couleurs pour chaque type de token. Pour un rendu web, une version HTML contenant des classes CSS spécifiques à chaque type de token peut être générée, permettant à des thèmes écrits en CSS de venir appliquer les couleurs. Les possibilités de génération pour le HTML pour le web impliquent parfois une génération dans le navigateur ou sur le serveur directement.
-// todo note surglignage syntaxique !
+// todo surlignage de code comme terme prioritaire, à refactor
 
-Un système de surlignage est très différent d'un parseur. Même s'il traite du même langage, dans un cas, on cherche juste à découper le code en tokens et y définir un type de token. Ce processus est très similaire à la première étape du lexer/tokenizer généralement rencontré dans les parseurs.
+Par défaut un nouveau langage avec une extension de fichier dédiée reste en noir en blanc dans l'IDE. Pour faciliter la lecture, nous souhaitons pouvoir coloriser la majorité du contenu de notre syntaxe, tout en groupant les couleurs par type d'éléments surlignés. Pour notre syntaxe DY, on aimerait que toutes les clés aient la même couleur, tout comme les propriétés qui doivent être toutes colorisés d'une seconde couleur. Les commentaires doivent être grisés.
+
+Le bout de C `printf("salut");` est vu par un système de surlignage de code comme une suite de morceaux d'une certaines catégorie, qu'on appelle _tokens_. Ce bout de code pourrait être subdivisé avec les tokens suivants `printf` (identifiant), `(` (séparateur), `"` (séparateur), `salut` (valeur litérale), `"`, `)` et `;` (séparateur).
+
+Les IDE modernes supportent possèdent des systèmes de surlignage de code (_code highlighting_) et définissent leur propre liste de catégories de tokens, par exemple: séparateur, opérateur, mot clé, variable, fonction, constante, macro, énumération, ... Une fois la catégorie attribuée, il reste encore à définir quel couleur concrète est utilisé pour chaque catégorie. C'est le rôle des thèmes comme Monokai, Darcula, Tokioynight et beaucoup d'autres. Les systèmes de surlignage supporte parfois un rendu web via une version HTML contenant des classes CSS spécifiques à chaque type de token. Des thèmes écrits en CSS peuvent ainsi appliquer leurs couleurs. Le surlignage peut être de type syntaxique (_syntax highlighting_), avec une analyse purement basée sur la présence et l'ordre des tokens, ou sémantique (_semantic highlighting_) après une analyse de la sens du token.
+// todo note surlignage syntaxique !
 
 === Textmate
-Textmate est un IDE pour MacOS qui a inventé un système de grammaire Textmate. Elles permettent de décrire comment tokeniser le code basée sur des expressions régulières. Ces expressions régulières viennent de la librairie C Oniguruma @textmateRegex. VSCode utilise ces grammaires Textmate @vscodeSyntaxHighlighting. Intellij IDEA l'utilise également pour les langages non supportés par Intellij IDEA comme Swift, C++ et Perl @ideaSyntaxHighlighting.
+TextMate est un IDE pour macOS qui a introduit un concept de grammaires. Ces grammaires permettent de définir la manière dont le code doit être tokenisé, à l’aide d'expressions régulières issues de la bibliothèque C Oniguruma (55) @textmateRegex. VSCode s’appuie sur ces grammaires TextMate @vscodeSyntaxHighlighting, tout comme IntelliJ IDEA, qui les utilise pour le Swift, C++ ou Perl qui ne sont pas supportés nativement @ideaSyntaxHighlighting.
 
-Exemple de grammaire Textmate permettant de décrire un langage nommé `untitled` avec 4 mots clés et des chaines de caractères entre guillemets, ceci matché avec des expressions régulières.
+Le @textmateexemple montre un exemple de grammaire Textmate décrivant un langage nommé `untitled` avec 4 mots clés (`if`, `while`, `for`, `return`) et des chaines de caractères entre guillemets. Les expressions régulières données en `match`, `begin` et `end` permettent de trouver les tokens dans le document et leur attribué une catégorie (comme `keyword.control.untitled`).
 #figure(
-```
+```js
 {  scopeName = 'source.untitled';
    fileTypes = ( );
    foldingStartMarker = '\{\s*$';
@@ -381,11 +388,13 @@ Exemple de grammaire Textmate permettant de décrire un langage nommé `untitled
       },
    );
 }
-``` , caption: [Exemple de grammaire Textmate tiré de leur documentation @TextMateDocsLanguageGrammars.])
+``` , caption: [Exemple de grammaire Textmate tiré de leur documentation @TextMateDocsLanguageGrammars.]) <textmateexemple>
 
 La documentation précise un choix important de conception: "A noter que ces regex sont matchées contre une seule ligne à la fois. Cela signifie qu'il n'est pas possible d'utiliser une pattern qui matche plusieurs lignes. La raison est technique: être capable de redémarrer le parseur à une ligne arbitraire et devoir reparser seulement un nombre minimal de lignes affectés par un changement. Dans la plupart des situations, il est possible d'utiliser le model `begin`/`end` pour dépasser cette limite." @TextMateDocsLanguageGrammars (Traduction personnelle, dernier paragraphe section 12.2).
 
 === Tree-Sitter
+
+Les expressions régulières sont puissantes mais ont de limites pour représenter 
 
 Tree-Sitter @TreeSitterWebsite se définit comme un "outil de génération de parser et une librairie de parsing incrémentale. Il peut construire un arbre de syntaxe concret (CST) depuis un fichier source et efficacement mettre à jour cet arbre quand le fichier source est modifié." @TreeSitterWebsite (Traduction personnelle)
 
@@ -407,12 +416,12 @@ Le surlignage sémantique (_Semantic highlighting_) est une extension du surlign
 
 #figure(
   image("../imgs/semantic-highlighting-example.png", width: 100%),
-  caption: [Exemple tiré de la documentation de VSCode, démontrant quelques améliorations dans le surglignage. Les paramètres `languageModes` et `document` sont colorisés différemment que les variables locales. `Range` et `Position` sont colorisées commes des classes.#linebreak() `getFoldingRanges` dans la condition est colorisée en tant que fonction ce qui la différencie des autres propriétés. @VSCodeSemanticHighlighting],
+  caption: [Exemple tiré de la documentation de VSCode, démontrant quelques améliorations dans le surlignage. Les paramètres `languageModes` et `document` sont colorisés différemment que les variables locales. `Range` et `Position` sont colorisées commes des classes.#linebreak() `getFoldingRanges` dans la condition est colorisée en tant que fonction ce qui la différencie des autres propriétés. @VSCodeSemanticHighlighting],
 ) <fig-semantic-highlighting-example>
 
 En voyant la liste des tokens sémantiques possible dans la spécification LSP @LspSpecSemanticTokens, on comprend mieux l'intérêt et les possibilités de surlignage avancé. Par exemple, on trouve des tokens `macro`, `regexp`, `typeParameter`, `interface`, `enum`, `enumMember`, qui seraient difficiles de différencier durant la tokenisation, mais qui peuvent être surligné différemment pour mettre en avant leur différence sémantique.
 
-Sur le @example-c-colors surgligné ici uniquement grâce à Tree-Sitter (sans surlignage sémantique) on voit que les appels de `HEY` et `hi` dans le `main` ont les mêmes couleurs alors que l'un est une macro, l'autre une fonction. En effet, à l'appel, il n'est pas possible de les différencier, ce n'est que le contexte plus large que seul le serveur de langage possède, qu'on peut déterminer cette différence.
+Sur le @example-c-colors surligné ici uniquement grâce à Tree-Sitter (sans surlignage sémantique) on voit que les appels de `HEY` et `hi` dans le `main` ont les mêmes couleurs alors que l'un est une macro, l'autre une fonction. En effet, à l'appel, il n'est pas possible de les différencier, ce n'est que le contexte plus large que seul le serveur de langage possède, qu'on peut déterminer cette différence.
 #figure(
 ```c
 #include <stdio.h>
@@ -464,7 +473,7 @@ Ainsi dans Neovim une fois `clangd` lancé, l'appel de `HEY` prend ainsi la mêm
 === Choix final
 L'auteur a ignoré l'option du système de SublimeText. pour la simple raison qu'il n'est supporté nativement que dans SublimeText, probablement parce que cet IDE est propriétaire @SublimeHQEULA. Ce système utilisent des fichiers `.sublime-syntax`, qui ressemble à TextMate @SublimeHQSyntax, mais rédigé en YAML.
 
-*Si le temps le permet, une grammaire sera développée avec Tree-Sitter pour supporter du surglignage dans Neovim.*
+*Si le temps le permet, une grammaire sera développée avec Tree-Sitter pour supporter du surlignage dans Neovim.*
 
 Le choix de ne pas explorer plus les grammaires Textmate, laisse penser que l'auteur du travail délaisse complètement VSCode. Ce qui parait étonnant comme VSCode est régulièrement utilisé par 73% des 65,437 répondants au sondage de StackOverflow 2024 @StackoverflowSurveyIDE.
 
@@ -884,10 +893,4 @@ Si l'étudiant introduit une erreur de compilation, un message avec un statut di
 )
 
 Le système de synchronisation en temps réel permet ainsi d'envoyer différents messages au serveur qui le retransmet directement au `teacher`. Même si cet exemple est minimal puisqu'il ne vérifie pas la source des messages, et qu'il n'y a qu'un seul étudiant et enseignant impliqué, nous avons démontré que la crate `tungstenite` fonctionne.
-
-== Implémentation des POC
-Les POC ont été implémenté dans le dossier `pocs` du repository Git de la documentation du projet. Ce dossier est accessible sur #link("https://github.com/samuelroland/tb-docs/tree/main/pocs")[https://github.com/samuelroland/tb-docs/tree/main/pocs].
-// todo lien en bibliographie aussi ?
-
-// TODO: lien qqepart des 2-3 repos ?
 
