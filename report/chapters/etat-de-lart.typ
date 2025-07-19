@@ -118,7 +118,7 @@ Une autre plateforme, Classtime, utilise Bitmark pour son système d'import et e
 Ces 2 exemples donnent l'impression que la structure JSON est plus utilisée que le _markup_. Au vu de tous séparateurs et symboles de ponctuations à se rappeler,  et la présence d'un équivalent JSON, la spécification du _markup_ n'a peut-être pas été optimisée pour la rédaction à la main directement. En plus, Bitmark ne spécifie pas de type d'exercices programmation nécessaires à PLX. On salue au passage l'envie de standardiser le format des différentes plateformes, à long-terme cela ne peut que simplifier la vie des enseignant·es dans la gestion de leur contenu et augmenter la qualité de la pratique des étudiant·es.
 
 === NestedText — Un meilleur JSON
-NestedText se veut _human-friendly_, similaire au JSON, mais pensé pour être facile à modifier et visualiser par les humains. Le seul type de donnée scalaire supporté est la chaîne de caractères, afin de simplifier la syntaxe et retirer le besoin de mettre des guillemets. La différence avec le YAML, en plus des types de données restreints est la facilité d'intégrer des morceaux de code sans échappements ni guillemets, les caractères de données ne peuvent pas être confondus avec NestedText @nestedTextGithub.
+NestedText se veut _human-friendly_, similaire au JSON, mais pensé pour être facile à modifier et visualiser par les humains. Le seul type de donnée scalaire supporté est la chaîne de caractères, afin de simplifier la syntaxe et retirer les guillemets @nestedTextGithub. En plus des types de données restreints, l'autre différence avec le YAML est la facilité d'intégrer des morceaux de code sans échappements ni guillemets, les caractères de données ne peuvent pas être confondus avec NestedText @nestedTextVsYaml.
 
 #figure(
 ```
@@ -136,7 +136,7 @@ Margaret Hodge:
   caption: [Exemple tiré de leur README @nestedTextGithub ]
 )
 
-Ce format a l'air assez léger visuellement et l'idée de faciliter l'intégration de blocs multilignes sans contraintes de caractères réservée serait utile à PLX. Cependant, tout comme le JSON la validation du contenu n'est pas géré directement par le parseur, mais par des librairies externes qui vérifient le schéma @nestedTextSchemasLib. De plus, l'implémentation officielle est en Python et il n'y a pas d'implémentation Rust disponible, il existe une crate réservée qui est restée vide @nestedTextRsCrateEmpty.
+Les tabulations restent nécessaires pour définir la hiéarchie. Tout comme le JSON la validation du contenu n'est géré que par des librairies externes qui vérifient la validité à l'aide d'un schéma @nestedTextSchemasLib. De plus, l'implémentation officielle est en Python et il n'en existe pas pour le Rust. Il existe une crate réservée qui est restée vide @nestedTextRsCrateEmpty.
 
 #pagebreak()
 
@@ -173,10 +173,12 @@ matrix {
   0 0 1
 }
 ```,
-  caption: [Exemple tiré de leur site web @sdlangWebsite]
-)
+  caption: [Exemple de SDLang tiré de leur site web @sdlangWebsite]
+) <sdl>
 
-Ce format s'avère plus intéressant que les précédents par le faible nombre de caractères réservés et la densité d'information : avec l'auteur décrit par son nom, email et un attribut booléen sur une seule ligne ou la matrice de neuf valeurs définie sur cinq lignes. Il est cependant regrettable que les strings doivent être entourées de guillemets et les textes sur plusieurs lignes doivent être entourés de backticks ``` ` ```. De même la définition de la hiérarchie d'objets définis nécessite d'utiliser une paire `{` `}`, ce qui rend la rédaction un peu plus lente.
+Cet exemple en @sdl est intéressant par le faible nombre de caractères réservés et la densité d'information. Il s'approche de ce qui avait été imaginé sur la syntaxe DY, dans l'introduction en @exemple-dy. En YAML, trois lignes auraient été nécessaires à définir l'auteur avec son nom, email et un attribut booléen. En SDLang une seule ligne suffit: `author "Peter Parker" email="peter@example.org" active=true`. Les neuf valeurs de la matrice sont définie sur seulement cinq lignes, avec l'espace comme séparateur.
+
+Il est regrettable que les strings doivent être entourées de guillemets. Le texte brut sur plusieurs lignes (comme du code) doit être entouré de backticks ``` ` ``` @sdlangWebsiteReferenceStrings. De même, la définition de la hiérarchie d'objets nécessite d'utiliser une paire d'accolades.
 
 === KDL - Cuddly Data language
 
@@ -206,14 +208,16 @@ package {
   }
 }
 ```,
-  caption: [Exemple simplifié tiré de leur site web @kdlWebsite]
-)
-Est-ce que cela paraît proche de SDLang vu précédemment ? C'est normal puisque KDL est basé sur SDLang avec quelques améliorations. Celles qui nous intéressent concernent la possibilité d'utiliser des guillemets pour les strings sans espace (`person name=Samuel` au lieu de `person name="Samuel"`). Cette simplification n'inclut malheureusement des strings multilignes, qui demande d'être entourée par `"""`. Le problème d'intégration de morceaux de code est également relevé, les strings bruts sont supportées entre `#` sur le mode une ou plusieurs lignes, ainsi pas d'échappements des backslashs à faire par ex.
+  caption: [Exemple de KDL simplifié tiré de leur site web @kdlWebsite]
+) <kdl>
+Si l'exemple en @kdl paraît proche de SDLang, c'est normal puisque KDL est un fork de SDLang. Les améliorations qui nous intéressent concernent la possibilité de retirer des guillemets pour les strings sans espace (`person name=Samuel` au lieu de `person name="Samuel"`). Cette simplification n'inclut malheureusement pas le texte multiligne, qui demande d'être entourée par `"""`. Le problème d'intégration de morceaux de code entre #raw("`") pour certains langages qui utilisent ce symbole (comme Bash), a été relevé par l'auteur du fork dans la FAQ. Le text brut est ainsi supportée avec un `#` ajouté autour des guillemets, par exemple `regex #"\d{3} "[^/"]+""#` ou dans la @kdl avec le noeud `build`. Une répétition des `#` permet d'inclure ce caractère littéral pour éviter tout besoin d'échappement. Par exemple `msg ##"hello#"john"##` contient un noeud `msg` avec la valeur `hello#"john` @kdlWebsite.
 
-En plus des autres désavantages restant de hiérarchie avec `{` `}` et guillemets, il reste toujours le problème des types de nombres qui posent soucis avec certaines strings si on ne les entoure pas de guillemets. Par exemple ce numéro de version `version "1.2.3"` a besoin de guillemets sinon `1.2.3` est interprété comme une erreur de format de nombre à virgule.
+En dehors des autres désavantages déjà évoqués pour SDLang, il reste toujours le problème des types de nombres qui peuvent créer des ambiguités avec le texte. C noeud `version 1.2.3` est interprété comme nombre à virgule avec une erreur de format, il a besoin de guillemets `version "1.2.3"` pour indiquer que ce n'est pas un nombre.
 
 === Conclusion
-En conclusion, au vu du nombre de tentatives/variantes trouvées, on voit que la verbosité des formats largement répandus du XML, JSON et même du YAML est un problème qui ne touche pas que l'auteur. La diminution de la verbosité des syntaxes décrites en-dessus cible des usages plus avancés de structure de données et types variés. L'auteur pense pouvoir proposer une approche encore plus légère et plus simple, inspirée du Markdown, reprenant les avantages du YAML mais sans les tabulations et uniquement basé sur les strings et les listes.
+En conclusion, au vu du nombre de tentatives/variantes existantes, qui va au delà de ce qui a été documenté dans ce rapport, on voit que la verbosité des formats largement répandus du XML, JSON et même du YAML est un problème identifié par plusieurs personnes. Même Apple a fait son propre format de configuration, le Pkl qui mixe des constructions de programmation et de données pour la validation des fichiers @PklLangWebsite.
+
+La diminution de la verbosité des syntaxes décrites précédement est intéressante mais elles ciblent des usages plus avancés que nécessaire pour PLX. Parfois on y gagne à éviter des guillemets, parfois d'autres séparateurs, on rend l'information plus dense... Mais le besoin d'exprimer de la hiérachie sans tabulations ni accolades perdure, tout comme celui de la validation intégrée. Notre syntaxe DY souhaite proposer une approche encore plus légère, en représentant moins de chose pour simplifier encore la rédaction.
 
 #pagebreak()
 == Librairies de parsing en Rust
