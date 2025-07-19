@@ -8,6 +8,9 @@ chrono = "0.4.41"
 colored = "3.0.0"
 plx_core = { git = "https://github.com/samuelroland/plx", branch = "live" }
 dy = { git = "https://github.com/samuelroland/dy" }
+# dy = { path = "../../../dy-lib/crates/dy/" }
+plx-dy = { git = "https://github.com/samuelroland/dy" }
+# plx-dy = { path = "../../../dy-lib/crates/plx/" }
 reqwest = { version = "0.12.20", features = ["blocking"] }
 serde = "1.0.219"
 serde_json = "1.0.140"

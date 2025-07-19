@@ -369,6 +369,7 @@ dependencies = [
  "chrono",
  "colored",
  "dy",
+ "plx-dy",
  "plx_core",
  "reqwest",
  "serde",
