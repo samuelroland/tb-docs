@@ -17,6 +17,7 @@ use plx_core::live::protocol::{
     Action, CheckStatus, ClientNum, Event, ExoCheckResult, ForwardedFile, ForwardedResult,
     LiveProtocolError, Session, SessionStats,
 };
+use plx_dy::{course::COURSES_SPEC, exo::EXOS_SPEC, skill::SKILLS_SPEC};
 use walkdir::WalkDir;
 
 const PLANTUML_SERVER_URL: &str = "http://localhost:5076";
@@ -404,6 +405,118 @@ fn export_command_output_to_svg(
     std::fs::write(svg_filename, svg).unwrap();
 }
 
+struct GraphTree<'a> {
+    keys: Vec<GraphKey<'a>>,
+}
+
+impl<'a> GraphTree<'a> {
+    fn export(&self, file: &PathBuf) {
+        let mut schema = "digraph G {
+rankdir=TB;\n"
+            .to_string();
+        schema.push_str(
+            &self
+                .keys
+                .iter()
+                .map(|k: &GraphKey<'_>| k.describe())
+                .collect::<Vec<String>>()
+                .join("\n"),
+        );
+        schema.push_str("\n}");
+
+        write("target/test.dot", schema).unwrap();
+        let mut binding = Command::new("dot");
+        let cmd = binding.args(vec![
+            "-Tsvg",
+            "target/test.dot",
+            "-o",
+            file.to_str().unwrap(),
+        ]);
+        dbg!(&cmd);
+        cmd.output().unwrap();
+    }
+
+    fn from_spec(specs: &dy::spec::DYSpec<'a>) -> Self {
+        let mut graph = GraphTree { keys: vec![] };
+        graph.keys = specs
+            .iter()
+            .map(|s| GraphKey {
+                title: s.id,
+                desc: s.desc,
+                keys: vec![
+                    ("ValueType", format!("{:?}", s.vt)),
+                    ("Once", s.once.to_string()),
+                    ("Required", s.required.to_string()),
+                ],
+                subtree: GraphTree::from_spec(s.subkeys),
+            })
+            .collect();
+        graph
+    }
+}
+
+struct GraphKey<'a> {
+    title: &'a str,
+    desc: &'a str,
+    keys: Vec<(&'a str, String)>,
+    subtree: GraphTree<'a>,
+}
+
+impl<'a> GraphKey<'a> {
+    fn describe(&self) -> String {
+        let key = self.title.to_lowercase();
+        // todo: include desc ? how to split in small pieces ??
+        let format = format!(
+            r#"{key} [shape=box,
+style="rounded,filled"
+fillcolor=" #f5f5f5"
+    label=<
+    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" WIDTH="80">
+        <TR><TD><FONT POINT-SIZE="17"><B>{}</B></FONT></TD></TR>
+        <TR><TD><FONT POINT-SIZE="12">{}</FONT></TD></TR>
+    </TABLE>>, margin="0.5,0.2"];
+{}
+{}
+"#,
+            self.title,
+            // splitted_desc,
+            self.keys
+                .iter()
+                .map(|(k, v)| format!("{k}: {v}"))
+                .collect::<Vec<String>>()
+                .join("<br/>"),
+            self.subtree
+                .keys
+                .iter()
+                .map(|k| format!("{key} -> {}", k.title.to_lowercase()))
+                .collect::<Vec<String>>()
+                .join("\n"),
+            self.subtree
+                .keys
+                .iter()
+                .map(|k| k.describe())
+                .collect::<Vec<String>>()
+                .join("\n"),
+        );
+        format
+    }
+}
+
+fn exports_plx_dy_specs() {
+    // let json = serde_json::to_string_pretty(plx_dy::course::COURSES_SPEC).unwrap();
+    let tree = GraphTree::from_spec(COURSES_SPEC);
+    tree.export(&PathBuf::from("../syntax/specs/course.spec.svg"));
+
+    let tree = GraphTree::from_spec(SKILLS_SPEC);
+    tree.export(&PathBuf::from("../syntax/specs/skills.spec.svg"));
+
+    let tree = GraphTree::from_spec(EXOS_SPEC);
+    tree.export(&PathBuf::from("../syntax/specs/exo.spec.svg"));
+    // let content = format!("@startjson\ntop to bottom direction\n{}\n@endjson", json);
+    // println!("{json}");
+    // write("../json.puml", content);
+}
+
 fn main() {
     // Trash existing files under messages folder to avoid old Message files
     // let dest_folder = get_destination();
@@ -411,9 +524,10 @@ fn main() {
     //     remove_dir_all(&dest_folder).unwrap();
     // }
     // let _ = create_dir(&dest_folder);
-    export_parser_steps();
+    exports_plx_dy_specs();
+    // export_parser_steps();
     // export_protocol_messages();
-    // export_plantuml_diagrams().unwrap();
+    export_plantuml_diagrams().unwrap();
     //
     // println!(
     //     "\nNote: remember to manually update LiveProtocolError list of errors if you added one manually !"
