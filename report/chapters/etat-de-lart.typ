@@ -45,9 +45,9 @@ snl: \https://snl.no/aluminium
 Les objectifs sont la polyvalence, un format source (fait pour être rédigé à la main), l'esthétisme et la simplicité. Le @khi-example permet de percevoir l'intérêt qu'une combinaison plus légère de toutes ces structures de données peut avoir. Cependant, PLX n'a pas besoin d'autant de possibilités, les différents séparateurs `@`, `{`, `;`, `[`, `\`, etc. sont nécessaires pour que le parseur puisse différencier ces structures, mais créent une charge mentale additionnelle durant la rédaction. De plus, une implémentation en Rust est proposée @KHIRSGithub mais son dernier commit date du 11.11.2024, en plus du fait que le projet contient encore de nombreux `todo!()` dans son code.
 
 === Bitmark - le standard des contenus éducatifs digitaux
-De nombreux formats de données existent pour décrire du contenu éducatif digital au vu de toutes les plateformes existantes autour de l'éducation et de l'enseignement. Cette diversité de formats rend l'interopérabilité très difficile et freine l'accès à la connaissance et restreint les créateurs de contenus et les éditeurs dans les possibilités de migration entre plateformes.
+De nombreux formats de données existent pour décrire du contenu éducatif digital au vu de toutes les plateformes existantes autour de l'éducation et de l'enseignement. Cette diversité de formats rend l'interopérabilité très difficile, freine l'accès à la connaissance. Ces limites restreignent les créateurs de contenus et les éditeurs dans les possibilités de migration entre plateformes ou de publication du même contenu à différents endroits.
 
-Bitmark est un standard open-source @bitmarkLicense, qui vise à uniformiser tous ces formats @bitmarkAssociation. La stratégie est de définir un format basé sur le contenu (_Content-first_) plutôt que son rendu (_Layout-first_) permettant un affichage sur tout type d'appareils incluant les appareils mobiles @bitmarkAssociation. C'est la Bitmark Association en Suisse à Zurich qui développe ce standard, notamment à travers des Hackatons organisés en 2023 et 2024 @bitmarkAssociationHackaton.
+Bitmark est un standard open-source @bitmarkLicense, qui vise à uniformiser tous ces formats pour améliorer l'interopérabilité @bitmarkAssociation. Leur stratégie est de définir un format basé sur le contenu (_Content-first_) plutôt que son rendu (_Layout-first_) permettant de supporter un affichage sur un maximum de plateformes, incluant les appareils mobiles @bitmarkAssociation. C'est la Bitmark Association en Suisse à Zurich qui développe ce standard, notamment à travers des Hackatons organisés en 2023 et 2024 @bitmarkAssociationHackaton.
 
 Le standard permet de décrire du contenu statique, comme des articles, et du contenu interactif comme des quiz de divers formats. Deux équivalents sont définis : le _bitmark markup language_ et le _bitmark JSON data model_ @bitmarkDocs. La partie quiz du standard inclut des textes à trous, des questions à choix multiple, du texte à surligner, des essais, des vrai/faux, des photos à prendre, des audios à enregistrer et de nombreux autres types d'exercices.
 
@@ -248,22 +248,24 @@ Le @harddymultiline nous montre une consigne qui démarre après la ligne `exo` 
 La syntaxe DY est relativement simple à parser et sa nature implicite rend compliqué l'usage de librairies pensées pour des formats avec beaucoup de séparateurs. Après ces recherches et quelques essais avec `winnow`, nous avons décidé que l'écriture manuelle du parseur sans librairie serait plus simple.
 
 #pagebreak()
-== Les serveurs de langage et librairies Rust
-Une part importante du support d'un langage dans un éditeur, consiste en l'intégration des erreurs, l'auto-complétion, les propositions de corrections, des informations au survol... et de nombreuses fonctionnalités qui améliorent la compréhension ou l'interaction. L'avantage d'avoir les erreurs de compilation directement soulignées dans l'éditeur, permet de voir et corriger immédiatement les problèmes sans lancer une compilation manuelle dans une interface séparée.
+== Les serveurs de langage
 
-Contrairement au surlignage de code, ces fonctionnalités demandent une compréhension beaucoup plus fine, ils sont implémentés dans des processus séparés de l'éditeur (aucun langage de programmation n'est ainsi imposé). Ces processus séparés sont appelés des serveurs de langage (_language server_). Les éditeurs qui intègrent Tree-Sitter développent un client LSP qui se charge de lancer ce serveur, de lancer des requêtes et d'intégrer les données des réponses dans leur interface visuelle.
+Par défaut, avec un nouveau langage, il faut manuellement lancer le compilateur ou le parseur sur son fichier, voir les erreurs et de revenir dans l'éditeur pour les corriger. Certaines opérations répétitives, comme renommer une fonction à chaque appel, doivent être faites à la main. Pour ces raisons, il devient très intéressant d'intégrer un nouveau langage aux différents IDE utilisés dans le monde, mais cela posent de nombreux challenges.
 
-La communication entre l'éditeur et un serveur de langage démarré pour le fichier en cours, se fait via le `Language Server Protocol (LSP)`. Ce protocole inventé par Microsoft pour VSCode, résout le problème des développeurs de langages qui doivent supporter chaque éditeur de code indépendamment avec des API légèrement différentes pour faire la même chose. Le projet a pour but également de simplifier la vie des nouveaux éditeurs pour intégrer rapidement des dizaines de langages via ce protocole commun et standardisé @lspWebsite.
+Le support d'un éditeur consiste à intégrer les erreurs du parseur, l'auto-complétion, les propositions de corrections, des informations au survol... et de nombreuses petites fonctionnalités qui améliorent l'expérience de rédaction. L'avantage d'avoir les erreurs de compilation directement soulignées dans l'éditeur c'est de pouvoir voir les erreurs dans leur contexte et de corriger immédiatement les problèmes. Supporter chaque éditeur de code indépendamment signifie travailler avec des API légèrement différentes pour faire la même chose et utiliser plusieurs langages de programmation différents.
+
+Les développeur·euses de nouveaux IDE font face à un défi similaire mais encore plus large, celui de supporter des centaines de langages pour qu'un maximum de monde puisse développer avec. Microsoft était face au même problème pour son éditeur VSCode et a inventé un protocole, nommé `Language Server Protocol (LSP)` @lspWebsite. Ce protocole définit un pont commun entre un client LSP implémenté à l'interne de chaque IDE et un serveur LSP, appelé serveur de langage (_language server_). L'IDE peut ainsi demander de manière unique des informations, tel que _Donne moi les résultats d'auto-complétion pour le curseur a tel position_ sans devoir supporter des détails du langage édité. Le projet a pour but de simplifier la vie des développeur·euses de nouveaux langages et des nouveaux éditeurs qui peuventt intégrer rapidement des centaines de langages en implémentant "juste" un client LSP.
+
+Les serveurs de langages tournent dans des processus séparés de l'éditeur, ce qui permet de ne pas imposer de langage de programmation. Le client LSP se charge de lancer le processus du serveur, de lancer des requêtes et d'intégrer les données des réponses dans leur interface visuelle. Les serveurs de langage n'ont aucune idée de l'éditeur qui leur demande des informations et ils n'en ont pas besoin puisque le protocole définit les réponses attendues en retour.
 
 #figure(
   image("../imgs/neovim-autocompletion-example.png", width: 70%),
   caption: [Exemple d'auto-complétion dans Neovim, générée par le serveur de langage `rust-analyzer` sur l'appel d'une méthode sur les `&str`],
 ) <fig-neovim-autocompletion-example>
 
-Les points clés du protocole à relever sont les suivants :
-- *JSON-RPC* (_JSON Remote Procedure Call_) est utilisé comme format de sérialisation des requêtes. Similaire au HTTP, il possède des entêtes et un corps. Ce standard définit quelques structures de données à respecter. Une requête doit contenir un champ `jsonrpc`, `id`, `method` et optionnellement `params` @jsonrpcSpec. Il est possible d'envoyer une notification (requête sans attendre de réponse). Par exemple, le champ `method` va indiquer l'action qu'on tente d'appeler, ici une des fonctionnalités du serveur. Voir @jsonRpcExample
-- Un serveur de langage n'a pas besoin d'implémenter toutes les fonctionnalités du protocole. Un système de capacités (_Capabilities_) est défini pour annoncer les méthodes implémentées @lspCapabilities.
-- Le transport des messages JSON-RPC peut se faire en `stdio` (flux standards d'entrée/sortie), sockets TCP ou même en HTTP.
+Un serveur de langage n'a pas besoin d'implémenter toutes les fonctionnalités du protocole. Un système de capacités (_Capabilities_) est défini pour annoncer les méthodes implémentées @lspCapabilities. Nous pourrons ainsi implémenter que la petite partie du protocole qui nous intéresse.
+
+Le protocole *JSON-RPC* (_JSON Remote Procedure Call_) est utilisé comme protocole de communication. Similaire au HTTP, il possède des entêtes et un corps. Ce standard définit quelques structures de données à respecter. Une requête doit contenir un champ `jsonrpc`, `id`, `method` et optionnellement `params` @jsonrpcSpec. L'`id` sert à associer une réponse à une requête. Il est aussi possible d'envoyer une notification, c'est à dire une requête qui n'attend de réponse. Le champ `method` va indiquer l'action à appeler. Le transport des messages JSON-RPC peut se faire en `stdio` (flux standards d'entrée/sortie), sockets TCP ou même en HTTP.
 
 // todo vraiment utile ce morceau du coup ??
 #figure(
@@ -279,52 +281,53 @@ Content-Length: ...\r\n
     }
 }
 ```,
-  caption: [Exemple de requête en JSON-RPC envoyé par le client pour demander des propositions d'auto-complétion à une position de curseur données. Tiré de la spécification @lspCompletionExample],
+  caption: [Exemple de requête JSON-RPC du client pour demander des propositions d'auto-complétion (`textDocument/completion`). Tiré de la spécification @lspCompletionExample],
 ) <jsonRpcExample>
 
 Quelques exemples de serveurs de langages implémentés en Rust
-- `tinymist`, serveur de langage de Typst (système d'édition de document, utilisé pour la rédaction de ce rapport)
 - `rust-analyzer`, serveur de langage officiel du langage Rust
+- `tinymist`, serveur de langage de Typst (système d'édition de document, concurrent du Latex, utilisé pour la rédaction de ce rapport)
 - `asm-lsp` @AsmLspCratesio, permet d'inclure des erreurs dans du code assembleur
 
 D'autres exemples de serveurs de langages implémentés dans d'autres langages
 - `jdtls` le serveur de langage pour Java implémenté en Java @EclipseJdtlsGithub
-- `tailwindcss-language-server`, le serveur de langage pour le framework CSS TailwindCSS, implémenté en TypeScript @TailwindcssIntellisenseGithub
-- `typescript-language-server` et pour finir celui pour TypeScript, implémenté en TypeScript également @TypescriptLanguageServerGithub
-- et beaucoup d'autres projets existent...
+- `tailwindcss-language-server`, le serveur de langage pour le framework TailwindCSS, implémenté en TypeScript @TailwindcssIntellisenseGithub
+- `typescript-language-server` pour TypeScript, implémenté en TypeScript également @TypescriptLanguageServerGithub
+- et beaucoup d'autres...
 
-Une crate commune à plusieurs projets est `lsp-types` @lspTypesCratesio qui définit les structures de données, comme `Diagnostic`, `Position`, `Range`. Ce projet est utilisé par `lsp-server`, `tower-lsp` et d'autres @lspTypesUses.
 
 === Adoption
 Selon la liste sur le site de la spécification @lspClientsList, la liste des IDE qui supportent le LSP est longue : Atom, Eclipse, Emacs, GoLand, Intellij IDEA, Helix, Neovim, Visual Studio, VSCode bien sûr et d'autres. La liste des serveurs LSP @lspServersList quant à elle, contient plus de 200 projets, dont 40 implémentés en Rust ! Ce large support et ces nombreux exemples faciliteront le développement de ce serveur de langage et son intégration dans différents IDE.
 
 === Librairies disponibles
-En cherchant à nouveau sur `crates.io` sur le tag `lsp`, on trouve différents projets dont `async-lsp` @AsyncLspCratesio utilisée dans `nil` @NilUsingAsyncLspGithub (un serveur de langage pour le système de configuration de NixOS) et de la même auteure.
+Pour ne pas devoir réimplémenter la mise en place d'un serveur, il existe plusieurs crates qui prennent en charge une partie des parties du protocole commune à tous les langages, comme l'initialisation de la communication.
 
-Le projet `tinymist` a extrait une crate `sync-ls`, mais le README déconseille son usage et conseille `async-lsp` à la place @tinymistSyncLspImpl. En continuant la recherche, on trouve encore un autre `tower-lsp` et un fork `tower-lsp-server` @TowerLspServerCratesio... `rust-analyzer` a également extrait une crate `lsp-server`.
+En cherchant à nouveau sur `crates.io` sur le tag `lsp`, on trouve différents projets dont `async-lsp` @AsyncLspCratesio utilisée par la même auteure dans `nil` @NilUsingAsyncLspGithub (un serveur de langage pour le système de configuration de NixOS).
+
+Le projet `tinymist` a extrait une crate `sync-ls`, mais le README déconseille son usage et conseille `async-lsp` à la place @tinymistSyncLspImpl. En continuant la recherche, on trouve encore une autre crate `tower-lsp` et un fork `tower-lsp-server` @TowerLspServerCratesio... `rust-analyzer` a également extrait une crate `lsp-server`. Une crate commune à plusieurs projets est `lsp-types` @lspTypesCratesio qui définit les structures de données, comme `Diagnostic`, `Position`, `Range`. Ce projet est utilisé par `lsp-server`, `tower-lsp` et d'autres @lspTypesUses.
 
 === Choix final
 L'auteur travaillant dans Neovim, l'intégration se fera en priorité dans Neovim pour ce travail. L'intégration dans VSCode pourra être fait dans le futur et devrait être relativement simple.
 
-Les 2 projets les plus utilisés (en termes de _reverse dependencies_ sur crates.io) sont `lsp-server` @LspServerCratesio (56) et `tower-lsp` (85) @TowerLspCratesio. L'auteur a choisi d'utiliser la crate `lsp-server` étant développé par la communauté Rust, la probabilité d'une maintenance long-terme est plus élevée, et le projet `tower-lsp` est basée sur des abstractions asynchrones, l'auteur préfère partir sur la version synchrone pour simplifier l'implémentation.
+Le choix de `lsp-types` fait sens mais les nombreuses autres crates ne facilitent pas leur choix. Les 2 projets les plus utilisés (en termes de _reverse dependencies_ sur crates.io) sont `lsp-server` (56 projets) @LspServerCratesio et `tower-lsp` (85 projets) @TowerLspCratesio. L'auteur a choisi d'utiliser la crate `lsp-server` étant développé par la communauté Rust, la probabilité d'une maintenance long-terme est plus élevée. L'autre argument est que le projet `tower-lsp` est basée sur des abstractions asynchrones, nous préférons partir sur la version synchrone pour simplifier l'implémentation.
 
-Cette partie est un nice-to-have, l'auteur espère avoir le temps de l'intégrer dans ce travail. Après quelques heures sur le POC suivant, on voit cela semble être assez facile et la possibilité d'ajouter progressivement le support de fonctionnalités est aussi un atout.
+Cette partie est un _nice-to-have_, nous espérons avoir le temps de l'intégrer dans ce travail. Après quelques heures sur le POC suivant, cela semble être assez facile et rapide.
 
-=== POC de serveur de language avec lsp-server
+=== POC de serveur de language avec `lsp-server`
 
-L'auteur a modifié et exécuté l'exemple de `goto_def.rs` fourni par la crate `lsp-server` @gotodefLspserver. Il a aussi créé un script `demo.fish` permettant de lancer la communication en stdin et attendre entre chaque requête. Cet exemple démontre la communication qui se produit quand on clique sur un `Aller à la définition` dans un IDE. L'IDE va lancer le serveur de langage associé au fichier édité en lançant simplement le processus et en communication via les flux standards. Il y a d'abord une phase d'initialisation et d'annonces des capacités puis l'IDE peut envoyer des requêtes.
+La crate `lsp-server` contient un exemple de `goto_def.rs` @gotodefLspserver qui implémente la possibilité de `Aller à la définition` (_Go to definition_), généralement accessible dans l'IDE par un `Ctrl+clic` sur une fonction. Nous avons modifié et exécuté cet exemple puis créé un petit script `demo.fish` qui simule un client et affiche chaque requête. Le client va simplement demander la définition `/tmp/another.rs`
 
 #figure(
-  box(image("../imgs/lsp-demo.svg"), width:90%),
-  caption: [Exemple de discussion en LSP une demande de `textDocument/definition`, output de `fish demo.fish` dans le dossier `pocs/lsp-server-demo`. #linebreak() Les lignes après `CLIENT:` sont envoyés en stdin et celles après `SERVER` sont reçues en stdout.],
-)
+  box(image("../imgs/lsp-demo.svg"), width:80%),
+  caption: [Exemple de communication entre un client et un serveur LSP de notre POC, _output_ du script `demo.fish` dans le dossier `pocs/lsp-server-demo`],
+) <lsp-demo>
 // todo comment citer les dossiers de POCs à coté ??
 
-L'initialisation nous montre que le serveur se présente comme supportant uniquement les "aller à la définition" (_Go to definition_) puisque `definitionProvider` est à `true`. Le client envoie ensuite une demande de `textDocument/definition`, en précisant que celle-ci doit être donnée sur le symbole dans un fichier `/tmp/test.rs` sur la ligne 7 au caractère 23.
+Sur la @lsp-demo les lignes après `CLIENT:` sont envoyés en stdin et celles après `SERVER:` sont reçues en stdout.
 
-L'auteur a codé en dur une liste de `Location` (positions dans le code pour cette définition), dans `/tmp/another.rs` sur la plage (`Range`) sur ligne 3 entre les caractères 12 et 25. Une fois la réponse envoyée, le client demande au serveur de s'arrêter.
+Durant l'initialisation, le serveur nous indique qu'il supporte un "fournisseur de définition" avec `definitionProvider` à `true`. Le client envoie ensuite une requête `textDocument/definition`, pour le symbole dans un fichier `/tmp/test.rs` sur la ligne 7 au caractère 23.\ Le serveur répond une position dans le code (de type `Location`) sur le fichier `/tmp/another.rs` la ligne 3 entre les caractères 12 et 25 (la plage est de type `Range`). Une fois la réponse reçue, le client a terminé et demande au serveur de s'arrêter.
 
-Le code qui gère cette requête du type `GotoDefinition` se présente ainsi.
+Le code qui gère la requête du type `GotoDefinition` est visible en @gotodefrs.
 #figure(
   ```rust
   match cast::<GotoDefinition>(req) {
@@ -342,10 +345,8 @@ Le code qui gère cette requête du type `GotoDefinition` se présente ainsi.
       ...
   };
   ```,
-  caption: [Extrait de `goto_def.rs` modifié pour retourner un `Location` dans la réponse `GotoDefinitionResponse`],
-)
-
-Cette communication permet de visualiser les échanges entre l'IDE et un serveur de langage. En pratique après avoir implémenté une logique de résolution des définitions un peu plus réaliste cette communication ne serait pas visible, mais profitera à l'intégration dans l'IDE. Si on l'intégrait dans VSCode, la fonctionnalité du clic droit + Aller à la définition fonctionnerait.
+  caption: [Extrait de `goto_def.rs` modifié qui retourne un emplacement `Location` dans une réponse `GotoDefinitionResponse`],
+) <gotodefrs>
 
 #pagebreak()
 

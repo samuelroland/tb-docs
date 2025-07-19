@@ -101,7 +101,7 @@
 #let roundedbox(body) = {
     box(
       inset: 10pt,
-      outset: (y: 3pt),
+      outset: (y: 0pt),
       radius: 2pt,
       stroke: 1pt + luma(200),
     )[#body]

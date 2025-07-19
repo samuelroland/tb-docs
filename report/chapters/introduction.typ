@@ -253,7 +253,7 @@ Ce deuxième défi demande d'écrire un parseur de cette nouvelle syntaxe. Ce n'
 ) <ide-xp>
 
 On voit dans la @ide-xp que l'intégration inclut deux fonctionnalités principales
-+ le surlignage de code, qui permet de coloriser les clés et les propriétés, afin de bien distinguer les clés et contenu
++ le surlignage de code, qui permet de coloriser les clés et les propriétés, afin de bien distinguer les clés du contenu
 + l'intégration avancée des erreurs du parseur et de la documentation à l'éditeur. On le voit en ligne 4, après la clé `check` une erreur s'affiche pour le nom manquant. En ligne 19, l'auto-complétion facilite la découverte et rédaction en proposant les clés valides à cette position du curseur.
 
 Pour convaincre les plus perplexes des lecteur·ices, il peut être intéressant de comprendre la réflexion stratégique derrière ce projet, maintenant que les solutions standards ont pu être comparées. Là où certain·es auraient simplement pris le YAML, TOML ou un autre format connu par habitude, l'auteur a fait le choix de ne pas se contenter de l'existant. Dans un contexte professionnelle, il aurait peut-être été difficile de justifier le développement d'une solution, "juste pour optimiser le YAML et le Markdown", dans un contexte académique, nous avons la chance d'avoir du temps.
