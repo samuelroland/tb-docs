@@ -221,6 +221,7 @@ La diminution de la verbosité des syntaxes décrites précédement est intéres
 
 #pagebreak()
 == Librairies de parsing en Rust
+// todo mieux expliquer le challenge
 Après s'être intéressé aux syntaxes existantes, nous nous intéressons maintenant aux solutions pour simplifier le développement du parseur DY. Après quelques recherches avec le tag `parser` sur crates.io @cratesIoParserTagsList, j'ai trouvé la liste de librairies suivantes :
 
 - `nom` @nomCratesio, utilisé notamment par `cexpr` @nomRevDeps
@@ -232,7 +233,7 @@ Après s'être intéressé aux syntaxes existantes, nous nous intéressons maint
 À noter aussi l'existence de la crate `serde` @serders, un framework de sérialisation et desérialisation très populaire dans l'écosystème Rust (selon le site lib.rs @librsMostPopular). Il est notamment utilisé pour les parseurs JSON `serde_json` et TOML `toml`. Ce n'est pas une librairie de parsing mais un modèle de donnée basée sur des _traits_ Rust (des interfaces) pour faciliter le passage d'un arbre syntaxique abstrait (AST) aux structures de données Rust. Le modèle de données de Serde @serdersDatamodel supporte 29 types de données. Trois raisons nous poussent à ne pas construire un parseur compatible avec `serde`:
 + Seulement les strings, listes et structs sont utiles pour PLX. Par exemple, les 12 types de nombres sont inutiles à différencier.
 + La sérialisation (structure Rust vers syntaxe DY) n'est pas prévue, seul la desérialisation nous intéresse
-+ Le mappage des clés et propriétés vers les attributs des structs Rust n'est pas du 1:1. La valeur après `exo` contient le nom de l'exercice puis la consigne, ce qui signifie une seule string pour deux champs `name` et `instruction` dans la structure `Exo` finale.
++ L'association des clés et propriétés vers les attributs des structs Rust n'est pas du 1:1. La valeur après `exo` contient le nom de l'exercice puis la consigne, ce qui signifie une seule string pour deux champs `name` et `instruction` dans la structure `Exo` finale.
 
 Parser des simples expressions de math comme `((23+4) * 5)` est idéal pour ces outils: les débuts et fin de chaque partie sont claires, une combinaison de fonctions de parsing permettraient facilement identifier les expressions parenthésées, les opérateurs puis les nombres. Elles semblent bien adaptées à ignorer des espaces, extraire les nombres tant qu'ils contiennent des chiffres, extraire des opérateurs et les deux opérandes autour...
 
