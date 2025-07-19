@@ -1,3 +1,6 @@
+# See https://github.com/typst/hayagriva/pull/192
+# yaml-language-server: $schema=https://raw.githubusercontent.com/typst/hayagriva/0c640417cfb35067c13f1ee0ce0ee35f57a897fb/hayagriva.schema.json
+
 AndersEricssonWiki:
   type: Web
   url: https://en.wikipedia.org/wiki/K._Anders_Ericsson#cite_note-nytimesobit-1
@@ -52,6 +55,12 @@ JsonRfcIntro:
     - Crockford, Douglas
     - Bray, Tim
 # Titre défini à la main, ça joue ?
+#
+JsonSchemaWebsite:
+  type: Web
+  url: https://json-schema.org/
+  date: 2025
+  title: JSON Schema - Build more. Break less. Empower others.
 
 CodecheckJavaExample:
   type: Web
@@ -88,8 +97,7 @@ KHIRSGithub:
 bitmarkAssociation:
   type: Web
   title: bitmark Association website
-  author:
-    name: bitmark Association
+  organization: bitmark Association
   date: 2025
   url: https://www.bitmark-association.org/
 bitmarkAssociationHackaton:
@@ -107,6 +115,20 @@ bitmarkDocs:
     prefix: bitmark
   date: 2025
   url: https://docs.bitmark.cloud/
+
+bitmarkLicense:
+  type: Web
+  url: https://docs.bitmark.cloud/about/#license
+  date: 2025
+  title: About and Contact - bitmark Documentation - License
+
+classtimeUsingBitmark:
+  type: video
+  url: https://youtu.be/XegSepmkSnU?t=96
+  date: 2022-04-04
+  title: How bitmark helps Classtime to import and export learning content efficiently
+  author: todo
+
 ClasstimeDocs:
   type: Web
   title: Créer la première question / le premier jeu de questions
@@ -137,8 +159,19 @@ nestedTextGithub:
   type: Web
   title: NestedText — A Human Friendly Data Format
   author:
+    - Kundert, Ken
+    - Kundert, Kale
   date: 2025
   url: https://github.com/KenKundert/nestedtext
+nestedTextVsYaml:
+  type: Web
+  url: https://nestedtext.org/en/latest/#structured-code
+  date: 2025
+  title: NestedText — A Human Friendly Data Format - Structured Code
+  author:
+    - Kundert, Ken
+    - Kundert, Kale
+
 nestedTextSchemasLib:
   type: Web
   title: NestedText documentation - Schemas
@@ -159,12 +192,12 @@ cooklangMention:
   author: Dubovskoy, Alexey
   date: 2025
   url: https://cooklang.org/
-cooklangParserInRust:
-  type: Web
-  title: Canonical Cooklang parser in Rust
-  author: Dubovskoy, Alexey
-  date: 2025
-  url: https://github.com/cooklang/cooklang-rs
+# cooklangParserInRust:
+#   type: Web
+#   title: Canonical Cooklang parser in Rust
+#   author: Dubovskoy, Alexey
+#   date: 2025
+#   url: https://github.com/cooklang/cooklang-rs
 sdlangWebsite:
   type: Web
   title: SDLang, Simple Declarative Language
@@ -183,15 +216,24 @@ kdlWebsite:
   author: Kat Marchán (zkat), et contributeurs
   date: 2025
   url: https://kdl.dev/
-ronMention:
+
+# ronMention:
+#   type: Web
+#   title: Rusty Object Notation
+#   author:
+#     name: Ron
+#     given-name: Contributeurs
+#     prefix: de
+#   date: 2025
+#   url: https://github.com/ron-rs/ron
+
+PklLangWebsite:
   type: Web
-  title: Rusty Object Notation
-  author:
-    name: Ron
-    given-name: Contributeurs
-    prefix: de
+  url: https://pkl-lang.org/
   date: 2025
-  url: https://github.com/ron-rs/ron
+  title: "Pkl :: Pkl Docs"
+  organization: Apple Inc
+
 cratesIoParserTagsList:
   type: Web
   title: All Crates for keyword 'parser'
