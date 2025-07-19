@@ -333,10 +333,7 @@ fn export_parser_steps() {
 
         export_command_output_to_svg(&mut cmd, &output_path, None);
         println!(
-            "#figure(
-  image(\"{}\", width: 100%),
-  caption: [TODO `{}`],
-)",
+            "#figure( image(\"{}\", width: 100%), caption: [TODO `{}`],)",
             output_path.to_str().unwrap(),
             file.file_name().unwrap().to_str().unwrap()
         );
@@ -372,10 +369,7 @@ fn export_parser_steps() {
         );
 
         println!(
-            "#figure(
-  image(\"{}\", width: 100%),
-  caption: [TODO],
-)",
+            "#figure( image(\"{}\", width: 100%), caption: [TODO],)",
             output_path.to_str().unwrap(),
         );
     }
@@ -432,7 +426,6 @@ rankdir=TB;\n"
             "-o",
             file.to_str().unwrap(),
         ]);
-        dbg!(&cmd);
         cmd.output().unwrap();
     }
 
@@ -503,7 +496,6 @@ fillcolor=" #f5f5f5"
 }
 
 fn exports_plx_dy_specs() {
-    // let json = serde_json::to_string_pretty(plx_dy::course::COURSES_SPEC).unwrap();
     let tree = GraphTree::from_spec(COURSES_SPEC);
     tree.export(&PathBuf::from("../syntax/specs/course.spec.svg"));
 
@@ -512,25 +504,22 @@ fn exports_plx_dy_specs() {
 
     let tree = GraphTree::from_spec(EXOS_SPEC);
     tree.export(&PathBuf::from("../syntax/specs/exo.spec.svg"));
-    // let content = format!("@startjson\ntop to bottom direction\n{}\n@endjson", json);
-    // println!("{json}");
-    // write("../json.puml", content);
 }
 
 fn main() {
     // Trash existing files under messages folder to avoid old Message files
-    // let dest_folder = get_destination();
-    // if dest_folder.exists() {
-    //     remove_dir_all(&dest_folder).unwrap();
-    // }
-    // let _ = create_dir(&dest_folder);
+    let dest_folder = get_destination();
+    if dest_folder.exists() {
+        remove_dir_all(&dest_folder).unwrap();
+    }
+    let _ = create_dir(&dest_folder);
     exports_plx_dy_specs();
-    // export_parser_steps();
-    // export_protocol_messages();
+    export_parser_steps();
+    export_protocol_messages();
     export_plantuml_diagrams().unwrap();
-    //
-    // println!(
-    //     "\nNote: remember to manually update LiveProtocolError list of errors if you added one manually !"
-    // );
-    // println!("Note: remember to add other messages instances if new ones are created !");
+
+    println!(
+        "\nNote: remember to manually update LiveProtocolError list of errors if you added one manually !"
+    );
+    println!("Note: remember to add other messages instances if new ones are created !");
 }
