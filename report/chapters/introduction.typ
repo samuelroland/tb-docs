@@ -224,6 +224,8 @@ Un autre format plus léger à rédiger est le YAML, regardons ce que cela donne
 
 #figure(raw(block: true, lang: "yaml", read("../sources/plx-dy-simple.yaml")), caption: [Equivalent YAML de l'exercice défini sur le @exemple-dy-md-start]) <exemple-dy-yaml>
 
+// todo besoin d'inclure le format TOML aussi ou pas ?
+
 Le YAML nous a permis ici de retirer tous les guillemets, les accolades et crochets. Cependant, malgré sa légereté, il contient encore plusieurs points de friction:
 - Les tirets sont nécessaires pour chaque élément de liste et les deux points pour chaque clé
 - Pour avoir plus d'une information par ligne, il faut ajouter une paire d'accolades autour des clés (`- { kind: see, value: Passe une belle journée John Doe ! }`)

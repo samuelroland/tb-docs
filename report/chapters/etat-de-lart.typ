@@ -9,12 +9,12 @@ En plus de la comparaison des solutions existantes, quelques *POCs* ont été d�
 == Format de données humainement éditables existants
 Avant de commencer ce travail conséquent de créer une nouvelle syntaxe, il est nécessaire de s'assurer qu'il n'existe pas d'autres librairies qui existent déjà et qui pourraient apporter la même expérience, simplicité et rapidité de rédaction. Nous avons aussi besoin d'avoir une intégration Rust puisque PLX est développé en Rust. Nous cherchons aussi une validation du contenu intégrée à l'éditeur, pour éviter des allers retours constants entre l'éditeur et l'affichage d'erreurs de rédaction dans PLX.
 
-Les parseurs JSON vérifie que le document est correcte mais le choix des clés et valeurs n'est pas vérifié. C'est pour cette raison que le projet JSON Schema @JsonSchemaWebsite existe. Il permet de définir un schéma JSON qui définit un ensemble de clés valides, les types attendus pour chaque valeur, les champs requis et optionnels ou encore documenter la signification des clés. L'intégration de ce projet dans l'IDE permet d'intégrer des erreurs lorsque des structures ne respecte pas le schéma et facilite la rédaction avec l'auto-complétion des clés et valeurs. Nous cherchons une solution qui mixe ces 2 concepts de la définition de la syntaxe et du schéma, dans un seul outil.
+Les parseurs JSON vérifie que le document est correcte mais le choix des clés et valeurs n'est pas vérifié. C'est pour cette raison que le projet JSON Schema @JsonSchemaWebsite existe. Un schéma JSON définit un ensemble de clés valides, les types attendus pour chaque valeur, les champs requis et optionnels. L'intégration de ce projet dans l'IDE permet d'intégrer des erreurs lorsque des structures ne respecte pas le schéma et facilite la rédaction avec l'auto-complétion des clés et valeurs. Nous cherchons une solution qui mixe dans un seul outil la définition de la syntaxe et sa validation.
 
-La recherche se concentre sur les projets qui visent à créer des alternatives aux formats bien répandus ou qui ont un lien avec l'éducation. On ignore aussi les projets dont la spécification ou l'implémentation n'est pas encore utilisable en production. Ainsi, le langage de balise pour les recettes de cuisines Cooklang @cooklangMention n'est pas présenté. La recherche n'est pas évidente comme il existe de nombreuses manières de nommer ce que l'on cherche: langage de balise (_markup language_), format de donnée, syntaxe, langage de donnée, langage spécifique à un domaine (_Domain Specific Language_ - DSL), ... La recherche a principalement été faite en anglais avec les mots-clés suivants la barre de recherche de Google, Github.com et de crates.io: `data format`, `syntax`, `human friendly`, `alternative to YAML`, `human writable`, et `human readable`.
+La recherche se concentre sur les projets qui visent à créer des meilleurse alternatives aux formats bien répandus ou qui ont un lien avec l'éducation. On ignore aussi les projets dont la spécification ou l'implémentation n'est pas encore utilisable en production. Ainsi, le langage de balise pour les recettes de cuisines Cooklang @cooklangMention n'est pas présenté. La recherche n'est pas évidente comme il existe de nombreuses manières de nommer ce que l'on cherche: langage de balise (_markup language_), format de donnée, syntaxe, langage de donnée, langage spécifique à un domaine (_Domain Specific Language_ - DSL), ... La recherche a principalement été faite en anglais avec les mots-clés suivants la barre de recherche de Google, Github.com et de crates.io: `data format`, `syntax`, `human friendly`, `alternative to YAML`, `human writable`, et `human readable`.
 
 === KHI - Le langage de données universel
-D'abord nommée UDL (_Universal Data Language_) @UDLCratesio, cette syntaxe a été inventée pour mixer les possibilités du JSON, YAML, TOML, XML, CSV et Latex, afin de supporter toutes les structures de données modernes. Plus concrètement, les balises, les structs, les listes, les tuples, les tables/matrices, les enums, les arbres hiérarchiques sont supportés. Les objectifs sont la polyvalence, un format source (fait pour être rédigé à la main), l'esthétisme et la simplicité.
+D'abord nommée UDL (_Universal Data Language_) @UDLCratesio, cette syntaxe a été inventée pour mixer les possibilités du JSON, YAML, TOML, XML, CSV et Latex, afin de supporter toutes les structures de données modernes. Plus concrètement, les balises, les structures, les listes, les tuples, les tables/matrices, les énumérations et les arbres hiérarchiques sont supportés.
 
 #figure(
 ```khi
@@ -39,17 +39,17 @@ electron-shells: [2; 8; 3]
 wikipedia: \https://en.wikipedia.org/wiki/Aluminium
 snl: \https://snl.no/aluminium
 ```,
-    caption: [Un exemple simplifié de KHI de leur README @KHIGithub, décrivant un exemple d'article d'encyclopédie.],
+    caption: [Un exemple simplifié de KHI tiré du README @KHIGithub\ décrivant un exemple d'article d'encyclopédie.],
 ) <khi-example>
 
-Une implémentation en Rust est proposée @KHIRSGithub. Son dernier commit sur ces 2 repository Git date du 11.11.2024, le projet a l'air de ne pas être fini au vu des nombreux `todo!()` présent dans le code. La large palette de structures supportées implique une charge mentale additionnelle pour se rappeler, ce qui en fait une mauvaise option pour PLX.
+Les objectifs sont la polyvalence, un format source (fait pour être rédigé à la main), l'esthétisme et la simplicité. Le @khi-example permet de percevoir l'intérêt qu'une combinaison plus légère de toutes ces structures de données peut avoir. Cependant, PLX n'a pas besoin d'autant de possibilités, les différents séparateurs `@`, `{`, `;`, `[`, `\`, etc. sont nécessaires pour que le parseur puisse différencier ces structures, mais créent une charge mentale additionnelle durant la rédaction. De plus, une implémentation en Rust est proposée @KHIRSGithub mais son dernier commit date du 11.11.2024, en plus du fait que le projet contient encore de nombreux `todo!()` dans son code.
 
 === Bitmark - le standard des contenus éducatifs digitaux
-Bitmark est un standard open-source, qui vise à uniformiser tous les formats de données utilisés pour décrire du contenu éducatif digital sur les nombreuses plateformes existantes @bitmarkAssociation. Cette diversité de formats rend l'interopérabilité très difficile et freine l'accès à la connaissance et restreint les créateurs de contenus et les éditeurs dans les possibilités de migration entre plateformes. La stratégie est de définir un format basé sur le contenu (_Content-first_) plus que basé sur son rendu (_Layout-first_) permettant un affichage sur tout type d'appareils incluant les appareils mobiles @bitmarkAssociation. C'est la Bitmark Association en Suisse à Zurich qui développe ce standard, notamment à travers des Hackatons organisés en 2023 et 2024 @bitmarkAssociationHackaton.
+De nombreux formats de données existent pour décrire du contenu éducatif digital au vu de toutes les plateformes existantes autour de l'éducation et de l'enseignement. Cette diversité de formats rend l'interopérabilité très difficile et freine l'accès à la connaissance et restreint les créateurs de contenus et les éditeurs dans les possibilités de migration entre plateformes.
 
-Le standard permet de décrire du contenu statique et interactif, comme des articles ou des quiz de divers formats. Deux équivalents sont définis : le _bitmark markup language_ et le _bitmark JSON data model_ @bitmarkDocs
+Bitmark est un standard open-source @bitmarkLicense, qui vise à uniformiser tous ces formats @bitmarkAssociation. La stratégie est de définir un format basé sur le contenu (_Content-first_) plutôt que son rendu (_Layout-first_) permettant un affichage sur tout type d'appareils incluant les appareils mobiles @bitmarkAssociation. C'est la Bitmark Association en Suisse à Zurich qui développe ce standard, notamment à travers des Hackatons organisés en 2023 et 2024 @bitmarkAssociationHackaton.
 
-La partie quiz du standard inclut des textes à trous, des questions à choix multiple, du texte à surligner, des essais, des vrai/faux, des photos à prendre ou audios à enregistrer et de nombreux autres types d'exercices.
+Le standard permet de décrire du contenu statique, comme des articles, et du contenu interactif comme des quiz de divers formats. Deux équivalents sont définis : le _bitmark markup language_ et le _bitmark JSON data model_ @bitmarkDocs. La partie quiz du standard inclut des textes à trous, des questions à choix multiple, du texte à surligner, des essais, des vrai/faux, des photos à prendre, des audios à enregistrer et de nombreux autres types d'exercices.
 
 #figure(
 ```
@@ -85,18 +85,18 @@ La partie quiz du standard inclut des textes à trous, des questions à choix mu
 }
 ```, caption: [Equivalent de @mcq-bitmark dans le Bitmark JSON data model @bitmarkDocsMcqSpec]
 )
-Open Taskpool, projet qui met à disposition des exercices d'apprentissage de langues @openTaskpoolIntro, fournit une API JSON utilisant le _bitmark JSON data model_.
+
+La plateforme Open Taskpool, qui met à disposition des exercices d'apprentissage de langues @openTaskpoolIntro, fournit une API JSON utilisant le _bitmark JSON data model_.
 
 #figure(
 text(size: 0.8em)[
 ```sh
 curl "https://taskpool.taskbase.com/exercises?translationPair=de->en&word=school&exerciseType=bitmark.cloze"
 ```
-] , caption: [Requête HTTP à Open Taskpool pour demander des exercices d'allemand vers anglais autour du mot `school` de format `cloze` (texte à trou)])
+] , caption: [Requête HTTP à Open Taskpool pour demander une paire de mots de \ l'allemand vers l'anglais, autour du mot `school` et de format `cloze` (texte à trou).]) <taskpool>
 
 #figure(
 ```json
-...
 "cloze": {
     "type": "cloze",
     "format": "text",
@@ -111,11 +111,11 @@ curl "https://taskpool.taskbase.com/exercises?translationPair=de->en&word=school
         { "type": "text", "text": " here." }
     ]
 },
-...
-```, caption: [Extrait simplifié de la réponse JSON, respectant le standard Bitmark @bitmarkDocsClozeSpec. La phrase `There used to be a ___ here.` doit être complétée par le mot `school` en s'aidant du texte en allemand.]
+```, caption: [Extrait de la réponse au @taskpool, respectant le standard Bitmark @bitmarkDocsClozeSpec. La phrase `There used to be a ___ here.` doit être complétée par `school`, en s'aidant du texte en allemand.]
 )
-Un autre exemple d'usage se trouve dans la documentation de Classtime @ClasstimeDocs, on voit que le système de création d'exercices est basé sur des formulaires.
-Ces 2 exemples donnent l'impression que la structure JSON est plus utilisée que le markup. Au vu de tous séparateurs et symboles de ponctuations à se rappeler, la syntaxe n'a peut-être pas été imaginée dans le but d'être rédigée à la main directement. Finalement, Bitmark ne spécifie pas de type d'exercices programmation nécessaire à PLX.
+Une autre plateforme, Classtime, utilise Bitmark pour son système d'import et export de questions @classtimeUsingBitmark. On voit dans leur documentation @ClasstimeDocs que le système de création d'exercices reste basé sur des formulaires.
+
+Ces 2 exemples donnent l'impression que la structure JSON est plus utilisée que le _markup_. Au vu de tous séparateurs et symboles de ponctuations à se rappeler,  et la présence d'un équivalent JSON, la spécification du _markup_ n'a peut-être pas été optimisée pour la rédaction à la main directement. En plus, Bitmark ne spécifie pas de type d'exercices programmation nécessaires à PLX. On salue au passage l'envie de standardiser le format des différentes plateformes, à long-terme cela ne peut que simplifier la vie des enseignant·es dans la gestion de leur contenu et augmenter la qualité de la pratique des étudiant·es.
 
 === NestedText — Un meilleur JSON
 NestedText se veut _human-friendly_, similaire au JSON, mais pensé pour être facile à modifier et visualiser par les humains. Le seul type de donnée scalaire supporté est la chaîne de caractères, afin de simplifier la syntaxe et retirer le besoin de mettre des guillemets. La différence avec le YAML, en plus des types de données restreints est la facilité d'intégrer des morceaux de code sans échappements ni guillemets, les caractères de données ne peuvent pas être confondus avec NestedText @nestedTextGithub.
