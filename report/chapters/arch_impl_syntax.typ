@@ -94,3 +94,56 @@ TODO
 
 == Implémentation du serveur de language
 TODO
+
+#figure(
+  image("../syntax/course/course.svg", width: 100%),
+  caption: [TODO `course.dy`],
+)
+#figure(
+  image("../syntax/course/course-parsed.svg", width: 100%),
+  caption: [TODO],
+)
+
+#figure(
+  image("../syntax/course-error/course.svg", width: 100%),
+  caption: [TODO `course.dy`],
+)
+#figure(
+  image("../syntax/course-error/course-parsed.svg", width: 100%),
+  caption: [TODO],
+)
+
+#figure(
+  image("../syntax/skills/skills.svg", width: 100%),
+  caption: [TODO `skills.dy`],
+)
+#figure(
+  image("../syntax/skills/skills-parsed.svg", width: 100%),
+  caption: [TODO],
+)
+#figure(
+  image("../syntax/skills-error/skills.svg", width: 100%),
+  caption: [TODO `skills.dy`],
+)
+#figure(
+  image("../syntax/skills-error/skills-parsed.svg", width: 100%),
+  caption: [TODO],
+)
+
+
+#figure(
+  image("../syntax/exo/exo.svg", width: 100%),
+  caption: [TODO `exo.dy`],
+)
+#figure(
+  image("../syntax/exo/exo-parsed.svg", width: 100%),
+  caption: [TODO],
+)
+#figure(
+  image("../syntax/exo-error/exo.svg", width: 100%),
+  caption: [TODO `exo.dy`],
+)
+#figure(
+  image("../syntax/exo-error/exo-parsed.svg", width: 100%),
+  caption: [TODO],
+)
