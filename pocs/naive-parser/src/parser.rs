@@ -28,7 +28,7 @@ pub fn parse_exo(raw: &str) -> ParseResult {
     let mut options_started = false;
     let mut correct_option_found = false;
     let mut current_option_index = 0;
-    let mut opt_prefix_line = 0;
+    let mut opt_key_line = 0;
 
     for (idx, line) in raw.lines().enumerate() {
         let idx = idx as u32;
@@ -46,7 +46,7 @@ pub fn parse_exo(raw: &str) -> ParseResult {
         }
 
         if line.starts_with("opt") {
-            opt_prefix_line = idx;
+            opt_key_line = idx;
             options_started = true;
             continue;
         }
@@ -79,7 +79,7 @@ pub fn parse_exo(raw: &str) -> ParseResult {
     }
 
     if !correct_option_found {
-        errors.push(ParseError::NoCorrectOption(range_at(opt_prefix_line, 0, 3)));
+        errors.push(ParseError::NoCorrectOption(range_at(opt_key_line, 0, 3)));
     }
 
     if !title_found {

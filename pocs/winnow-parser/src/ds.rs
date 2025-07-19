@@ -12,24 +12,24 @@ pub enum Block<'a> {
     // start of an entity, must be a single line but is described further by sub blocks
     Entity {
         line: usize,
-        prefix: &'a str,
+        key: &'a str,
         content: &'a str,
         subs: Vec<Block<'a>>, // list of subblocks
     },
     SingleLine {
         line: usize,
-        prefix: &'a str,
+        key: &'a str,
         content: &'a str,
-    }, // line index + prefix + text
+    }, // line index + key + text
     List {
         line: usize,
-        prefix: &'a str,
+        key: &'a str,
         items: Vec<ListItem<'a>>,
-    }, // line index + prefix + list of tuple (line index + content + list of property)
+    }, // line index + key + list of tuple (line index + content + list of property)
     Comment(usize, &'a str), // line index + comment content
 }
 
-// Example of AST for this exo, with added prefix "exp" to show the difference between Start and
+// Example of AST for this exo, with added key "exp" to show the difference between Start and
 // SingleLine blocks
 // // Basic warmup exo
 // exo What is Fish ?
@@ -44,12 +44,12 @@ fn build() {
         Block::Comment(0, "Basic warmup exo"),
         Block::Entity {
             line: 0,
-            prefix: "exo",
+            key: "exo",
             content: "What is Fish",
             subs: vec![
                 Block::List {
                     line: 2,
-                    prefix: "opt",
+                    key: "opt",
                     items: vec![
                         ListItem {
                             line: 3,
@@ -70,7 +70,7 @@ fn build() {
                 },
                 Block::SingleLine {
                     line: 6,
-                    prefix: "exp",
+                    key: "exp",
                     content: "because we are geeks",
                 },
             ],
@@ -99,17 +99,17 @@ pub struct Range {
 }
 
 // 1. An empty line is forbidden, it should not block the parsing the raise an error in the IDE
-// 1. A missing or empty title is not authorized (the `exo` prefix must be found and trimmed value should not be "")
+// 1. A missing or empty title is not authorized (the `exo` key must be found and trimmed value should not be "")
 // 1. Only one correct option is accepted, not less and not more
-// 1. Double prefixes is incorrect
-// 1. A line that starts with something else that a known prefix or a dash or `//` is invalid
+// 1. Double keyes is incorrect
+// 1. A line that starts with something else that a known key or a dash or `//` is invalid
 #[derive(Eq, PartialEq, PartialOrd, Debug, Clone, Ord)]
 pub enum ParseError {
     EmptyLine(Position),
     TitleMissing(Position),
-    TitleEmpty(Range),            // range of "exo" prefix
+    TitleEmpty(Range),            // range of "exo" key
     TooMuchCorrectOptions(Range), // range of the second option property ".ok"
-    NoCorrectOption(Range),       // range of the "opt" prefix
+    NoCorrectOption(Range),       // range of the "opt" key
     InvalidLine(Range),           // range of the whole line
 }
 
@@ -117,7 +117,7 @@ impl Display for ParseError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let text = match self {
             ParseError::EmptyLine(_) => "Empty lines are not accepted",
-            ParseError::TitleMissing(_) => "The exo title is missing, add an `exo` prefix",
+            ParseError::TitleMissing(_) => "The exo title is missing, add an `exo` key",
             ParseError::TitleEmpty(_) => "Given title is empty",
             ParseError::TooMuchCorrectOptions(_) => {
                 "Found too much correct options, only one can be correct."
