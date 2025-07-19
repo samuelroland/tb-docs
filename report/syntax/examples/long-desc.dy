@@ -1,0 +1,9 @@
+exo Dog struct
+Consigne très longue
+
+en *Markdown*
+sur plusieurs lignes
+
+check la struct a la bonne taille
+see sizeof(Dog) = 12
+exit 0

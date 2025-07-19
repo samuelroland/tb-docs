@@ -221,44 +221,30 @@ La diminution de la verbosité des syntaxes décrites précédement est intéres
 
 #pagebreak()
 == Librairies de parsing en Rust
-Après s'être intéressé aux syntaxes existantes, nous nous intéressons maintenant aux solutions existantes pour simplifier ce parsing de cette nouvelle syntaxe en Rust.
+Après s'être intéressé aux syntaxes existantes, nous nous intéressons maintenant aux solutions pour simplifier le développement du parseur DY. Après quelques recherches avec le tag `parser` sur crates.io @cratesIoParserTagsList, j'ai trouvé la liste de librairies suivantes :
 
-Après quelques recherches avec le tag `parser` sur crates.io @cratesIoParserTagsList, j'ai trouvé la liste de librairies suivantes :
-
-- `winnow` @winnowCratesio, fork de `nom`, utilisé notamment par le parseur Rust de KDL @kdlrsDeps
 - `nom` @nomCratesio, utilisé notamment par `cexpr` @nomRevDeps
+- `winnow` @winnowCratesio, fork de `nom`, utilisé notamment par le parseur Rust de KDL @kdlrsDeps
 - `pest` @pestCratesio
 - `combine` @combineCratesio
 - `chumsky` @chumskyCratesio
 
-// todo ajouter la mention de quel parseur pour 2-3 autres syntaxes du dessus
+À noter aussi l'existence de la crate `serde` @serders, un framework de sérialisation et desérialisation très populaire dans l'écosystème Rust (selon le site lib.rs @librsMostPopular). Il est notamment utilisé pour les parseurs JSON `serde_json` et TOML `toml`. Ce n'est pas une librairie de parsing mais un modèle de donnée basée sur des _traits_ Rust (des interfaces) pour faciliter le passage d'un arbre syntaxique abstrait (AST) aux structures de données Rust. Le modèle de données de Serde @serdersDatamodel supporte 29 types de données. Trois raisons nous poussent à ne pas construire un parseur compatible avec `serde`:
++ Seulement les strings, listes et structs sont utiles pour PLX. Par exemple, les 12 types de nombres sont inutiles à différencier.
++ La sérialisation (structure Rust vers syntaxe DY) n'est pas prévue, seul la desérialisation nous intéresse
++ Le mappage des clés et propriétés vers les attributs des structs Rust n'est pas du 1:1. La valeur après `exo` contient le nom de l'exercice puis la consigne, ce qui signifie une seule string pour deux champs `name` et `instruction` dans la structure `Exo` finale.
 
-À noter aussi l'existence de la crate `serde`, un framework de sérialisation et desérialisation très populaire dans l'écosystème Rust (selon lib.rs @librsMostPopular). Il est notamment utilisé pour les parseurs JSON et TOML. Ce n'est pas une librairie de parsing mais un modèle de donnée basée sur les traits de Rust pour faciliter son travail. Au vu du modèle de données de Serde @serdersDatamodel, qui supporte 29 types de données, ce projet paraît à l'auteur apporter plus de complexités qu'autre chose pour trois raisons :
-+ Seulement les strings, listes et structs sont utiles pour PLX. Par exemple, les 12 types de nombres sont inutiles à différencier et seront propre au besoin de la variante.
-+ La sérialisation (struct Rust vers syntaxe DY) n'est pas prévue, seul la desérialisation est utile.
-+ Le mappage des clés et propriétés par rapport aux attributs des structs Rust qui seront générées, n'est pas du 1:1, cela dépendra de la structure définie pour la variante de PLX.
+Parser des simples expressions de math comme `((23+4) * 5)` est idéal pour ces outils: les débuts et fin de chaque partie sont claires, une combinaison de fonctions de parsing permettraient facilement identifier les expressions parenthésées, les opérateurs puis les nombres. Elles semblent bien adaptées à ignorer des espaces, extraire les nombres tant qu'ils contiennent des chiffres, extraire des opérateurs et les deux opérandes autour...
 
-Après ces recherches et quelques essais avec `winnow`, l'auteur a finalement décidé qu'utiliser une librairie était trop compliqué pour le projet et que l'écriture manuelle d'un parseur ferait mieux l'affaire. La syntaxe DY est relativement petite à parser, et sa structure légère et souvent implicite rend compliqué l'usage de librairies pensées pour des langages de programmation très structuré.
-
-Par exemple, une simple expression mathématique `((23+4) * 5)` paraît idéale pour ces outils, les débuts et fin sont claires, une stratégie de combinaisons de parseurs fonctionnerait bien pour les expressions parenthésées, les opérateurs et les nombres. Elles semblent bien adaptées à exprimer l'ignorance des espaces, extraire les nombres tant qu'ils contiennent des chiffres, extraire des opérateurs et les deux opérandes autour...
-
-Pour DY, l'aspect multiligne et le fait qu'une partie des clés est optionnelle, complique l'approche de définir le début et la fin et de combiner récursivement des parseurs comme on ne sait pas facilement où est la fin.
+Pour DY, l'aspect multiligne et le fait qu'une partie des clés est optionnelle, rend compliqué l'approche de combinaisons de parseurs.
 
 #figure(
-```
-exo Dog struct
-Consigne très longue
+  image("../syntax/examples/long-desc.svg", width: 50%), caption: [Exemple d'exercice PLX en DY, avec une consigne en Markdown sur plusieurs lignes]) <harddymultiline>
+// todo check width preview, modified in svg
 
-en *Markdown*
-sur plusieurs lignes
+Le @harddymultiline nous montre une consigne qui démarre après la ligne `exo` et continue sur plusieurs lignes jusqu'à qu'on trouve une autre clé (ici `check`). Le problème se pose aussi avec la clé `see`, qui est aussi multiligne, dont la valeur s'arrête au prochain `see`, `type`, `exit` ou `check`.
 
-check la struct a la bonne taille
-see sizeof(Dog) = 12
-exit 0
-...
-```, caption: [Exemple d'un début d'exercice de code, on voit que la consigne se trouve après la ligne `exo` et continue sur plusieurs lignes jusqu'à qu'on trouve une autre clé (ici `checks`). Même problème sur pour la fin du contenu de `see`, jusqu'au prochain `see` ou `exit` ou `check`])
-
-// todo la variante, terme correcte ?
+La syntaxe DY est relativement simple à parser et sa nature implicite rend compliqué l'usage de librairies pensées pour des formats avec beaucoup de séparateurs. Après ces recherches et quelques essais avec `winnow`, nous avons décidé que l'écriture manuelle du parseur sans librairie serait plus simple.
 
 #pagebreak()
 == Les serveurs de langage et librairies Rust

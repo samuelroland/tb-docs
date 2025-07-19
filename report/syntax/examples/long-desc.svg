@@ -1,0 +1,39 @@
+<svg width="400px" height="182px" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .fg { fill: #000000 }
+    .bg { background: #000000 }
+    .fg-rgb-20A8C3 { fill: #20A8C3 }
+    .container {
+      padding: 0 10px;
+      line-height: 18px;
+    }
+    .bold { font-weight: bold; }
+    tspan {
+      font: 14px SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+      white-space: pre;
+      line-height: 18px;
+    }
+  </style>
+
+  <text xml:space="preserve" class="container fg">
+    <tspan x="10px" y="28px"><tspan class="fg-rgb-20A8C3 bold">exo</tspan><tspan> Dog struct</tspan>
+</tspan>
+    <tspan x="10px" y="46px"><tspan>Consigne très longue</tspan>
+</tspan>
+    <tspan x="10px" y="64px">
+</tspan>
+    <tspan x="10px" y="82px"><tspan>en *Markdown*</tspan>
+</tspan>
+    <tspan x="10px" y="100px"><tspan>sur plusieurs lignes</tspan>
+</tspan>
+    <tspan x="10px" y="118px">
+</tspan>
+    <tspan x="10px" y="136px"><tspan class="fg-rgb-20A8C3 bold">check</tspan><tspan> la struct a la bonne taille</tspan>
+</tspan>
+    <tspan x="10px" y="154px"><tspan class="fg-rgb-20A8C3 bold">see</tspan><tspan> sizeof(Dog) = 12</tspan>
+</tspan>
+    <tspan x="10px" y="172px"><tspan class="fg-rgb-20A8C3 bold">exit</tspan><tspan> 0</tspan>
+</tspan>
+  </text>
+
+</svg>
