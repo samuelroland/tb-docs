@@ -24,4 +24,4 @@ opt .multiple
 
 ## TODO
 - Figure out how to embbed Markdown highlighting into DY highlighting
-- Figure out if it is possible to dynamically generate a `grammar.js` or the equivalent in JSON, based on the a list of prefixes and flags ?
+- Figure out if it is possible to dynamically generate a `grammar.js` or the equivalent in JSON, based on the a list of keys and properties ?
