@@ -109,6 +109,8 @@
 
 #let MyStyle(body) = {
 
+  show quote: set text(style: "italic");
+
   // Configure figures supplement color
   let figure_supplement_color = blue
 
