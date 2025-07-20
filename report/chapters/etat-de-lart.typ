@@ -420,8 +420,6 @@ Tree-Sitter est supporté dans Neovim @neovimTSSupport, dans le nouvel éditeur 
 Rédiger une grammaire Tree-Sitter consiste en l'écriture d'une grammaire en JavaScript dans un fichier `grammar.js`. Le CLI `tree-sitter` va ensuite générer un parseur en C qui pourra être compilée puis utilisée via le CLI `tree-sitter` durant le développement. Pour la production, comme elle n'a pas de dépendance externe, elle pourra être intégrée ou chargée dynamiquement @TreeSitterCreatingParsers @TreeSitterWebsite. Pour permettre du surlignage syntaxique, il reste encore à définir des fichiers de requêtes qui sélectionnent des noeuds dans l'arbre généré et attribue des catégories à ces tokens, qui sont compatible avec l'IDE.
 // todo: make sure enough info here after POC has moved below
 
-#pagebreak()
-
 === Surlignage sémantique
 Les deux solutions de surlignage syntaxique présentées précédement sont déjà satisfaisantes, mais ne tiennent pas compte de nombreuses informations sémantiques qui permettraient d'améliorer encore la colorisation.
 
@@ -488,7 +486,7 @@ Semantic Tokens
 //   caption: [Exemple tiré de la documentation de VSCode, démontrant quelques améliorations dans le surlignage. Les paramètres `languageModes` et `document` sont colorisés différemment que les variables locales. `Range` et `Position` sont colorisées commes des classes.#linebreak() `getFoldingRanges` dans la condition est colorisée en tant que fonction ce qui la différencie des autres propriétés. @VSCodeSemanticHighlighting],
 // ) <fig-semantic-highlighting-example>
 
-En voyant la liste des tokens sémantiques possible dans la spécification LSP @LspSpecSemanticTokens, cela peut aider à mieux comprendre l'intérêt et les possibilités d'un surlignage avancé. Par exemple, on trouve des tokens sémantiques comme `macro`, `regexp`, `typeParameter`, `interface`, `enum`, `enumMember`, qui seraient difficiles de détecter au niveau syntaxique.
+En voyant la liste des tokens sémantiques définis dans la spécification LSP @LspSpecSemanticTokens, cela peut aider à comprendre l'intérêt et les possibilités d'un surlignage avancé. Par exemple, on trouve des tokens sémantiques comme `macro`, `regexp`, `typeParameter`, `interface`, `enum`, `enumMember`, qui seraient difficiles de détecter au niveau syntaxique.
 
 === Choix final
 L'auteur a ignoré l'option du système de SublimeText, pour la simple raison qu'il n'est supporté nativement que dans SublimeText, probablement parce que cet IDE est propriétaire @SublimeHQEULA. Ce système utilisent des fichiers `.sublime-syntax`, qui ressemblent à TextMate @SublimeHQSyntax, mais qui sont rédigés en YAML.
@@ -498,8 +496,6 @@ L'auteur a ignoré l'option du système de SublimeText, pour la simple raison qu
 Cette décision se justifie notamment par la roadmap de VSCode: entre mars et mai 2025 @TSVSCodeWorkStart @TSVSCodeWorkNow, des employé·es de Microsoft ont commencé un travail d'investigation autour de Tree-Sitter pour explorer les grammaires existantes et l'usage de surlignage dans VSCode @ExploreTSVSCodeCodeHighlight. Des premiers efforts d'exploration avait d'ailleurs déjà eu lieu en septembre 2022 @EarlyTSVSCodeExp.\ La version de VSCode de mars 2025 (1.99) supporte de manière expérimentale le surlignage avec Tree-Sitter des fichiers CSS et des expressions régulières dans les fichiers TypeScript. @VSCodeUpdateWithTsExperimental
 
 L'usage du surlignage sémantique n'est pas au programme de ce travail mais pourra être exploré dans le futur si certains éléments sémantiques pourraient en bénéficier.
-
-#pagebreak()
 
 === POC de surlignage de notre syntaxe avec Tree-Sitter
 // todo les propriétés à introduire qqepart ?????????

@@ -71,14 +71,22 @@
   
   show heading.where(level:1): set text(size: 25pt)
 
-  show link: underline
-
-
   body
 }
 
 // My global style
 #let MyGlobalStyle(body) = {
+  show link: underline
+
+  show heading.where( level: 2): it => [
+    #text(size: 1.1em)[#it]
+  ]
+  show heading.where( level: 3): it => [
+    #text(size: 1.1em)[#it]
+  ]
+  show heading.where( level: 4): it => [
+    #text(size: 1.1em)[#it]
+  ]
 
   // Insert non breakable space before any : in any paragraph (this doesn't include code snippets)
   // show par: it => [
