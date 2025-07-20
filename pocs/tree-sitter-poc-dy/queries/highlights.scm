@@ -1,4 +1,4 @@
-(prefix) @keyword
+(key) @keyword
 (commented_line) @comment
 (content) @string
 (property) @property
