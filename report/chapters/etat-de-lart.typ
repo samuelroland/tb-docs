@@ -146,7 +146,7 @@ Les tabulations restent nécessaires pour définir la hiéarchie. Tout comme le 
 
 === SDLang - Simple Declarative Language
 
-SDLang se définit comme "une manière simple et concise de représenter des données textuellement. Il a une structure similaire au XML : des tags, des valeurs et des attributs, ce qui en fait un choix polyvalent pour la sérialisation de données, des fichiers de configuration ou des langages déclaratifs." (Traduction personnelle de leur site web @sdlangWebsite). SDLang définit également différents types de nombres (32 bits, 64 bits, entiers, flottants...), 4 valeurs de booléens (`true`, `false`, `on`, `off`), différents formats de dates et un moyen d'intégrer des données binaires encodées en Base64.
+SDLang se définit comme #quote("une manière simple et concise de représenter des données textuellement. Il a une structure similaire au XML : des tags, des valeurs et des attributs, ce qui en fait un choix polyvalent pour la sérialisation de données, des fichiers de configuration ou des langages déclaratifs.") (Traduction personnelle de leur site web @sdlangWebsite). SDLang définit également différents types de nombres (32 bits, 64 bits, entiers, flottants...), 4 valeurs de booléens (`true`, `false`, `on`, `off`), différents formats de dates et un moyen d'intégrer des données binaires encodées en Base64.
 
 #figure(
 ```
@@ -360,10 +360,10 @@ Par défaut un nouveau langage avec une extension de fichier dédiée reste en n
 
 Le bout de C `printf("salut");` est vu par un système de surlignage de code comme une suite de morceaux d'une certaines catégorie, qu'on appelle _tokens_. Ce bout de code pourrait être subdivisé avec les tokens suivants `printf` (identifiant), `(` (séparateur), `"` (séparateur), `salut` (valeur litérale), `"`, `)` et `;` (séparateur).
 
-Les IDE modernes supportent possèdent des systèmes de surlignage de code (_code highlighting_) et définissent leur propre liste de catégories de tokens, par exemple: séparateur, opérateur, mot clé, variable, fonction, constante, macro, énumération, ... Une fois la catégorie attribuée, il reste encore à définir quel couleur concrète est utilisé pour chaque catégorie. C'est le rôle des thèmes comme Monokai, Darcula, Tokioynight et beaucoup d'autres. Les systèmes de surlignage supporte parfois un rendu web via une version HTML contenant des classes CSS spécifiques à chaque type de token. Des thèmes écrits en CSS peuvent ainsi appliquer leurs couleurs. Le surlignage peut être de type syntaxique (_syntax highlighting_), avec une analyse purement basée sur la présence et l'ordre des tokens, ou sémantique (_semantic highlighting_) après une analyse de la sens du token.
+Les IDE modernes supportent possèdent des systèmes de surlignage de code (_code highlighting_) et définissent leur propre liste de catégories de tokens, par exemple: séparateur, opérateur, mot clé, variable, fonction, constante, macro, énumération, ... Une fois la catégorie attribuée, il reste encore à définir quel couleur concrète est utilisé pour chaque catégorie. C'est le rôle des thèmes comme Monokai, Darcula, Tokioynight et beaucoup d'autres. Les systèmes de surlignage supportent parfois un rendu web via une version HTML contenant des classes CSS spécifiques à chaque type de token. Des thèmes écrits en CSS peuvent ainsi appliquer leurs couleurs. Le surlignage peut être de type syntaxique (_syntax highlighting_), avec une analyse purement basée sur la présence et l'ordre des tokens, ou sémantique (_semantic highlighting_) après une analyse de la sens du token.
 // todo note surlignage syntaxique !
 
-=== Textmate
+=== Textmate - surlignage syntaxique
 TextMate est un IDE pour macOS qui a introduit un concept de grammaires. Ces grammaires permettent de définir la manière dont le code doit être tokenisé, à l’aide d'expressions régulières issues de la bibliothèque C Oniguruma (55) @textmateRegex. VSCode s’appuie sur ces grammaires TextMate @vscodeSyntaxHighlighting, tout comme IntelliJ IDEA, qui les utilise pour le Swift, C++ ou Perl qui ne sont pas supportés nativement @ideaSyntaxHighlighting.
 
 Le @textmateexemple montre un exemple de grammaire Textmate décrivant un langage nommé `untitled` avec 4 mots clés (`if`, `while`, `for`, `return`) et des chaines de caractères entre guillemets. Les expressions régulières données en `match`, `begin` et `end` permettent de trouver les tokens dans le document et leur attribué une catégorie (comme `keyword.control.untitled`).
@@ -390,38 +390,31 @@ Le @textmateexemple montre un exemple de grammaire Textmate décrivant un langag
 }
 ``` , caption: [Exemple de grammaire Textmate tiré de leur documentation @TextMateDocsLanguageGrammars.]) <textmateexemple>
 
-La documentation précise un choix important de conception: "A noter que ces regex sont matchées contre une seule ligne à la fois. Cela signifie qu'il n'est pas possible d'utiliser une pattern qui matche plusieurs lignes. La raison est technique: être capable de redémarrer le parseur à une ligne arbitraire et devoir reparser seulement un nombre minimal de lignes affectés par un changement. Dans la plupart des situations, il est possible d'utiliser le model `begin`/`end` pour dépasser cette limite." @TextMateDocsLanguageGrammars (Traduction personnelle, dernier paragraphe section 12.2).
+La documentation précise un choix important de conception: #quote("A noter que ces regex sont matchées contre une seule ligne à la fois. Cela signifie qu'il n'est pas possible d'utiliser une pattern qui matche plusieurs lignes. La raison est technique: être capable de redémarrer le parseur à une ligne arbitraire et devoir reparser seulement un nombre minimal de lignes affectés par un changement. Dans la plupart des situations, il est possible d'utiliser le model `begin`/`end` pour dépasser cette limite.") @TextMateDocsLanguageGrammars (Traduction personnelle, dernier paragraphe section 12.2).
 
-=== Tree-Sitter
+=== Tree-Sitter - surlignage syntaxique
 
-Les expressions régulières sont puissantes mais ont de limites pour représenter 
+// Avec Textmate les expressions régulières sont puissantes mais ont de limites pour gérer les spécificités d'un langage, c'est pour cette raison que TreeSitter a été créé.
+// todo expliquer pourquoi tree sitter est né avec articles en stock
 
-Tree-Sitter @TreeSitterWebsite se définit comme un "outil de génération de parser et une librairie de parsing incrémentale. Il peut construire un arbre de syntaxe concret (CST) depuis un fichier source et efficacement mettre à jour cet arbre quand le fichier source est modifié." @TreeSitterWebsite (Traduction personnelle)
-
-Rédiger une grammaire Tree-Sitter consiste en l'écriture d'une grammaire en JavaScript dans un fichier `grammar.js`. Le CLI `tree-sitter` va ensuite générer un parseur en C qui pourra être utilisé directement via le CLI `tree-sitter` durant le développement et être facilement embarquée comme librairie C sans dépendance dans n'importe quel type d'application @TreeSitterCreatingParsers @TreeSitterWebsite.
+Tree-Sitter @TreeSitterWebsite se définit comme un #quote("outil de génération de parser et une librairie de parsing incrémentale. Il peut construire un arbre de syntaxe concret (CST) depuis un fichier source et efficacement mettre à jour cet arbre quand le fichier source est modifié.") @TreeSitterWebsite (Traduction personnelle). Tree-Sitter permet aux éditeurs de fournir plusieurs fonctionnalités, dont le surlignage syntaxique.
 
 Tree-Sitter est supporté dans Neovim @neovimTSSupport, dans le nouvel éditeur Zed @zedTSSupport, ainsi que d'autres. Tree-Sitter a été inventé par l'équipe derrière Atom @atomTSSupport et est même utilisé sur GitHub, notamment pour la navigation du code pour trouver les définitions et références et lister tous les symboles (fonctions, classes, structs, etc) @TreeSitterUsageGithub.
 
 #figure(
   image("../imgs/tree-sitter-on-github.png", width: 100%),
-  caption: [Liste de symboles générées par Tree-Sitter, affichés à droite du code sur GitHub pour un exemple de code Rust de PLX],
+  caption: [Liste de symboles sur un exemple de Rust sur GitHub, générée par Tree-Sitter],
 ) <fig-tree-sitter-on-github>
 
+Rédiger une grammaire Tree-Sitter consiste en l'écriture d'une grammaire en JavaScript dans un fichier `grammar.js`. Le CLI `tree-sitter` va ensuite générer un parseur en C qui pourra être compilée puis utilisée via le CLI `tree-sitter` durant le développement. Pour la production, comme elle n'a pas de dépendance externe, elle pourra être intégrée ou chargée dynamiquement @TreeSitterCreatingParsers @TreeSitterWebsite. Pour permettre du surlignage syntaxique, il reste encore à définir des fichiers de requêtes qui sélectionnent des noeuds dans l'arbre généré et attribue des catégories à ces tokens, qui sont compatible avec l'IDE.
 // todo: make sure enough info here after POC has moved below
 
 #pagebreak()
 
 === Surlignage sémantique
-Le surlignage sémantique (_Semantic highlighting_) est une extension du surlignage syntaxique. Les serveurs de langage peuvent ainsi fournir des tokens sémantiques qui apportent une classification plus fine du langage, que les systèmes syntaxiques ne peuvent pas détecter. @VSCodeSemanticHighlighting
+Les deux solutions de surlignage syntaxique présentées précédement sont déjà satisfaisantes mais le fait qu'elle reste au niveau syntaxique, signifie qu'elle loupe plein d'informations sémantiques qui permettraient d'améliorer encore la colorisation.
 
-#figure(
-  image("../imgs/semantic-highlighting-example.png", width: 100%),
-  caption: [Exemple tiré de la documentation de VSCode, démontrant quelques améliorations dans le surlignage. Les paramètres `languageModes` et `document` sont colorisés différemment que les variables locales. `Range` et `Position` sont colorisées commes des classes.#linebreak() `getFoldingRanges` dans la condition est colorisée en tant que fonction ce qui la différencie des autres propriétés. @VSCodeSemanticHighlighting],
-) <fig-semantic-highlighting-example>
-
-En voyant la liste des tokens sémantiques possible dans la spécification LSP @LspSpecSemanticTokens, on comprend mieux l'intérêt et les possibilités de surlignage avancé. Par exemple, on trouve des tokens `macro`, `regexp`, `typeParameter`, `interface`, `enum`, `enumMember`, qui seraient difficiles de différencier durant la tokenisation, mais qui peuvent être surligné différemment pour mettre en avant leur différence sémantique.
-
-Sur le @example-c-colors surligné ici uniquement grâce à Tree-Sitter (sans surlignage sémantique) on voit que les appels de `HEY` et `hi` dans le `main` ont les mêmes couleurs alors que l'un est une macro, l'autre une fonction. En effet, à l'appel, il n'est pas possible de les différencier, ce n'est que le contexte plus large que seul le serveur de langage possède, qu'on peut déterminer cette différence.
+Sur le @example-c-colors surligné avec Tree-Sitter (surlignage syntaxique pour rappel), on voit que les appels de `HEY` et `hi` dans le `main` ont les mêmes couleurs alors que l'un est une macro, l'autre une fonction. A la définition les couleurs sont bien différentes, parce que le `#define` permet différencier la macro d'une fonction. A l'appel, il n'est pas possible de les différencier avec une analyse syntaxique, c'est à dire en regardant l'ordre des tokens extraits (identifiant, parenthèse, chaine litéral, etc). La notation en majuscules de l'identifiant de la macro ne peuvent pas être utilisés pour différencier l'appel car ce n'est qu'une convention, ce n'est pas requis par le C.
 #figure(
 ```c
 #include <stdio.h>
@@ -435,12 +428,8 @@ int main(int argc, char *argv[]) {
     HEY("Samuel");
     return 0;
 }
-```    ,
-    caption: [Exemple de code C `hello.c`, avec macro et fonction surligné de la même manière à l'appel]
+```, caption: [Exemple de code C `hello.c`, avec macro et fonction surligné de la même manière à l'appel]) <example-c-colors>
 
-) <example-c-colors>
-
-#pagebreak()
 Sur le @ts-tree-c-code, on voit que les 2 lignes `hi` et `HEY` sont catégorisés sans surprise comme des fonctions (noeuds `function`, `arguments`, ...).
 #figure(
 ```
@@ -459,7 +448,9 @@ Sur le @ts-tree-c-code, on voit que les 2 lignes `hi` et `HEY` sont catégorisé
 ``` , caption: [Aperçu de l'arbre syntaxique concret généré par Tree-Sitter#linebreak()récupéré via `tree-sitter parse hello.c`]
 ) <ts-tree-c-code>
 
-Si on inspecte l'état de l'éditeur, on peut voir qu'au-delà des tokens générés par Tree-Sitter, le serveur de langage (`clangd` ici), a réussi à préciser la notion de macro au-delà du simple appel de fonction.
+Pour différencier les appels, le serveur de langage possèdent plus de contexte sémantique et peut nous aider à améliorer la colorisation. Le surlignage sémantique est une extension du surlignage syntaxique, où un serveur de langage fournit des tokens sémantiques. Un serveur de langage est plus lent et ne fournit une information supplémentaire que pour une partie des tokens, il n'a pas pour but de remplacer le surlignage syntaxique. @VSCodeSemanticHighlighting
+
+Si on inspecte l'état de Neovim avec le fichier du @example-c-colors ouvert, le serveur de langage `clangd` a réussi à préciser la notion de macro au-delà du simple appel de fonction.
 #figure(
 ```
 Semantic Tokens
@@ -468,35 +459,39 @@ Semantic Tokens
   - @lsp.typemod.macro.globalScope.c links to @lsp   priority: 127
 ```, caption: [Extrait de la commande `:Inspect` dans Neovim avec le curseur sur le `HEY`])
 
-Ainsi dans Neovim une fois `clangd` lancé, l'appel de `HEY` prend ainsi la même couleur que celle attribuée sur sa définition.
+#figure(
+  image("../imgs/neovim-semantic-highlighting.png", width: 60%),
+  caption: [Une fois `clangd` lancé, l'appel de `HEY` prend une couleur différente que l'appel de fonciton mais la même couleur que celle attribuée sur sa définition],
+) <fig-neovim-semantic-highlighting>
+
+// exemple doublon !
+// #figure(
+//   image("../imgs/semantic-highlighting-example.png", width: 100%),
+//   caption: [Exemple tiré de la documentation de VSCode, démontrant quelques améliorations dans le surlignage. Les paramètres `languageModes` et `document` sont colorisés différemment que les variables locales. `Range` et `Position` sont colorisées commes des classes.#linebreak() `getFoldingRanges` dans la condition est colorisée en tant que fonction ce qui la différencie des autres propriétés. @VSCodeSemanticHighlighting],
+// ) <fig-semantic-highlighting-example>
+
+En voyant la liste des tokens sémantiques possible dans la spécification LSP @LspSpecSemanticTokens, cela peut aider à mieux comprendre l'intérêt et les possibilités d'un surlignage avancé. Par exemple, on trouve des tokens sémantiques comme `macro`, `regexp`, `typeParameter`, `interface`, `enum`, `enumMember`, qui seraient difficiles de détecter au niveau syntaxique.
 
 === Choix final
-L'auteur a ignoré l'option du système de SublimeText. pour la simple raison qu'il n'est supporté nativement que dans SublimeText, probablement parce que cet IDE est propriétaire @SublimeHQEULA. Ce système utilisent des fichiers `.sublime-syntax`, qui ressemble à TextMate @SublimeHQSyntax, mais rédigé en YAML.
+L'auteur a ignoré l'option du système de SublimeText, pour la simple raison qu'il n'est supporté nativement que dans SublimeText, probablement parce que cet IDE est propriétaire @SublimeHQEULA. Ce système utilisent des fichiers `.sublime-syntax`, qui ressemblent à TextMate @SublimeHQSyntax, mais qui sont rédigés en YAML.
 
-*Si le temps le permet, une grammaire sera développée avec Tree-Sitter pour supporter du surlignage dans Neovim.*
+*Si le temps le permet, une grammaire sera développée avec Tree-Sitter pour supporter du surlignage dans Neovim.* Le choix de ne pas explorer plus les grammaires Textmate, laisse penser que nous délaissons complètement VSCode. Ce choix peut paraître étonnant comme VSCode est régulièrement utilisé par 73% des 65,437 répondant·es au sondage de StackOverflow 2024 @StackoverflowSurveyIDE.
 
-Le choix de ne pas explorer plus les grammaires Textmate, laisse penser que l'auteur du travail délaisse complètement VSCode. Ce qui parait étonnant comme VSCode est régulièrement utilisé par 73% des 65,437 répondants au sondage de StackOverflow 2024 @StackoverflowSurveyIDE.
-
-Cette décision se justifie notamment par la roadmap de VSCode: entre mars et mai 2025 @TSVSCodeWorkStart @TSVSCodeWorkNow, du travail d'investigation autour de Tree-Sitter a été fait pour explorer les grammaires existantes et l'usage de surlignage de code dans VSCode @ExploreTSVSCodeCodeHighlight. Des premiers efforts d'exploration avait d'ailleurs déjà eu lieu en septembre 2022 @EarlyTSVSCodeExp.
+Cette décision se justifie notamment par la roadmap de VSCode: entre mars et mai 2025 @TSVSCodeWorkStart @TSVSCodeWorkNow, des employé·es de Microsoft ont commencé un travail d'investigation autour de Tree-Sitter pour explorer les grammaires existantes et l'usage de surlignage dans VSCode @ExploreTSVSCodeCodeHighlight. Des premiers efforts d'exploration avait d'ailleurs déjà eu lieu en septembre 2022 @EarlyTSVSCodeExp.\ La version de VSCode de mars 2025 (1.99) supporte de manière expérimentale le surlignage avec Tree-Sitter des fichiers CSS et des expressions régulières dans les fichiers TypeScript. @VSCodeUpdateWithTsExperimental
 
 L'usage du surlignage sémantique n'est pas au programme de ce travail mais pourra être exploré dans le futur si certains éléments sémantiques pourraient en bénéficier.
 
+#pagebreak()
+
 === POC de surlignage de notre syntaxe avec Tree-Sitter
-Ce POC vise à prouver que l'usage de Tree-Sitter fonctionne pour coloriser les clés et les propriétés de @exo-dy-ts-poc pour ne pas avoir cet affichage noir sur blanc qui ne facilite pas la lecture.
-#figure(
-```
-// Basic MCQ exo
-exo Introduction
+// todo les propriétés à introduire qqepart ?????????
+Ce POC vise à prouver que l'usage de Tree-Sitter fonctionne pour coloriser les clés et les propriétés. L'exemple du @exo-dy-ts-poc est un exercice de choix multiples. Ce format n'est pas supporté par PLX mais cela nous permet de coloriser un exemple minimaliste incluant des clés `exo` (titre) et `opt` (options) avec en plus des propriétés `.ok` et `.multiple`.
 
-opt .multiple
-- C is an interpreted language
-- .ok C is a compiled language
-- C is mostly used for web applications
-```,
-  caption: [Un exemple de question choix multiple dans un fichier `mcq.dy`, décrite avec la syntaxe DY. Les clés sont `exo` (titre) et `opt` (options). Les propriétés sont `.ok` et `.multiple`.]
-) <exo-dy-ts-poc>
+// todo mentionner aussi sur dy impl ?
 
-Une fois la grammaire mise en place avec la commande `tree-sitter init`, il suffit de remplir le fichier `grammar.js`, avec une ensemble de règles construites via des fonctions fournies par Tree-Sitter et des expressions régulières. `seq` indique une liste de tokens qui viendront en séquence, `choice` permet de tester plusieurs options à la même position. On remarque également la liste des clés et propriétés insérés dans les tokens de `prefix` et `property`. La documentation *The Grammar DSL* de la documentation explique toutes les options possibles en détails @TreeSitterGrammarDSL.
+#figure(raw(block: true, lang: "text", read("../imgs/mcq.dy")), caption: [Affichage noir sur blanc ce qui rend la lecture difficile\ avec une question à choix multiples dans un fichier `mcq.dy`]) <exo-dy-ts-poc>
+
+Une fois la grammaire mise en place avec la commande `tree-sitter init`, il suffit de remplir le fichier `grammar.js`, avec une ensemble de règles construites via des fonctions fournies par Tree-Sitter et des expressions régulières. La documentation *The Grammar DSL* de la documentation explique toutes les options possibles en détails @TreeSitterGrammarDSL. Pour avoir un aperçu, la fonction `seq` qui indique une liste de tokens qui viendront en séquence et `choice` permet de tester plusieurs options à la même position. On remarque également les clés et propriétés insérés dans les tokens de `key` et `property`.
 #figure(
 ```js
 module.exports = grammar({
@@ -504,14 +499,14 @@ module.exports = grammar({
   rules: {
     source_file: ($) => repeat($._line),
     _line: ($) =>
-      seq( choice($.commented_line, $.prefixed_line, $.list_line, $.content_line), "\n"),
-    prefixed_line: ($) =>
-      seq($.prefix, optional(repeat($.property)), optional(seq(" ", $.content))),
+      seq( choice($.commented_line, $.line_withkey, $.list_line, $.content_line), "\n"),
+    line_withkey: ($) =>
+      seq($.key, optional(repeat($.property)), optional(seq(" ", $.content))),
     commented_line: (_) => token(seq(/\/\/ /, /.+/)),
     list_line: ($) =>
       seq($.dash, repeat($.property), optional(" "), optional($.content)),
     dash: (_) => token(prec(2, /- /)),
-    prefix: (_) => token(prec(1, choice("exo", "opt"))),
+    key: (_) => token(prec(1, choice("exo", "opt"))),
     property: (_) => token(prec(3, seq(".", choice("multiple", "ok")))),
     content_line: ($) => $.content,
     content: (_) => token(prec(0, /.+/)),
@@ -520,25 +515,25 @@ module.exports = grammar({
 ``` , caption: [Résultat de la grammaire minimaliste `grammar.js`, définissant un ensemble de règles sous `rules`.]
 ) <grammar-js-poc>
 
-On observe dans le @grammar-js-poc plusieurs règles : 
+On observe dans le @grammar-js-poc plusieurs règles:
 - `source_file`: décrit le point d'entrée d'un fichier source, défini comme une répétition de ligne.
-- `_line`: une ligne est une séquence d'un choix entre 4 types de lignes qui sont chacune décrites en dessous et un retour à la ligne
-- `prefixed_line`: une ligne préfixée consiste en séquence de token composé d'une clé en préfixe, puis optionnellement d'un ou plusieurs propriétés. Elle se termine optionnellement par un contenu qui commence après un premier espace
+- `_line`: une ligne est une séquence d'un choix entre 4 types de lignes, chacune décrites en dessous, puis un retour à la ligne
+- `line_withkey`: une ligne avec une clé consiste en une séquence de token composé d'une clé, puis optionnellement d'une ou plusieurs propriétés. Elle se termine optionnellement par un contenu qui commence après un premier espace
 - `commented_line` définit les commentaires comme `//` puis un reste
-- `list_line`, `dash` et le reste des règles suivent la même logique de définition
+- `list_line`, `dash` et le reste des règles suivent la même logique
 
-Après avoir appelé `tree-sitter generate` pour générer le code du parser C et `tree-sitter build` pour le compiler, on peut demander au CLI de parser un fichier donné et afficher le CST. Dans cet arbre qui démarre avec son noeud racine `source_file`, on y voit les noeuds du même type que les règles définies précédemment, avec le texte extrait dans la plage de caractères associée au noeud. Par exemple, on voit que l'option `C is a compiled language` a bien été extraite à la ligne 5, entre le byte 6 et 30 (`5:6  - 5:30`) en tant que `content`. Elle suit un token de `property` avec notre propriété `.ok` et le tiret de la règle `dash`.
+Après avoir appelé `tree-sitter generate` pour générer le code du parser C et `tree-sitter build` pour le compiler, on peut maintenant parser un fichier donné et afficher le CST (Concrete Syntax Tree). Dans cet arbre qui démarre avec un noeud racine `source_file`, on retrouve des noeuds du même type que les règles définies précédemment, avec le texte extrait dans la plage de caractères associée au noeud. Par exemple, on voit que l'option `C is a compiled language` a bien été extraite à la ligne 5, entre le byte 6 et 30 (`5:6  - 5:30`) en tant que `content`. Elle suit un token de `property` avec notre propriété `.ok` et le tiret de la règle `dash`.
 
 #figure(
-  image("../imgs/tree-sitter-cst.svg", width: 70%),
-  caption: [Concrete Syntax Tree généré par la grammaire définie sur le fichier `mcq.dy`],
+  image("../imgs/tree-sitter-cst.svg", width: 60%),
+  caption: [CST généré par la grammaire définie sur le fichier `mcq.dy`],
 )
 
-La tokenisation fonctionne bien pour cet exemple, chaque élément est correctement découpé et catégorisé. Pour voir ce snippet en couleurs, il nous reste deux choses à définir. La première consiste en un fichier `queries/highlighting.scm` qui décrit des requêtes de surlignage sur l'arbre (_highlights query_) permettant de sélectionner des noeuds de l'arbre et leur attribuer un nom de surlignage (_highlighting name_). Ces noms ressemblent à `@variable`, `@constant`, `@function`, `@keyword`, `@string`... et des versions plus spécifiques comme `@string.regexp`, `@string.special.path`. Ces noms sont ensuite utilisés par les thèmes pour appliquer un style.
+La tokenisation fonctionne bien pour cet exemple, chaque élément est correctement découpé et catégorisé. Pour voir ce snippet en couleurs, il nous reste deux choses à définir. La première consiste en un fichier `queries/highlighting.scm` qui décrit des requêtes de surlignage sur l'arbre (_highlights query_) permettant de sélectionner des noeuds de l'arbre et leur attribuer un nom de surlignage (_highlighting name_). Ces noms ressemblent à `@variable`, `@constant`, `@function`, `@keyword`, `@string`... ou des versions plus spécifiques comme `@string.regexp`, `@string.special.path`. Ces noms sont ensuite utilisés par les thèmes pour appliquer un style.
 
 #figure(
 ```scm
-(prefix) @keyword
+(key) @keyword
 (commented_line) @comment
 (content) @string
 (property) @property
@@ -565,14 +560,17 @@ Le CLI supporte directement la configuration d'un thème via son fichier de conf
   caption: [Screenshot du résultat de la commande #linebreak() `tree-sitter highlight mcq.dy` avec notre exercice surligné]
 )
 
-L'auteur de ce travail s'est inspiré de l'article *How to write a tree-sitter grammar in an afternoon* @SirabenTreeSitterTuto pour ce POC.
+La réalisation du POC s'inspire de l'article *How to write a tree-sitter grammar in an afternoon* @SirabenTreeSitterTuto.
 // todo comment citer ??
-Le résultat de ce POC est encourageant, même s'il faudra probablement plus que quelques heures pour gérer les détails, comprendre, tester et documenter l'intégration dans Neovim, cette partie nice to have a des chances de pouvoir être réalisée dans ce travail au vu du résultat atteint avec ce POC.
 
-Le surlignage sémantique pourrait être utile en attendant l'intégration de Tree-Sitter dans VSCode. L'extension `tree-sitter-vscode` en fait déjà une intégration avec cette approche, qui est beaucoup plus lente qu'une intégration native, mais qui fonctionne. À noter que l'extension n'est pas triviale à installer et configurer, qu'on peut considérer son usage encore expérimental. Elle nécessite d'avoir un build WASM de notre parseur Tree-Sitter @TreeSitterVscodeGithub.
+Le résultat de ce POC est encourageant, même s'il faudra probablement plus de temps pour gérer les détails, comprendre, tester et documenter l'intégration dans Neovim. Cette partie _nice-to-have_ a des chances de pouvoir être réalisée dans ce travail au vu du résultat atteint avec ce POC.
+
+// TODO vraiment ???
+
+Le surlignage sémantique pourrait être utile en attendant l'intégration de Tree-Sitter dans VSCode. L'extension `tree-sitter-vscode` en fait déjà une intégration avec cette approche, qui s'avère beaucoup plus lente qu'une intégration native mais permettrait d'avoir une solution fonctionnelle temporaire. À noter que l'extension n'est pas triviale à installer et configurer, son usage est encore expérimental. Elle nécessite d'avoir un build WebAssembly de notre parseur Tree-Sitter @TreeSitterVscodeGithub.
 #figure(
   image("../imgs/tree-sitter-vscode-ext-demo.png", width: 60%),
-  caption: [Screenshot dans VSCode une fois l'extension `tree-sitter-vscode` configuré, le surlignage est fait via notre syntaxe Tree-Sitter via ],
+  caption: [Screenshot dans VSCode une fois l'extension `tree-sitter-vscode`\ configurée pour notre grammaire Tree-Sitter],
 ) <fig-tree-sitter-vscode-ext-demo>
 
 #pagebreak()
@@ -655,8 +653,6 @@ john.writeTo(output);
 Le langage Rust n'est pas officiellement supporté, mais un projet du nom de PROST! existe @ProstGithub et permet de générer du code Rust depuis des fichiers Protobuf.
 
 === MessagePack
-Le slogan de MessagePack, format binaire de sérialisation: "C'est comme JSON, mais rapide et léger" (Traduction personnelle). Une implémentation en Rust du nom de RPM existe @DocsRmp.
-
 //todo un exemple ou pas ?
 
 === Websocket
@@ -733,15 +729,15 @@ message HelloReply {
 
 Comme Protobuf, Rust n'est pas supporté officiellement, mais une implémentation du nom de Tonic existe @TonicGithub, elle utilise PROST! mentionnée précédemment pour l'intégration de Protobuf.
 
-Un article de 2019, intitulé *The state of gRPC in the browser* @GrpcBlogStateOfGrpcWeb montre que l'utilisation de gRPC dans les navigateurs web est encore malheureusement mal supportée. En résumé, "il est actuellement impossible d'implémenter la spécification HTTP/2 gRPC dans le navigateur, comme il n'y a simplement pas d'API de navigateur avec un contrôle assez fin sur les requêtes." (Traduction personnelle). La solution a été trouvée à ce problème est le projet gRPC-Web qui fournit un proxy entre le navigateur et le serveur gRPC, faisant les conversions nécessaires entre gRPC-Web et gRPC.
+Un article de 2019, intitulé *The state of gRPC in the browser* @GrpcBlogStateOfGrpcWeb montre que l'utilisation de gRPC dans les navigateurs web est encore malheureusement mal supportée. En résumé, #quote("il est actuellement impossible d'implémenter la spécification HTTP/2 gRPC dans le navigateur, comme il n'y a simplement pas d'API de navigateur avec un contrôle assez fin sur les requêtes.") (Traduction personnelle). La solution a été trouvée à ce problème est le projet gRPC-Web qui fournit un proxy entre le navigateur et le serveur gRPC, faisant les conversions nécessaires entre gRPC-Web et gRPC.
 
 Il reste malheureusement plusieurs limites : le streaming bidirectionnel n'est pas possible, le client peut faire des appels unaires (pour un seul message) et peut écouter une _server-side streams_ (flux de messages venant du serveur). L'autre limite est le nombre maximum de connexions en streaming simultanées dans un navigateur sur HTTP/1.1 fixées à 6 @EventSourceStreamMax, ce qui demande de restructurer ses services gRPC pour ne pas avoir plus de six connexions en _server-side streaming_ à la fois.
 
 
 === tarpc
-tarpc également développé sur l'organisation GitHub de Google sans être un produit officiel, se définit comme "un framework RPC pour Rust, avec un focus sur la facilité d'utilisation. Définir un service peut être fait avec juste quelques lignes de code et le code boilerplate du serveur est géré pour vous." (Traduction personnelle) @TarpcGithub
+tarpc également développé sur l'organisation GitHub de Google sans être un produit officiel, se définit comme #quote("un framework RPC pour Rust, avec un focus sur la facilité d'utilisation. Définir un service peut être fait avec juste quelques lignes de code et le code boilerplate du serveur est géré pour vous.") (Traduction personnelle) @TarpcGithub
 
-tarpc est différent de gRPC et Cap'n Proto "en définissant le schéma directement dans le code, au lieu d'utiliser un langage séparé comme Protobuf. Ce qui signifie qu'il n'y a pas de processus de compilation séparée et pas de changement de contexte entre différents langages." (Traduction personnelle) @TarpcGithub
+tarpc est différent de gRPC et Cap'n Proto #quote("en définissant le schéma directement dans le code, au lieu d'utiliser un langage séparé comme Protobuf. Ce qui signifie qu'il n'y a pas de processus de compilation séparée et pas de changement de contexte entre différents langages.") (Traduction personnelle) @TarpcGithub
 
 === Choix final
 
