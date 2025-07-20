@@ -594,17 +594,17 @@ Le surlignage sémantique pourrait être utile en attendant l'intégration de Tr
 #pagebreak()
 
 == Protocoles de communication bidirectionnels et formats de sérialisation
-Le serveur de gestion de sessions live a besoin d'un système de communication bidirectionnelle en temps réel, afin de transmettre le code et les résultats des étudiants. Ces messages seront transformés dans un format standard, facile à sérialiser et désérialiser en Rust. Cette section explore les formats textuels et binaires disponibles, ainsi que les protocoles de communication bidirectionnelle.
+Le serveur de sessions live a besoin d'un système de communication en temps réel pour être capable transmettre le code et les résultats des étudiants. Ces messages seront transformés dans un format standard, facile à sérialiser et désérialiser en Rust. Cette section explore les formats textuels et binaires disponibles, ainsi que les protocoles disponibles qui fonctionnent sur TCP.
 
 === JSON
-Contrairement à toutes les critiques relevées précédemment sur le JSON et d'autres formats, dans leur usage en tant que format source, JSON est une option solide pour la communication client-serveurs. Le format JSON est très populaire pour les API REST, les fichiers de configuration, et d'autres usages.
+Contrairement à toutes les critiques relevées précédemment sur le JSON et d'autres formats pour leur rédaction manuelle, le JSON est une option solide pour la communication client-serveurs. Il est très populaire pour les API REST, les fichiers de configuration et s'intègre bien en Rust.
 // todo okay ces affirmations ? pas besoin de présenter plus ?
 
-#figure(
-```rust
-use serde::{Deserialize, Serialize};
-use serde_json::Result;
+En Rust, avec `serde_json`, il est simple de parser du JSON dans une struct. Une fois la macro `Deserialize` appliquée, on peut directement appeler `serde_json::from_str(json_data)`.
 
+#grid(columns: 2,
+figure(
+```rust
 #[derive(Serialize, Deserialize)]
 struct Person {
     name: String,
@@ -612,40 +612,83 @@ struct Person {
     phones: Vec<String>,
 }
 // ...
-let data = r#" {
-        "name": "John Doe",
+let data = r#" { "name": "John Doe",
         "age": 43,
-        "phones": [ "+44 1234567", "+44 2345678" ]
+        "phones": [
+          "+44 1234567",
+          "+44 2345678"
+        ]
     }"#;
 let p: Person = serde_json::from_str(data).unwrap();
-println!("Please call {} at the number {}", p.name, p.phones[0]);
 ```, caption: [Exemple simplifié de parsing de JSON, tiré de leur documentation @DocsRSSerdeJson.])
-
-#figure(
+,
+figure(
 ```rust
 use serde_json::json;
-
 fn main() {
-    // The type of `john` is `serde_json::Value`
     let john = json!({
         "name": "John Doe",
         "age": 43,
-        "phones": [ "+44 1234567", "+44 2345678" ]
+        "phones": [
+          "+44 1234567",
+          "+44 2345678"
+        ]
     });
     println!("first phone number: {}", john["phones"][0]);
     println!("{}", john.to_string());
 }
-```
-    ,
-    caption: [Autre exemple de sérialisation vers JSON d'une structure arbitraire.#linebreak()Egalement tiré de leur documentation @DocsRSSerdeJsonConJsonVal.]
+``` , caption: [Exemple de sérialisation en JSON d'une structure arbitraire,#linebreak()tiré de leur documentation @DocsRSSerdeJsonConJsonVal.]))
 
-)
+=== Websocket
+Le protocole Websocket, défini dans la RFC 6455, permet une communication bidirectionnelle entre un client et un serveur. A la place de l'approche de requête-réponses du HTTP, le protocole Websocket définit une manière de garder une connexion TCP ouverte et un moyen d'envoyer des messages dans les 2 sens.
+On évite ainsi d'ouvrir plusieurs connexions HTTP à chaque requête. La technologie a été pensée pour être utilisée par des applications dans les navigateurs, mais fonctionne également en dehors @WSRFC.
 
-En Rust, avec `serde_json`, il est simple de parser du JSON dans une struct. Une fois la macro `Deserialize` appliquée, on peut directement appeler `serde_json::from_str(json_data)`.
-=== Protocol Buffers - Protobuf
-Parmi les formats binaires, on trouve Protobuf, un format développé par Google pour sérialiser des données structurées, de manière compacte, rapide et simple. L'idée est de définir un schéma dans un style non spécifique à un langage de programmation, puis de génération automatiquement du code pour interagir avec ces structures depuis du C++, Java, Go, Ruby, C\# et d'autres. @ProtobufWebsite
+La section _1.5 Design Philosophy_ explique que le protocole est conçu pour un _minimal framing_ (encadrement minimal autour des données envoyées), juste assez pour permettre de découper le flux TCP en _frame_ (en message d'une longueur variable) et de distinguer le texte des données binaires. @WSRFConepointfive Le protocole supporte ainsi d'envoyer un type de message pour le texte qui doit être de l'UTF8 et un autre pour le binaire @WSRFC.
 
-#figure(
+// La section *1.3. Opening Handshake*, nous explique que pour permettre une compatibilité avec les serveurs HTTP et intermédiaires sur le réseau, l'opening handshake (l'initialisation du socket une fois connecté) est compatible avec le format des entêtes HTTP. Cela permet d'utiliser un serveur WebSocket sur le même port qu'un serveur web, ou d'héberger plusieurs serveurs WebSocket sur différentes routes par exemple `/chat` et `/news`. @WSRFConepointthree
+
+Dans l'écosystème Rust, il existe plusieurs crates qui implémentent le protocole, parfois côté client, côté serveur ou les deux. Il existe plusieurs approches synchrone et asynchrone (async/await).
+
+La crate `tungstenite` propose une abstraction du protocole qui permet de facilement interagir avec des `Message`, leur écriture `send()` et leur lecture `read()` est simple à utiliser @TungsteniteCratesio. Elle passe la _Autobahn Test Suite_ (suite de tests de plus de 500 cas pour vérifier une implémentation Websocket) @AutobahnTestsuiteGithub.
+
+//
+// #figure(
+// ```rust
+// use std::net::TcpListener;
+// use std::thread::spawn;
+// use tungstenite::accept;
+//
+// /// A WebSocket echo server
+// fn main () {
+//     let server = TcpListener::bind("127.0.0.1:9001").unwrap();
+//     for stream in server.incoming() {
+//         spawn (move || {
+//             let mut websocket = accept(stream.unwrap()).unwrap();
+//             loop {
+//                 let msg = websocket.read().unwrap();
+//
+//                 // We do not want to send back ping/pong messages.
+//                 if msg.is_binary() || msg.is_text() {
+//                     websocket.send(msg).unwrap();
+//                 }
+//             }
+//         });
+//     }
+// }
+// ``` , caption: [Exemple de serveur echo en WebSocket avec la crate `tungstenite`. Tiré de leur README @TungsteniteCratesio])
+//
+
+Comme nous avons besoin de gérer des milliers de clients simultanés, les threads natifs ne sont pas adaptés et nous avons besoin d'un système asynchrone. L'approche asynchrone requiert un _runtime_, qui ressemble à l'ordonnanceur d'un OS mais qui gère des tâches asynchrone en dehors de l'espace noyau, pour que ces threads virtuels puissent laisser la place à d'autres dès qu'une interaction avec le réseau les fait attendre.
+
+En Rust, `tokio` est la solution la plus populaire à ce problème @librsMostPopular. Une version `async` autour de `tungstenite` existe pour le _runtime_ Tokio et s'appelle `tokio-tungstenite` @TokioTungsteniteCratesio. Nous avons aussi besoin de pouvoir écrire et lire sur un socket en même temps (pour attendre des messages tout en continuant d'en envoyer) et `tokio-tungstenite` supporte ce besoin.
+
+Il existe une crate `websocket` avec une approche sync et async, qui est dépréciée et dont le README @WebsocketCratesio conseille l'usage de `tungstenite` ou `tokio-tungstenite` à la place @WebsocketCratesio. Pour conclure cette section, il est intéressant de relever qu'il existe d'autres crates tel que `fastwebsockets` @FastwebsocketsCratesio à disposition, qui semblent demander de travailler à un plus bas niveau.
+
+=== Formats binaires
+*Protocol Buffers*, dit _Protobuf_, est un format binaire développé par Google pour sérialiser des données structurées, de manière compacte, rapide et simple. L'idée est de définir un schéma dans un style qui ne dépend pas d'un langage de programmation, puis de générer automatiquement du code de sérialisation pour interagir avec ces structures depuis du C++, Java, Go, Ruby, C\# et d'autres. @ProtobufWebsite
+
+#grid(columns: 2, column-gutter:  10pt,
+figure(
 ```proto
 edition = "2023";
 
@@ -654,10 +697,9 @@ message Person {
   int32 id = 2;
   string email = 3;
 }
-```, caption: [Un simple exemple de description d'une personne en ProtoBuf#linebreak()tiré de leur site web @ProtobufWebsite.])
-
-
-#figure(
+```, caption: [Un exemple de description d'une personne en ProtoBuf, de leur site web @ProtobufWebsite.])
+,
+figure(
 ```java
 Person john = Person.newBuilder()
     .setId(1234)
@@ -666,180 +708,87 @@ Person john = Person.newBuilder()
     .build();
 output = new FileOutputStream(args[0]);
 john.writeTo(output);
-``` , caption: [Et son usage en Java avec les classes autogénérées à la compilation#linebreak()tiré de leur site web @ProtobufWebsite.])
+``` , caption: [Son usage en Java avec les classes autogénérées à la compilation,\ de leur site web @ProtobufWebsite.])
+)
 
 Le langage Rust n'est pas officiellement supporté, mais un projet du nom de PROST! existe @ProstGithub et permet de générer du code Rust depuis des fichiers Protobuf.
 
-=== MessagePack
-//todo un exemple ou pas ?
+*gRPC* est un protocole inventé par Google basé sur Protobuf. Ce système de _Remote Procedure Call_ (RPC - un système d'appel de fonctions à distance) est universelle, performant et supporte le streaming bidirectionnel sur HTTP2. En plus des définitions des messages en Protobuf déjà présentés, il est possible de définir des services, avec des méthodes avec un type de message et un type de réponse. @GrpcWebsite
 
-=== Websocket
-Le protocole Websocket, définie dans la RFC 6455 @WSRFC, permet une communication bidirectionnelle entre un client et un serveur. A la place de l'approche de requête-réponses du HTTP, le protocole Websocket définit une manière de garder une connexion TCP ouverte et un moyen d'envoyer des messages dans les 2 sens.
-On évite ainsi d'ouvrir plusieurs connexions HTTP, une nouvelle à chaque fois qu'un événement se produit ou que le client veut vérifier si le serveur n'a pas d'événements à transmettre. La technologie a été pensée pour être utilisée par des applications dans les navigateurs, mais fonctionne également en dehors @WSRFC.
-
-La section *1.5 Design Philosophy* explique que le protocole est conçu pour un _minimal framing_ (encadrement minimal autour des données envoyées), juste assez pour permettre de découper le flux TCP en _frame_ (en message d'une durée variable définie) et de distinguer le texte des données binaires. Le texte doit être encodé en UTF-8. @WSRFConepointfive
-
-La section *1.3. Opening Handshake*, nous explique que pour permettre une compatibilité avec les serveurs HTTP et intermédiaires sur le réseau, l'opening handshake (l'initialisation du socket une fois connecté) est compatible avec le format des entêtes HTTP. Cela permet d'utiliser un serveur websocket sur le même port qu'un serveur web, ou d'héberger plusieurs serveurs websocket sur différentes routes par exemple `/chat` et `/news`. @WSRFConepointthree
-
-Dans l'écosystème Rust, il existe plusieurs crate qui implémente le protocole, parfois côté client, côté serveur ou les deux. Il existe plusieurs approches sync (synchrone) et async (asynchrone), nous nous concentrons ici sur une approche sync avec gestion des threads natifs manuelle pour simplifier l'implémentation et les recherches.
-
-La crate `tungstenite` propose une abstraction du protocole qui permet de facilement interagir avec des `Message`, leur écriture `send()` et leur lecture `read()` de façon très simple @TungsteniteCratesio. Elle passe la _Autobahn Test Suite_ (suite de tests de plus de 500 cas pour vérifier une implémentation Websocket) @AutobahnTestsuiteGithub.
-
-#figure(
-```rust
-use std::net::TcpListener;
-use std::thread::spawn;
-use tungstenite::accept;
-
-/// A WebSocket echo server
-fn main () {
-    let server = TcpListener::bind("127.0.0.1:9001").unwrap();
-    for stream in server.incoming() {
-        spawn (move || {
-            let mut websocket = accept(stream.unwrap()).unwrap();
-            loop {
-                let msg = websocket.read().unwrap();
-
-                // We do not want to send back ping/pong messages.
-                if msg.is_binary() || msg.is_text() {
-                    websocket.send(msg).unwrap();
-                }
-            }
-        });
-    }
-}
-``` , caption: [Exemple de serveur echo en WebSocket avec la crate `tungstenite`. Tiré de leur README @TungsteniteCratesio])
-
-Une version async pour le runtime Tokio existe également, elle s'appelle `tokio-tungstenite`, si le besoin de passer à un modèle async avec Tokio se fait sentir, nous devrions pouvoir y migrer @TokioTungsteniteCratesio.
-
-Il existe une crate `websocket` avec une approche sync et async, qui est dépréciée et dont le README @WebsocketCratesio conseille l'usage de `tungstenite` ou `tokio-tungstenite` à la place @WebsocketCratesio.
-
-Pour conclure cette section, il est intéressant de relever qu'il existe d'autres crates tel que `fastwebsockets` @FastwebsocketsCratesio à disposition, qui ont l'air de permettre de travailler à un plus bas niveau. Pour faciliter l'implémentation, nous les ignorons pour ce travail.
-
-=== gRPC
-
-gRPC est un protocole basé sur Protobuf, inventé par Google. Il se veut être un système de Remote Procedure Call (RPC - un système d'appel de fonctions à distance), universelle et performant qui supporte le streaming bidirectionnel sur HTTP2. La possibilité de travailler avec plusieurs langages reposent sur la génération automatique de code pour les clients et serveurs permettant de gérer la sérialisation en Protobuf et gérant le transport.
-
-En plus des définitions des messages en Protobuf déjà présentés, il est possible de définir des services, avec des méthodes avec un type de message et un type de réponse.
-
-#figure(
-```proto
-// The greeter service definition.
-service Greeter {
-  // Sends a greeting
-  rpc SayHello (HelloRequest) returns (HelloReply) {}
-}
-
-// The request message containing the user's name.
-message HelloRequest {
-  string name = 1;
-}
-
-// The response message containing the greetings
-message HelloReply {
-  string message = 1;
-}
-```
-    ,
-    caption: [Exemple de fichier .proto définissant 2 messages et un service permettant d'envoyer un nom et de recevoir des salutations en retour. Tiré de leur documentation d'introduction @GrpcDocsIntro]
-
-)
-
-Comme Protobuf, Rust n'est pas supporté officiellement, mais une implémentation du nom de Tonic existe @TonicGithub, elle utilise PROST! mentionnée précédemment pour l'intégration de Protobuf.
+// Comme Protobuf, Rust n'est pas supporté officiellement, mais une implémentation du nom de Tonic existe @TonicGithub, elle utilise PROST! mentionnée précédemment pour l'intégration de Protobuf.
 
 Un article de 2019, intitulé *The state of gRPC in the browser* @GrpcBlogStateOfGrpcWeb montre que l'utilisation de gRPC dans les navigateurs web est encore malheureusement mal supportée. En résumé, #quote("il est actuellement impossible d'implémenter la spécification HTTP/2 gRPC dans le navigateur, comme il n'y a simplement pas d'API de navigateur avec un contrôle assez fin sur les requêtes.") (Traduction personnelle). La solution a été trouvée à ce problème est le projet gRPC-Web qui fournit un proxy entre le navigateur et le serveur gRPC, faisant les conversions nécessaires entre gRPC-Web et gRPC.
 
-Il reste malheureusement plusieurs limites : le streaming bidirectionnel n'est pas possible, le client peut faire des appels unaires (pour un seul message) et peut écouter une _server-side streams_ (flux de messages venant du serveur). L'autre limite est le nombre maximum de connexions en streaming simultanées dans un navigateur sur HTTP/1.1 fixées à 6 @EventSourceStreamMax, ce qui demande de restructurer ses services gRPC pour ne pas avoir plus de six connexions en _server-side streaming_ à la fois.
+De nombreux autres formats binaires existent: un framework RPC pour Rust nommé *tarpc* @TarpcGithub, MessagePack @MsgpackWebsite, Cap'n Proto @CapnprotoWebsite qui tente d'être plus rapide que Protobuf ou encore Apache Thrift @ThriftWebsite.
 
+// Il reste malheureusement plusieurs limites : le streaming bidirectionnel n'est pas possible, le client peut faire des appels unaires (pour un seul message) et peut écouter une _server-side streams_ (flux de messages venant du serveur). L'autre limite est le nombre maximum de connexions en streaming simultanées dans un navigateur sur HTTP/1.1 fixées à 6 @EventSourceStreamMax, ce qui demande de restructurer ses services gRPC pour ne pas avoir plus de six connexions en _server-side streaming_ à la fois.
 
-=== tarpc
-tarpc également développé sur l'organisation GitHub de Google sans être un produit officiel, se définit comme #quote("un framework RPC pour Rust, avec un focus sur la facilité d'utilisation. Définir un service peut être fait avec juste quelques lignes de code et le code boilerplate du serveur est géré pour vous.") (Traduction personnelle) @TarpcGithub
+// Le projet *tarpc* développé sur l'organisation GitHub de Google sans être un produit officiel, se définit comme #quote("un framework RPC pour Rust, avec un focus sur la facilité d'utilisation. Définir un service peut être fait avec juste quelques lignes de code et le code boilerplate du serveur est géré pour vous.") (Traduction personnelle) @TarpcGithub
+//
+// tarpc est différent de gRPC et Cap'n Proto #quote("en définissant le schéma directement dans le code, au lieu d'utiliser un langage séparé comme Protobuf. Ce qui signifie qu'il n'y a pas de processus de compilation séparée et pas de changement de contexte entre différents langages.") (Traduction personnelle) @TarpcGithub
 
-tarpc est différent de gRPC et Cap'n Proto #quote("en définissant le schéma directement dans le code, au lieu d'utiliser un langage séparé comme Protobuf. Ce qui signifie qu'il n'y a pas de processus de compilation séparée et pas de changement de contexte entre différents langages.") (Traduction personnelle) @TarpcGithub
 
 === Choix final
 
-Par soucis de facilité de debug, d'implémentation et d'intégration, l'auteur a choisi de rester sur un format textuel et d'implémenter la sérialisation en JSON via la crate mentionnée précédemment `serde_json`. L'expérience existante des websocket de l'auteur, sa possibilité de choisir le format de données, et son solide support dans les navigateurs (au cas où PLX avait une version web un jour), font que ce travail utilisera la combinaison de Websocket et JSON.
+gRPC n'est pas une bonne option pour notre projet comme l'application desktop de PLX contient une partie web, les limites de gRPC-Web et des navigateurs risquent de ralentir ou compliquer le développement.
 
-gRPC aurait pu aussi être une option comme PLX est en dehors du navigateur, il ne serait pas touché par les limites exprimées. Cependant, cela rendrait plus difficile un support d'une version web de PLX si le projet en avait besoin dans le futur.
+Par soucis de facilité d'implémentation et d'intégration, nous avons choisi de rester sur un format textuel et d'implémenter la sérialisation en JSON via la crate `serde_json`. Notre expérience existante du WebSocket, sa possibilité d'utiliser autant du texte que du binaire, l'usage possible en Rust et son support dans les navigateurs, en font une solution adaptée pour ce travail. Nous utiliserons la crate `tungstenite` et `tokio-tungstenite`.
 
-Quand l'usage de PLX dépassera des dizaines/centaines d'étudiants connectés en même moment et que la latence sera trop forte ou que les coûts d'infrastructures deviendront un souci, les formats binaires plus légers seront une option à creuser. Au vu des nombreux choix, mesurer la taille des messages, la latence de transport et le temps de sérialisation sera important pour faire un choix. D'autres projets pourraient également être considérés comme Cap'n Proto @CapnprotoWebsite qui se veut plus rapide que Protobuf, ou encore Apache Thrift @ThriftWebsite. Ces dernières options n'ont pas été explorés dans cet état de l'art principalement parce qu'elles proposent un format binaire.
+Quand l'usage de PLX dépassera des dizaines/centaines d'étudiants connectés en même moment et que la latence sera trop forte ou que les coûts d'infrastructures deviendront trop élevés, les formats binaires plus légers seront une option à considérer. Au vu des nombreux choix, mesurer la taille des messages, le temps de sérialisation et la facilité d'intégration sera nécessaire pour faire un choix.
 
 === POC de synchronisation de messages JSON via Websocket avec tungstenite
-Pour vérifier la faisabilité technique d'envoyer des messages en temps réel en Rust via websocket, un petit POC a été développé dans le dossier `pocs/websockets-json`. Le code et les résultats des checks doivent être transmis des étudiants depuis le client PLX des étudiants vers ce lui de l'enseignant, en passant par le serveur de session live.
+Pour vérifier la faisabilité technique d'envoyer des messages en temps réel en Rust via WebSocket, un petit POC a été développé dans le dossier `pocs/websockets-json`. Le code et les résultats des checks doivent être transmis depuis le client PLX des étudiant·es vers celui de l'enseignant·e, en passant par le serveur de session live. À cause de sa nature interactive, il n'est pas évident de retranscrire ce qui s'y passe quand on lance le POC dans trois shells côte à côte, le mieux serait d'aller compiler et lancer à la main. Nous documentons ici un aperçu du résultat.
 
-À cause de sa nature interactive, il n'est pas évident de retranscrire ce qui s'y passe quand on lance le POC dans trois shells côte à côte, le mieux serait d'aller compiler et lancer à la main. Nous documentons ici un aperçu du résultat.
-
-Ce petit programme en Rust prend en argument son rôle (`server`, `teacher` ou `student`), tout le code est ainsi dans un seul fichier `main.rs` et un seul binaire.
-
-Ce programme a la structure suivante, le dossier `fake-exo` contient l'exercice à implémenter.
-#figure(
-```
-.
-├── Cargo.lock
-├── Cargo.toml
-├── fake-exo
-│  ├── Cargo.lock
-│  ├── Cargo.toml
-│  ├── compare_output.txt
-│  └── src
-└── src
-   └── main.rs
-``` ,
-    caption: [Structure de fichiers du POC.]
-)
+Ce petit programme en Rust prend en argument son rôle (`server`, `teacher` ou `student`), tout le code est ainsi dans un seul fichier `main.rs` et un seul binaire. Notre POC contient un sous dossier `fake-exo` contenant l'exercice fictif à implémenter.
 
 #figure(
 ```rust
-// Just print "Hello <name> !" where <name> comes from argument 1
+// TODO: Just print "Hello <name> !" where <name> comes from argument 1
 fn main() {
     println!("Hello, world!");
 }
-```,
-    caption: [Code Rust de départ de l'exercice fictif à compléter par l'étudiant]
-)
+```, caption: [Code Rust de départ de l'exercice fictif à compléter par l'étudiant])
 
-Le protocole définit pour permettre cette synchronisation est découpé en 2 étapes.
-#figure(
-  image("../schemas/websocket-json-poc-arch-announce.png", width: 60%),
-  caption: [La première partie consiste en une mise en place par la connexion et l'annonce des clients de leur rôle, en se connectant puis en envoyant leur rôle en string.],
-)
-#figure(
-  image("../schemas/websocket-json-poc-arch-forwarding.png", width: 60%),
-  caption: [La deuxième partie consiste en l'envoi régulier du client du résultat du check vers le serveur, qui ne fait que de transmettre au socket associé au `teacher`.],
-)
+Le protocole définit pour permettre cette synchronisation est découpé en 2 étapes. La première partie consiste en une mise en place de la connexion et l'annonce de son rôle. La deuxième partie consiste en la compilation régulière et l'envoi du résultat du check vers le serveur, qui ne fait que de transmettre au socket associé au `teacher`.
+#grid(
+  columns: (3fr, 5fr),
+  column-gutter: 7pt,
+figure(
+  image("../schemas/websocket-json-poc-arch-announce.png", width: 100%),
+  caption: [Mise en place],
+),
+figure(
+  image("../schemas/websocket-json-poc-arch-forwarding.png", width: 100%),
+  caption: [Envoi du check vers le `server`\ qui transmet au `teacher`],
+))
 
-Dans un premier shell (S1), nous lançons en premier lieu le serveur :
-#figure(
+Nous devons démarrer 3 shells pour lancer ce POC.
+#grid(columns: 3, column-gutter: 3pt,
+figure(
 ```
-websockets-json> cargo run -q server
+> cargo run -q server
 Starting server process...
 Server started on 127.0.0.1:9120
 ```,
-    caption: [Lancement du serveur et attente de connexions sur le port 9120.]
-)
-
-Dans un deuxième shell (S2), on lance le `teacher`:
-#figure(
+    caption: [Shell 1 (S1)]
+) ,
+figure(
 ```
-websockets-json> cargo run -q teacher
+> cargo run -q teacher
 Starting teacher process...
 Sending whoami message
 Waiting on student's check results
-```
-    ,
-    caption: [Lancement du `teacher`, connexion au serveur et envoi d'un premier message littéral `teacher` pour annoncer son rôle]
-
-)
-
-Dans S1, on voit que le serveur a bien reçu la connexion et a détecté le rôle de `teacher`.
-#figure(
+``` , caption: [Shell 2 (S2)])
+  ,
+figure(
 ```
 ...
 Teacher connected, saved associated socket.
-``` , caption: [`teacher` est bien connecté au serveur])
+``` , caption: [Shell 1])
+)
+On lance le serveur sur le S1, qui attent des connexions sur le port 9120. On lance ensuite le `teacher` sur le shell 2 (S2), connexion au serveur et envoi d'un premier message avec le texte #quote("teacher") pour annoncer son rôle. Le serveur a bien reçu la connexion d'un client et a détecté le rôle de `teacher`.
 
-Dans S3, on lance finalement le rôle de l'étudiant :
+Dans le shell 3 (S3), on lance finalement le `student`.
 #figure(
 ```
 websockets-json> cargo run -q student
@@ -847,31 +796,19 @@ Starting student process...
 Sending whoami message
 Starting to send check's result every 2000 ms
 Sending another check result
-{"path":"fake-exo/src/main.rs","status":{"IncorrectOutput":{"stdout":"Hello, world!\n"}},"code":"// Just print \"Hello <name> !\" where <name> comes from argument 1\nfn main() {\n    println!(\"Hello, world!\");\n}\n"}
-```
-    ,
-    caption: [Le processus `student` compile et execute le check, afin d'envoyer le résultat, ici du type `IncorrectOutput`.]
+``` , caption: [Le `student` compile le code de `fake-exo`, exécute le check, puis envoie le résultat.])
 
-)
-
-Le @check-result-details nous montre le détail de ce message.
+Le message envoyé, visible en @check-result-details contient le chemin du fichier, un statut `IncorrectOutput` qui contient la sortie éronnée et le contenu du code.
 #figure(
 ```json
 {
   "path": "fake-exo/src/main.rs",
-  "status": {
-    "IncorrectOutput": {
-      "stdout": "Hello, world!\n"
-    }
-  },
+  "status": { "IncorrectOutput": { "stdout": "Hello, world!\n" } },
   "code": "// Just print \"Hello <name> !\" where <name> comes from argument 1\nfn main() {\n    println!(\"Hello, world!\");\n}\n"
 }
-```
-    ,
-    caption: [Le message envoyé avec un chemin de fichier, le code et le statut. Le statut est une enum définie à "output incorrect", puisque l'exercice n'est pas encore implémenté.]
-) <check-result-details>
+``` , caption: [Le résultat éronné puisque l'exercice n'est pas encore implémenté.]) <check-result-details>
 
-Le serveur sur le S1, on ne voit que le `Forwarded one message to teacher`. Sur le S2, on voit immédiatement ceci:
+Le serveur sur le S1 affiche `Forwarded one message to teacher`.
 #figure(
 ```
 Exo check on file fake-exo/src/main.rs, with given code:
@@ -881,10 +818,10 @@ fn main() {
 }
 Built but output is incorrect
 Hello, world!
-```, caption: [Le `teacher` a bien reçu le message et peut l'afficher, la synchronisation temps réel a fonctionné.]
+```, caption: [Le `teacher` a bien reçu le message et peut l'afficher]
 )
 
-Si l'étudiant introduit une erreur de compilation, un message avec un statut différent est envoyé, voici ce que reçoit le `teacher`:
+Si l'étudiant introduit une erreur de compilation, un message avec un statut différent est envoyé, incluant les erreurs de compilation comme contexte de l'échec.
 #figure(
   ```
   Exo check on file fake-exo/src/main.rs, with given code:
@@ -896,15 +833,15 @@ Si l'étudiant introduit une erreur de compilation, un message avec un statut di
     Compiling fake-exo v0.1.0
   error: argument never used
   --> src/main.rs:3:31
-    |
   3 |     println!("Hello, world!", args[3]);
     |              ---------------  ^^^^^^^ argument never used
-    |              |
     |              formatting specifier missing
   ```
     ,
-    caption: [Le `teacher` a bien reçu le code actuel avec l'erreur et l'output de compilation de Cargo]
+    caption: [Le `teacher` a bien reçu le code actuel avec l'erreur de compilation de Cargo]
 )
 
-Le système de synchronisation en temps réel permet ainsi d'envoyer différents messages au serveur qui le retransmet directement au `teacher`. Même si cet exemple est minimal puisqu'il ne vérifie pas la source des messages, et qu'il n'y a qu'un seul étudiant et enseignant impliqué, nous avons démontré que la crate `tungstenite` fonctionne.
+Seul la crate `tungstenite` est utilisée pour ce POC, car `tokio-tungstenite` n'était pas certain d'être utilisé au départ. Cette deuxième crate exposant simplement une API autour, devrait être similaire à l'usage au niveau de la facilité d'accès aux éléments du protocole.
+
+Le système de synchronisation en temps réel fonctionne et permet d'envoyer différents messages du `student` au serveur qui le retransmet immédiatement au `teacher`. Même si cet exemple est minimal puisqu'il n'y a qu'un· seul·e étudiant· et enseignant·e impliqué·e, nous avons démontré que la crate `tungstenite` fonctionne et peut être utilisé comme base de notre serveur de session live.
 
