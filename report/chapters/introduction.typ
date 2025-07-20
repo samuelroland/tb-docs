@@ -138,7 +138,7 @@ Le besoin de feedback humain pour les étudiant·es en plus du feedback automati
 
 // todo mix de permet et permettra et permettrait ? que faire ?
 
-Comme mentionné précédemment, le rendu manuel d'exercices prend un peu de temps et ne sera pas fait fréquemment durant un entrainement. De plus, avoir accès à une archive de fichiers de code, demanderait encore de les lancer localement avant de pouvoir construire des statistiques de l'état des checks.
+Comme mentionné précédemment, le rendu manuel d'exercices prend un peu de temps et ne sera pas fait fréquemment durant un entrainement. De plus, avoir accès à une archive de fichiers de code, demanderait encore de les compiler et lancer localement avant de pouvoir construire des statistiques de l'état des checks.
 // todo c'est un dupliqué ou pas ?
 
 Comme l'application fonctionne localement et s'exécute à chaque sauvegarde, le code et les résultats des checks sont déjà connus par PLX. Il suffirait d'avoir un serveur central, qui héberge les sessions d'entrainement synchrones (appelées "sessions live"). A chaque changement, PLX pourrait ainsi envoyer le code et l'état des checks. Ces informations pourraient être transférées par le serveur vers le client PLX de l'enseignant·e, pour les afficher sur un tableau de bord dédié.
@@ -146,17 +146,16 @@ Comme l'application fonctionne localement et s'exécute à chaque sauvegarde, le
 Ce tableau de bord permettra aux enseignant·es de rapidement comprendre les lacunes des étudiant·es, en relisant les différentes réponses affichées. Grâce à l'état des checks, il sera facile de voir si la classe a terminé l'exercice ou de filtrer les réponses pour concentrer sa relecture. Il sera possible de sélectionner certaines réponses particulières pour les afficher au beamer, pouvoir les commenter ou demander à la classe de critiquer constructivement le code choisi.
 // todo mode beamer implémenté ou pas ??
 
-Sur la @live-sessions-flow suivante, on voit qu'avant de commencer, les étudiants ont dû cloner le repository Git du cours sur leur machine pour accéder aux exercices. Une fois une session live démarrée par un·e enseignant·e et les étudiant·es ayant rejoint la session, l'enseignant·e peut choisir de faire un exercice l'un après l'autre en choisissant le rythme.
-#figure(
-  image("../schemas/live-sessions-flow.png", width:100%),
-  caption: [Interactions entre les clients PLX chez l'enseignant·e et les étudiant·es, le code est synchronisé via un serveur central, le cours "PRG2" a un repository Git publique],
-) <live-sessions-flow>
-// todo inclusif schéma ?
+Pour accéder aux exercices, les étudiants doivent cloner le repository Git du cours sur leur machine à travers l'interface de PLX pour qu'il puisse avoir une liste de cours disponibles localement. Nous prenons en exemple le cours de PRG2, cours de C à la HEIG-VD. Une session live peut être démarrée par un·e enseignant·e pour un cours donné (le cours étant unique par l'origine du repository Git) et les étudiant·es peuvent la rejoindre. En ouvrant le cours dans PLX, la liste des sessions ouvertes liées au repository est affichée et les étudiant·es peuvent choisir celle de leur enseignant·e. Durant la session, l'enseignant·e définit une liste d'exercice et les lance l'un après l'autre au rythme choisi.
 
+#figure(
+  image("../schemas/live-sessions-flow.png", width:90%),
+  caption: [L'enseignant·e et les étudiant·es sont connectés à une session live sur un serveur PLX, du repository "PRG2"],
+) <live-sessions-flow>
 
 L'exercice en cours est affiché sur tous les clients PLX. À chaque sauvegarde d'un fichier de code, le code est compilé et les checks sont lancés. Les résultats des checks et le code modifié seront envoyés à l'enseignant de la session.
 
-Ce premier défi nécessite le développement d'un serveur central et d'un protocole de synchronisation. Elle implique aussi l'utilisation d'un protocole de communication bidirectionnel pour permettre cette expérience en direct en classe.
+Ce premier défi nécessite le développement d'un serveur central et la spécification du protocole de communication entre clients et serveurs PLX. Ce protocole s'appuyera sur un autre protocole de communication bidirectionnel pour permettre cette expérience en direct en classe.
 
 === Défi 2: Comment faciliter la rédaction et la maintenance des exercices ?
 
@@ -164,7 +163,7 @@ La rédaction de contenu sous forme de fichier textes, au lieu de l'approche cla
 
 // TODO besoin de source ?
 
-Un exemple d'usage du Markdown est le recueil d'exercices du cours de PRG2 (cours de C à la HEIG-VD) @PRG2RecueilExercicesGithub. On note également l'usage de balises HTML `<details>` et `<summary>`, pour rendre disponible la solution tout en la cachant par défaut. Pour combler le manque de mise en page du Markdown, d'autres enseignant·es utilisent Latex ou Typst @TypstWebsite.
+Un exemple d'usage du Markdown est le recueil d'exercices du cours de PRG2 @PRG2RecueilExercicesGithub. On note également l'usage de balises HTML `<details>` et `<summary>`, pour rendre disponible la solution tout en la cachant par défaut. Pour combler le manque de mise en page du Markdown, d'autres enseignant·es utilisent Latex ou Typst @TypstWebsite.
 
 // - Markdown pas adapté car pas assez structuré pour être parsé sans ambiguité
 // - format structuré facilement parsable trop verbeux
@@ -197,7 +196,7 @@ Passe une belle journée John Doe !
 >
 ```"), caption: [Extrait 1 du @exemple-dy-md-start décrivant le scénario à tester]) <mdextract>
 
-Et si on avait différents scénarios, comment pourrait-on les décrire et différencier ? Comment distinguer la consigne utile du reste des instructions génériques? La partie _en répondant `John` et `Doe` manuellement_ ne devrait pas apparaître si le scénario a pu être automatisé, l'étudiant·e comprendra avec le détails du check.
+Et si on avait différents scénarios, comment pourrait-on les décrire et différencier ? Comment distinguer la consigne utile du reste des instructions génériques? La partie #quote("en répondant John et Doe manuellement") ne devrait pas apparaître si le scénario a pu être automatisé. L'étudiant·e pourra comprendre le scénario simulé à travers l'affichage du check.
 
 Sur le @exitextract, comment le parseur peut détecter qu'on parle du code d'exit du programme et que ce code doit valoir zéro ?
 
@@ -234,7 +233,7 @@ Le YAML nous a permis ici de retirer tous les guillemets, les accolades et croch
 
 L'intérêt clair du YAML, tout comme le JSON est la possibilité de définir des pairs de clés/valeurs, ce qui n'est pas possible en Markdown. On pourrait définir une convention par dessus Markdown: définir qu'un titre de niveau 1 est le titre de l'exercice, qu'un bloc de code sans langage défini est l'_output_ ou encore que le texte entre le titre et l'output est la consigne.
 
-Quand on arrive sur des champs plus spécifiques aux exercices de programmation, cela se corce un peu. Comment définir le code d'exit attendu? Comment définir la commande pour stopper un programme? Ou encore définir les parties de l'_output_ qui sont des entrées utilisateurs ?
+Quand on arrive sur des champs plus spécifiques aux exercices de programmation, cette idée de convention au dessus du Markdown ne fonctionne plus vraiment. Comment définir le code d'exit attendu? Comment définir la commande pour stopper un programme? Ou encore définir les parties de l'_output_ qui sont des entrées utilisateurs ?
 
 Pour résoudre ces problèmes, nous proposons une nouvelle syntaxe, nommée DY, à mi-chemin entre le Markdown et le YAML, concise et compacte. Voici un exemple en @exemple-dy.
 
@@ -256,11 +255,11 @@ On voit dans la @ide-xp que l'intégration inclut deux fonctionnalités principa
 + le surlignage de code, qui permet de coloriser les clés et les propriétés, afin de bien distinguer les clés du contenu
 + l'intégration avancée des erreurs du parseur et de la documentation à l'éditeur. On le voit en ligne 4, après la clé `check` une erreur s'affiche pour le nom manquant. En ligne 19, l'auto-complétion facilite la découverte et rédaction en proposant les clés valides à cette position du curseur.
 
-Pour convaincre les plus perplexes des lecteur·ices, il peut être intéressant de comprendre la réflexion stratégique derrière ce projet, maintenant que les solutions standards ont pu être comparées. Là où certain·es auraient simplement pris le YAML, TOML ou un autre format connu par habitude, l'auteur a fait le choix de ne pas se contenter de l'existant. Dans un contexte professionnelle, il aurait peut-être été difficile de justifier le développement d'une solution, "juste pour optimiser le YAML et le Markdown", dans un contexte académique, nous avons la chance d'avoir du temps.
+Pour convaincre les plus perplexes des lecteur·ices, il peut être intéressant de comprendre la réflexion stratégique derrière ce projet, maintenant que les solutions standards ont pu être comparées. Là où certain·es auraient simplement pris le YAML, TOML ou un autre format connu par habitude, ne faisons le choix de ne pas se contenter de l'existant. Dans un contexte professionnelle, il aurait peut-être été difficile de justifier le développement d'une solution, "juste pour optimiser le YAML et le Markdown", dans un contexte académique, nous avons la chance d'avoir du temps.
 
-La conception de la syntaxe DY est similaire à celle de l'éditeur de texte Neovim (fork moderne de Vim) @NeovimWebsite. Prendre en main Neovim, le personnaliser et s'y habituer prend un temps conséquent. De nombreuses raccourcis d'édition du texte, sont très différents des autres éditeurs. Au lieu de `Ctrl+c` pour copier, on utilise `y`, au lieu de `ctrl+shift+droite` puis `supprimer` pour sélectioner un mot à droite et le supprimer, on tape simplement `dw` (_#strong("d")elete #strong("w")ord_). Tout l'outil a été conçu pour être optimisé en définissant des raccourcis facile et rapide à tapper. Les premières semaines d'usage de l'outil sont pénibles, ce n'est qu'en suite que l'on prend goût à la rapidité et l'agilité d'édition.
+La conception de la syntaxe DY est similaire à celle de l'éditeur de texte Neovim (fork moderne de Vim) @NeovimWebsite. Prendre en main Neovim, le personnaliser et s'y habituer prend un temps conséquent. De nombreux raccourcis d'édition du texte sont très différents des autres éditeurs. Dans Neovim au lieu de `ctrl+c` pour copier, on utilise `y`. Pour sélectioner un mot à droite et le supprimer, plutôt que `ctrl+shift+droite` puis `supprimer`, on tape simplement `dw` (_#strong("d")elete #strong("w")ord_). L'outil a été entièrement conçu pour être optimisé en définissant des raccourcis facile et rapide à taper. Les premières semaines d'usage de l'outil sont pénibles, ce n'est qu'en suite que l'on prend goût à la rapidité et l'agilité d'édition.
 
-Sur plusieurs années, les enseignant·es passeront des centaines d'heures à retranscrire, modifier ou créer des exercices. L'auteur préfère passer du temps de développement, d'intégration et de documentation, pour optimiser la rédaction à long terme. L'auteur fait le pari qu'un·e enseignant·e non initié·e y gagnera sur le long terme, par rapport au temps de mise en place de l'outil et d'apprentissage durant la première heure. Dans certains contextes, si le YAML n'est pas connu, la syntaxe DY pourrait être même plus simple à prendre en main. Une fois initié à la syntaxe, la rédaction facilitée encourage à rédiger souvent et rapidement de nouveaux exercices, ce qui améliore la quantité et la qualité de la pratique pour les étudiant·es.
+Sur plusieurs années, les enseignant·es passeront des centaines d'heures à retranscrire, modifier ou créer des exercices. Nous préférons passer du temps au développement, à l'intégration et à la documentation, pour optimiser la rédaction à long terme. A long terme, nous faisons le pari qu'un·e enseignant·e non initié·e y gagnera, par rapport au temps de mise en place de l'outil et d'apprentissage durant la première heure. Dans certains contextes, si le YAML n'est pas connu, la syntaxe DY pourrait être même plus simple à prendre en main. Une fois initié à la syntaxe, la rédaction facilitée encourage à rédiger souvent et rapidement de nouveaux exercices, ce qui améliore la quantité et la qualité de la pratique pour les étudiant·es.
 
 Cette nouvelle syntaxe, son parseur et support d'IDE permettront de complètement remplacer le format TOML actuellement utilisé par PLX.
 
