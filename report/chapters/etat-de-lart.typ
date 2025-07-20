@@ -372,10 +372,9 @@ Par défaut un nouveau langage avec une extension de fichier dédiée reste en n
 Le bout de C `printf("salut");` est vu par un système de surlignage de code comme une suite de morceaux d'une certaines catégorie, qu'on appelle _tokens_. Ce bout de code pourrait être subdivisé avec les tokens suivants `printf` (identifiant), `(` (séparateur), `"` (séparateur), `salut` (valeur litérale), `"`, `)` et `;` (séparateur).
 
 Les IDE modernes intègrent des systèmes de surlignage de code (_code highlighting_) et définissent leur propre liste de catégories de tokens, par exemple: séparateur, opérateur, mot clé, variable, fonction, constante, macro, énumération, ... Une fois la catégorie attribuée, il reste encore à définir quel couleur concrète est utilisé pour chaque catégorie. C'est le rôle des thèmes comme Monokai, Darcula, Tokioynight et beaucoup d'autres. Les systèmes de surlignage supportent parfois un rendu web via une version HTML contenant des classes CSS spécifiques à chaque type de token. Des thèmes écrits en CSS peuvent ainsi appliquer leurs couleurs. Le surlignage peut être de type syntaxique (_syntax highlighting_), avec une analyse purement basée sur la présence et l'ordre des tokens, ou sémantique (_semantic highlighting_) après une analyse du sens du token.
-// todo note surlignage syntaxique !
 
 === Textmate - surlignage syntaxique
-TextMate est un IDE pour macOS qui a introduit un concept de grammaires. Ces grammaires permettent de définir la manière dont le code doit être tokenisé (découpé en tokens), à l’aide d'expressions régulières issues de la bibliothèque C Oniguruma (55) @textmateRegex. VSCode s’appuie sur ces grammaires TextMate @vscodeSyntaxHighlighting, tout comme IntelliJ IDEA, qui les utilise pour le Swift, C++ ou Perl qui ne sont pas supportés nativement @ideaSyntaxHighlighting.
+TextMate est un IDE pour macOS qui a introduit un concept de grammaires. Ces grammaires permettent de définir la manière dont le code doit être séparé en tokens, à l’aide d'expressions régulières issues de la bibliothèque C Oniguruma (55) @textmateRegex. VSCode s’appuie sur ces grammaires TextMate @vscodeSyntaxHighlighting, tout comme IntelliJ IDEA, qui les utilise pour le Swift, C++ ou Perl qui ne sont pas supportés nativement @ideaSyntaxHighlighting.
 
 Le @textmateexemple montre un exemple de grammaire Textmate décrivant un langage nommé `untitled` avec 4 mots clés (`if`, `while`, `for`, `return`) et des chaines de caractères entre guillemets. Les expressions régulières données en `match`, `begin` et `end` permettent de trouver les tokens dans le document et leur attribué une catégorie (comme `keyword.control.untitled`).
 #figure(
@@ -440,10 +439,17 @@ int main(int argc, char *argv[]) {
     HEY("Samuel");
     return 0;
 }
-```, caption: [Exemple de code C `hello.c`, avec macro et fonction surligné de la même manière à l'appel]) <example-c-colors>
+```, caption: [Exemple de code C `hello.c`, avec macro et fonction surligné de la même manière à l'appel dans le `main`]) <example-c-colors>
 
-Sur le @ts-tree-c-code, on voit que les 2 lignes `hi` et `HEY` sont catégorisés sans surprise comme des fonctions (noeuds `function`, `arguments`, ...).
+#import "@preview/zebraw:0.5.5": zebraw
+
+Sur le @ts-tree-c-code, l'arbre syntaxique concret généré par Tree-Sitter nous montre que les 2 lignes `hi` et `HEY` sont catégorisés comme des fonctions.
 #figure(
+  block(width: 26em,
+zebraw(
+    numbering: false,
+    highlight-lines: (3, 9),
+    highlight-color: blue.lighten(80%),
 ```
 (expression_statement ; [7, 4] - [7, 17]
   (call_expression ; [7, 4] - [7, 16]
@@ -457,7 +463,7 @@ Sur le @ts-tree-c-code, on voit que les 2 lignes `hi` et `HEY` sont catégorisé
     arguments: (argument_list ; [8, 7] - [8, 17]
       (string_literal ; [8, 8] - [8, 16]
         (string_content))))) ; [8, 9] - [8, 15]
-``` , caption: [Aperçu de l'arbre syntaxique concret généré par Tree-Sitter#linebreak()récupéré via `tree-sitter parse hello.c`]
+```)), caption: [CST généré par `tree-sitter parse hello.c`]
 ) <ts-tree-c-code>
 
 Pour différencier les appels, le serveur de langage possèdent plus de contexte sémantique et peut nous aider à améliorer la colorisation. Le surlignage sémantique est une extension du surlignage syntaxique, où un serveur de langage fournit des tokens sémantiques. Un serveur de langage est plus lent et ne fournit une information supplémentaire que pour une partie des tokens, il n'a pas pour but de remplacer le surlignage syntaxique. @VSCodeSemanticHighlighting
@@ -541,7 +547,7 @@ Après avoir appelé `tree-sitter generate` pour générer le code du parseur C 
   caption: [CST généré par la grammaire définie sur le fichier `mcq.dy`],
 )
 
-La tokenisation fonctionne bien pour cet exemple, chaque élément est correctement découpé et catégorisé. Pour voir ce snippet en couleurs, il nous reste deux éléments à définir. Le premier consiste en un fichier `queries/highlighting.scm` qui décrit des requêtes de surlignage sur l'arbre (_highlights query_) permettant de sélectionner des noeuds de l'arbre et leur attribuer un nom de surlignage (_highlighting name_). Ces noms ressemblent à `@variable`, `@constant`, `@function`, `@keyword`, `@string`... ou des versions plus spécifiques comme `@string.regexp`, `@string.special.path`. Ces noms sont ensuite utilisés par les thèmes pour appliquer un style.
+Pour voir notre exercice en couleurs, il nous reste deux éléments à définir. Le premier consiste en un fichier `queries/highlighting.scm` qui décrit des requêtes de surlignage sur l'arbre (_highlights query_) permettant de sélectionner des noeuds de l'arbre et leur attribuer un nom de surlignage (_highlighting name_). Ces noms ressemblent à `@variable`, `@constant`, `@function`, `@keyword`, `@string`... ou des versions plus spécifiques comme `@string.regexp`, `@string.special.path`. Ces noms sont ensuite utilisés par les thèmes pour appliquer un style.
 
 #figure(
 ```scm
@@ -552,7 +558,7 @@ La tokenisation fonctionne bien pour cet exemple, chaque élément est correctem
 (dash) @operator
 ``` , caption: [Aperçu du fichier `queries/highlights.scm`])
 
-Le deuxième élément à définir est la couleur exacte pour chaque nom de surlignage. Le CLI `tree-sitter` supporte directement la configuration d'un thème via son fichier de configuration, un exemple est visible en @tsconfig.
+Le deuxième élément est la couleur exacte pour chaque nom de surlignage. Le CLI `tree-sitter` supporte directement la configuration d'un thème via son fichier de configuration, un exemple est visible en @tsconfig.
 #figure(
 ```json
 {
