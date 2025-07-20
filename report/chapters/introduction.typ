@@ -299,7 +299,7 @@ L'auteur de ce travail se permet un certain nombre d'anglicismes quand un équiv
 - `crate`: la plus petite unité de compilation avec Cargo, concrètement chaque projet contient un ou plusieurs dossiers avec un `Cargo.toml`, ce sont des crates locales. Les dépendances sont également des crates qui ont été publié sur le registre officiel.
 - `Cargo.toml`, configuration de Cargo dans un projet Rust définit les dépendances (les crates) et leurs versions minimum à inclure dans le projet, équivalent du `package.json` de NPM
 - `crates.io`: le registre officiel des crates publiée pour l'écosystème Rust, l'équivalent de `npmjs.com` pour l'écosystème JavaScript ou `mvnrepository.com` pour Java
-- `parsing` ou `déserialisation`: processus d'un parseur, visant à extraire de l'information brute vers une forme structurée facilement manipulable
+- `parsing` ou `désérialisation`: processus d'un parseur, visant à extraire de l'information brute vers une forme structurée facilement manipulable
 - `sérialisation`: inverse du processus du parseur, qui vise à transformer une structure de données quelconque en une forme brute (une string par exemple) afin de la stocker sur le disque ou l'envoyer à travers le réseau
 - `struct`: structure de données regroupant plusieurs champs, disponible en C, en Rust et d'autres langages inspirés
 - `backtick`: caractère accent grave utilisé sans lettre, délimiteur fréquent de mention de variable ou fonction dans un rapport en Markdown

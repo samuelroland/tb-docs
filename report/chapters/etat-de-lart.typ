@@ -216,12 +216,16 @@ package {
 ) <kdl>
 Si l'exemple en @kdl paraît proche de SDLang, c'est normal puisque KDL est un fork de SDLang. Les améliorations qui nous intéressent concernent la possibilité de retirer des guillemets pour les strings sans espace (`person name=Samuel` au lieu de `person name="Samuel"`). Cette simplification n'inclut malheureusement pas le texte multiligne, qui demande d'être entourée par `"""`. Le problème d'intégration de morceaux de code entre #raw("`") pour certains langages qui utilisent ce symbole (comme Bash), a été relevé par l'auteur du fork dans la FAQ. Le text brut est ainsi supportée avec un `#` ajouté autour des guillemets, par exemple `regex #"\d{3} "[^/"]+""#` ou dans la @kdl avec le noeud `build`. Une répétition des `#` permet d'inclure ce caractère littéral pour éviter tout besoin d'échappement. Par exemple `msg ##"hello#"john"##` contient un noeud `msg` avec la valeur `hello#"john` @kdlWebsite.
 
-En dehors des autres désavantages déjà évoqués pour SDLang, il reste toujours le problème des types de nombres qui peuvent créer des ambiguités avec le texte. C noeud `version 1.2.3` est interprété comme nombre à virgule avec une erreur de format, il a besoin de guillemets `version "1.2.3"` pour indiquer que ce n'est pas un nombre.
+En dehors des autres désavantages déjà évoqués pour SDLang, il reste toujours le problème des types de nombres qui peuvent créer des ambiguités avec le texte. Ce noeud `version 1.2.3` est interprété comme nombre à virgule avec une erreur de format, il a besoin de guillemets `version "1.2.3"` pour indiquer que ce n'est pas un nombre.
 
 === Conclusion
 En conclusion, au vu du nombre de tentatives/variantes existantes, qui va au delà de ce qui a été documenté dans ce rapport, on voit que la verbosité des formats largement répandus du XML, JSON et même du YAML est un problème identifié par plusieurs personnes. Même Apple a fait son propre format de configuration, le Pkl qui mixe des constructions de programmation et de données pour la validation des fichiers @PklLangWebsite.
 
-La diminution de la verbosité des syntaxes décrites précédement est intéressante mais elles ciblent des usages plus avancés que nécessaire pour PLX. Parfois on y gagne à éviter des guillemets, parfois d'autres séparateurs, on rend l'information plus dense... Mais le besoin d'exprimer de la hiérachie sans tabulations ni accolades perdure, tout comme celui de la validation intégrée. Notre syntaxe DY souhaite proposer une approche encore plus légère, en représentant moins de chose pour simplifier encore la rédaction.
+La diminution de la verbosité des syntaxes décrites précédement est intéressante: on évite des guillemets, des accolades, et d'autres séparateurs ce qui facilite la rédaction. Le contenu multiligne devient plus facile à intégrer en évitant d'échapper des caractères particuliers. Le problème reste que pour supporter des structures de données avancées, elles sont toujours obligées d'avoir un minimum de séparateurs. Souvent ne proposent pas de validation intégrée.
+
+Ces améliorations sont déjà un gain important mais il est possible d'aller encore plus loin, en sacrifiant une partie des structures de données. Notre syntaxe DY propose une approche encore plus légère. En se limitant à un ensemble de clés autorisées avec une hiérarchie définie, nous pouvons exprimer la hiérachie du document sans nécessiter de tabulations ni d'accolades et valider le document directement durant le parsing.
+
+// TODO BCS okay cet conclusion avec un peu de spoil mais pas bcp sur pourquoi la syntaxe DY est différente et vaut la peine
 
 #pagebreak()
 == Librairies de parsing en Rust
@@ -239,7 +243,7 @@ Après s'être intéressé aux syntaxes existantes, nous nous intéressons maint
 + La sérialisation (structure Rust vers syntaxe DY) n'est pas prévue, seul la desérialisation nous intéresse
 + L'association des clés et propriétés vers les attributs des structs Rust n'est pas du 1:1. La valeur après `exo` contient le nom de l'exercice puis la consigne, ce qui signifie une seule string pour deux champs `name` et `instruction` dans la structure `Exo` finale.
 
-Parser des simples expressions de math comme `((23+4) * 5)` est idéal pour ces outils: les débuts et fin de chaque partie sont claires, une combinaison de fonctions de parsing permettraient facilement identifier les expressions parenthésées, les opérateurs puis les nombres. Elles semblent bien adaptées à ignorer des espaces, extraire les nombres tant qu'ils contiennent des chiffres, extraire des opérateurs et les deux opérandes autour...
+Parser des simples expressions de math comme `((23+4) * 5)` est idéal pour ces outils: les débuts et fin de chaque partie sont claires, une combinaison de fonctions de parsing permettraient facilement d'identifier les expressions parenthésées, les opérateurs puis les nombres. Elles semblent bien adaptées à ignorer des espaces, extraire les nombres tant qu'ils contiennent des chiffres, extraire des opérateurs et les deux opérandes autour...
 
 Pour DY, l'aspect multiligne et le fait qu'une partie des clés est optionnelle, rend compliqué l'approche de combinaisons de parseurs.
 
@@ -256,7 +260,7 @@ La syntaxe DY est relativement simple à parser et sa nature implicite rend comp
 
 Par défaut, avec un nouveau langage, il faut manuellement lancer le compilateur ou le parseur sur son fichier, voir les erreurs et de revenir dans l'éditeur pour les corriger. Certaines opérations répétitives, comme renommer une fonction à chaque appel, doivent être faites à la main. Pour ces raisons, il devient très intéressant d'intégrer un nouveau langage aux différents IDE utilisés dans le monde, mais cela posent de nombreux challenges.
 
-Le support d'un éditeur consiste à intégrer les erreurs du parseur, l'auto-complétion, les propositions de corrections, des informations au survol... et de nombreuses petites fonctionnalités qui améliorent l'expérience de rédaction. L'avantage d'avoir les erreurs de compilation directement soulignées dans l'éditeur c'est de pouvoir voir les erreurs dans leur contexte et de corriger immédiatement les problèmes. Supporter chaque éditeur de code indépendamment signifie travailler avec des API légèrement différentes pour faire la même chose et utiliser plusieurs langages de programmation différents.
+Le support d'un éditeur consiste à intégrer les erreurs du parseur, l'auto-complétion, les propositions de corrections, des informations au survol... et de nombreuses petites fonctionnalités qui améliorent l'expérience de rédaction. L'avantage d'avoir les erreurs de compilation directement soulignées dans l'éditeur c'est de pouvoir voir les erreurs dans leur contexte et de corriger immédiatement les problèmes. Supporter chaque éditeur de code indépendamment signifie travailler avec des API légèrement différentes pour supporter la même fonctionnalité et utiliser plusieurs langages de programmation différents.
 
 Les développeur·euses de nouveaux IDE font face à un défi similaire mais encore plus large, celui de supporter des centaines de langages pour qu'un maximum de monde puisse développer avec. Microsoft était face au même problème pour son éditeur VSCode et a inventé un protocole, nommé `Language Server Protocol (LSP)` @lspWebsite. Ce protocole définit un pont commun entre un client LSP implémenté à l'interne de chaque IDE et un serveur LSP, appelé serveur de langage (_language server_). L'IDE peut ainsi demander de manière unique des informations, tel que _Donne moi les résultats d'auto-complétion pour le curseur a tel position_ sans devoir supporter des détails du langage édité. Le projet a pour but de simplifier la vie des développeur·euses de nouveaux langages et des nouveaux éditeurs qui peuventt intégrer rapidement des centaines de langages en implémentant "juste" un client LSP.
 
@@ -269,7 +273,7 @@ Les serveurs de langages tournent dans des processus séparés de l'éditeur, ce
 
 Un serveur de langage n'a pas besoin d'implémenter toutes les fonctionnalités du protocole. Un système de capacités (_Capabilities_) est défini pour annoncer les méthodes implémentées @lspCapabilities. Nous pourrons ainsi implémenter que la petite partie du protocole qui nous intéresse.
 
-Le protocole *JSON-RPC* (_JSON Remote Procedure Call_) est utilisé comme protocole de communication. Similaire au HTTP, il possède des entêtes et un corps. Ce standard définit quelques structures de données à respecter. Une requête doit contenir un champ `jsonrpc`, `id`, `method` et optionnellement `params` @jsonrpcSpec. L'`id` sert à associer une réponse à une requête. Il est aussi possible d'envoyer une notification, c'est à dire une requête qui n'attend de réponse. Le champ `method` va indiquer l'action à appeler. Le transport des messages JSON-RPC peut se faire en `stdio` (flux standards d'entrée/sortie), sockets TCP ou même en HTTP.
+Le protocole *JSON-RPC* (_JSON Remote Procedure Call_) est utilisé comme protocole de communication. Similaire au HTTP, il possède des entêtes et un corps. Ce standard définit quelques structures de données à respecter. Une requête doit contenir un champ `jsonrpc`, `id`, `method` et optionnellement `params` @jsonrpcSpec. L'`id` sert à associer une réponse à une requête. Il est aussi possible d'envoyer une notification, c'est à dire une requête qui n'attend pas de réponse. Le champ `method` va indiquer l'action à appeler. Le transport des messages JSON-RPC peut se faire en `stdio` (flux standards d'entrée/sortie), sockets TCP ou même en HTTP.
 
 // todo vraiment utile ce morceau du coup ??
 #figure(
@@ -319,19 +323,13 @@ Cette partie est un _nice-to-have_, nous espérons avoir le temps de l'intégrer
 
 === POC de serveur de language avec `lsp-server`
 
-La crate `lsp-server` contient un exemple de `goto_def.rs` @gotodefLspserver qui implémente la possibilité de `Aller à la définition` (_Go to definition_), généralement accessible dans l'IDE par un `Ctrl+clic` sur une fonction. Nous avons modifié et exécuté cet exemple puis créé un petit script `demo.fish` qui simule un client et affiche chaque requête. Le client va simplement demander la définition `/tmp/another.rs`
 
-#figure(
-  box(image("../imgs/lsp-demo.svg"), width:80%),
-  caption: [Exemple de communication entre un client et un serveur LSP de notre POC, _output_ du script `demo.fish` dans le dossier `pocs/lsp-server-demo`],
-) <lsp-demo>
+ // dans le dossier `pocs/lsp-server-demo`
 // todo comment citer les dossiers de POCs à coté ??
 
-Sur la @lsp-demo les lignes après `CLIENT:` sont envoyés en stdin et celles après `SERVER:` sont reçues en stdout.
+La crate `lsp-server` contient un exemple de `goto_def.rs` @gotodefLspserver qui implémente la possibilité de `Aller à la définition` (_Go to definition_), généralement accessible dans l'IDE par un `Ctrl+clic` sur une fonction. Nous avons modifié et exécuté cet exemple puis créé un petit script `demo.fish` qui simule un client et affiche chaque requête. Le client va simplement demander la définition d'une position dans `/tmp/another.rs` et le serveur va lui renvoyer une autre position.
 
-Durant l'initialisation, le serveur nous indique qu'il supporte un "fournisseur de définition" avec `definitionProvider` à `true`. Le client envoie ensuite une requête `textDocument/definition`, pour le symbole dans un fichier `/tmp/test.rs` sur la ligne 7 au caractère 23.\ Le serveur répond une position dans le code (de type `Location`) sur le fichier `/tmp/another.rs` la ligne 3 entre les caractères 12 et 25 (la plage est de type `Range`). Une fois la réponse reçue, le client a terminé et demande au serveur de s'arrêter.
-
-Le code qui gère la requête du type `GotoDefinition` est visible en @gotodefrs.
+Le code du serveur qui gère la requête du type `GotoDefinition` est visible en @gotodefrs. Le serveur répond avec un `GotoDefinitionResponse` qui contient une position dans le code (de type `Location`) sur le fichier `/tmp/another.rs` à la ligne 3 entre les caractères 12 et 25 (la plage est décrite avec le type `Range`).
 #figure(
   ```rust
   match cast::<GotoDefinition>(req) {
@@ -352,6 +350,19 @@ Le code qui gère la requête du type `GotoDefinition` est visible en @gotodefrs
   caption: [Extrait de `goto_def.rs` modifié qui retourne un emplacement `Location` dans une réponse `GotoDefinitionResponse`],
 ) <gotodefrs>
 
+
+#pagebreak()
+Maintenant que nous avons un mini serveur, nous pouvons lancer notre client. Sur la @lsp-demo les lignes après `CLIENT:` sont envoyés en `stdin` et celles après `SERVER:` sont reçues en `stdout`.
++ Durant l'initialisation, le serveur nous indique qu'il supporte un _fournisseur de définition_ avec `definitionProvider` à `true`.
++ Le client envoie ensuite une requête `textDocument/definition`, pour le symbole dans un fichier `/tmp/test.rs` sur la ligne 7 au caractère 23.
++ Le serveur lui répond comme attendu.
++ Puis, le client a terminé et demande au serveur de s'arrêter.
+
+#figure(
+  box(image("../imgs/lsp-demo.svg"), width:80%),
+  caption: [_Output_ du script `demo.fish` avec les détails de la communication entre un client et notre serveur LSP],
+) <lsp-demo>
+
 == Surlignage du code
 
 // todo surlignage de code comme terme prioritaire, à refactor
@@ -360,11 +371,11 @@ Par défaut un nouveau langage avec une extension de fichier dédiée reste en n
 
 Le bout de C `printf("salut");` est vu par un système de surlignage de code comme une suite de morceaux d'une certaines catégorie, qu'on appelle _tokens_. Ce bout de code pourrait être subdivisé avec les tokens suivants `printf` (identifiant), `(` (séparateur), `"` (séparateur), `salut` (valeur litérale), `"`, `)` et `;` (séparateur).
 
-Les IDE modernes supportent possèdent des systèmes de surlignage de code (_code highlighting_) et définissent leur propre liste de catégories de tokens, par exemple: séparateur, opérateur, mot clé, variable, fonction, constante, macro, énumération, ... Une fois la catégorie attribuée, il reste encore à définir quel couleur concrète est utilisé pour chaque catégorie. C'est le rôle des thèmes comme Monokai, Darcula, Tokioynight et beaucoup d'autres. Les systèmes de surlignage supportent parfois un rendu web via une version HTML contenant des classes CSS spécifiques à chaque type de token. Des thèmes écrits en CSS peuvent ainsi appliquer leurs couleurs. Le surlignage peut être de type syntaxique (_syntax highlighting_), avec une analyse purement basée sur la présence et l'ordre des tokens, ou sémantique (_semantic highlighting_) après une analyse de la sens du token.
+Les IDE modernes intègrent des systèmes de surlignage de code (_code highlighting_) et définissent leur propre liste de catégories de tokens, par exemple: séparateur, opérateur, mot clé, variable, fonction, constante, macro, énumération, ... Une fois la catégorie attribuée, il reste encore à définir quel couleur concrète est utilisé pour chaque catégorie. C'est le rôle des thèmes comme Monokai, Darcula, Tokioynight et beaucoup d'autres. Les systèmes de surlignage supportent parfois un rendu web via une version HTML contenant des classes CSS spécifiques à chaque type de token. Des thèmes écrits en CSS peuvent ainsi appliquer leurs couleurs. Le surlignage peut être de type syntaxique (_syntax highlighting_), avec une analyse purement basée sur la présence et l'ordre des tokens, ou sémantique (_semantic highlighting_) après une analyse du sens du token.
 // todo note surlignage syntaxique !
 
 === Textmate - surlignage syntaxique
-TextMate est un IDE pour macOS qui a introduit un concept de grammaires. Ces grammaires permettent de définir la manière dont le code doit être tokenisé, à l’aide d'expressions régulières issues de la bibliothèque C Oniguruma (55) @textmateRegex. VSCode s’appuie sur ces grammaires TextMate @vscodeSyntaxHighlighting, tout comme IntelliJ IDEA, qui les utilise pour le Swift, C++ ou Perl qui ne sont pas supportés nativement @ideaSyntaxHighlighting.
+TextMate est un IDE pour macOS qui a introduit un concept de grammaires. Ces grammaires permettent de définir la manière dont le code doit être tokenisé (découpé en tokens), à l’aide d'expressions régulières issues de la bibliothèque C Oniguruma (55) @textmateRegex. VSCode s’appuie sur ces grammaires TextMate @vscodeSyntaxHighlighting, tout comme IntelliJ IDEA, qui les utilise pour le Swift, C++ ou Perl qui ne sont pas supportés nativement @ideaSyntaxHighlighting.
 
 Le @textmateexemple montre un exemple de grammaire Textmate décrivant un langage nommé `untitled` avec 4 mots clés (`if`, `while`, `for`, `return`) et des chaines de caractères entre guillemets. Les expressions régulières données en `match`, `begin` et `end` permettent de trouver les tokens dans le document et leur attribué une catégorie (comme `keyword.control.untitled`).
 #figure(
@@ -390,14 +401,15 @@ Le @textmateexemple montre un exemple de grammaire Textmate décrivant un langag
 }
 ``` , caption: [Exemple de grammaire Textmate tiré de leur documentation @TextMateDocsLanguageGrammars.]) <textmateexemple>
 
-La documentation précise un choix important de conception: #quote("A noter que ces regex sont matchées contre une seule ligne à la fois. Cela signifie qu'il n'est pas possible d'utiliser une pattern qui matche plusieurs lignes. La raison est technique: être capable de redémarrer le parseur à une ligne arbitraire et devoir reparser seulement un nombre minimal de lignes affectés par un changement. Dans la plupart des situations, il est possible d'utiliser le model `begin`/`end` pour dépasser cette limite.") @TextMateDocsLanguageGrammars (Traduction personnelle, dernier paragraphe section 12.2).
+// useless
+// La documentation précise un choix important de conception: #quote("A noter que ces regex sont matchées contre une seule ligne à la fois. Cela signifie qu'il n'est pas possible d'utiliser une pattern qui matche plusieurs lignes. La raison est technique: être capable de redémarrer le parseur à une ligne arbitraire et devoir reparser seulement un nombre minimal de lignes affectés par un changement. Dans la plupart des situations, il est possible d'utiliser le model `begin`/`end` pour dépasser cette limite.") @TextMateDocsLanguageGrammars (Traduction personnelle, dernier paragraphe section 12.2).
 
 === Tree-Sitter - surlignage syntaxique
 
 // Avec Textmate les expressions régulières sont puissantes mais ont de limites pour gérer les spécificités d'un langage, c'est pour cette raison que TreeSitter a été créé.
 // todo expliquer pourquoi tree sitter est né avec articles en stock
 
-Tree-Sitter @TreeSitterWebsite se définit comme un #quote("outil de génération de parser et une librairie de parsing incrémentale. Il peut construire un arbre de syntaxe concret (CST) depuis un fichier source et efficacement mettre à jour cet arbre quand le fichier source est modifié.") @TreeSitterWebsite (Traduction personnelle). Tree-Sitter permet aux éditeurs de fournir plusieurs fonctionnalités, dont le surlignage syntaxique.
+Tree-Sitter @TreeSitterWebsite se définit comme un #quote("outil de génération de parser et une librairie de parsing incrémentale. Il peut construire un arbre de syntaxe concret (CST) depuis un fichier source et mettre à jour cet arbre efficacement, quand le fichier source est modifié.") @TreeSitterWebsite (Traduction personnelle). Tree-Sitter permet aux éditeurs de fournir plusieurs fonctionnalités, dont le surlignage syntaxique.
 
 Tree-Sitter est supporté dans Neovim @neovimTSSupport, dans le nouvel éditeur Zed @zedTSSupport, ainsi que d'autres. Tree-Sitter a été inventé par l'équipe derrière Atom @atomTSSupport et est même utilisé sur GitHub, notamment pour la navigation du code pour trouver les définitions et références et lister tous les symboles (fonctions, classes, structs, etc) @TreeSitterUsageGithub.
 
@@ -412,9 +424,9 @@ Rédiger une grammaire Tree-Sitter consiste en l'écriture d'une grammaire en Ja
 #pagebreak()
 
 === Surlignage sémantique
-Les deux solutions de surlignage syntaxique présentées précédement sont déjà satisfaisantes mais le fait qu'elle reste au niveau syntaxique, signifie qu'elle loupe plein d'informations sémantiques qui permettraient d'améliorer encore la colorisation.
+Les deux solutions de surlignage syntaxique présentées précédement sont déjà satisfaisantes, mais ne tiennent pas compte de nombreuses informations sémantiques qui permettraient d'améliorer encore la colorisation.
 
-Sur le @example-c-colors surligné avec Tree-Sitter (surlignage syntaxique pour rappel), on voit que les appels de `HEY` et `hi` dans le `main` ont les mêmes couleurs alors que l'un est une macro, l'autre une fonction. A la définition les couleurs sont bien différentes, parce que le `#define` permet différencier la macro d'une fonction. A l'appel, il n'est pas possible de les différencier avec une analyse syntaxique, c'est à dire en regardant l'ordre des tokens extraits (identifiant, parenthèse, chaine litéral, etc). La notation en majuscules de l'identifiant de la macro ne peuvent pas être utilisés pour différencier l'appel car ce n'est qu'une convention, ce n'est pas requis par le C.
+Sur le @example-c-colors surligné avec Tree-Sitter (surlignage syntaxique pour rappel), on voit que les appels de `HEY` et `hi` dans le `main` ont les mêmes couleurs alors que l'un est une macro, l'autre une fonction. A la définition, les couleurs sont bien différentes, parce que le `#define` permet de différencier la macro d'une fonction. A l'appel, il n'est pas possible de les différencier avec une analyse syntaxique, car les tokens extraits seront les mêmes (identifiant, parenthèse, chaine litéral, etc). La notation en majuscules de l'identifiant de la macro ne peuvent pas être utilisés pour différencier l'appel car ce n'est qu'une convention, ce n'est pas requis par le C.
 #figure(
 ```c
 #include <stdio.h>
@@ -522,14 +534,14 @@ On observe dans le @grammar-js-poc plusieurs règles:
 - `commented_line` définit les commentaires comme `//` puis un reste
 - `list_line`, `dash` et le reste des règles suivent la même logique
 
-Après avoir appelé `tree-sitter generate` pour générer le code du parser C et `tree-sitter build` pour le compiler, on peut maintenant parser un fichier donné et afficher le CST (Concrete Syntax Tree). Dans cet arbre qui démarre avec un noeud racine `source_file`, on retrouve des noeuds du même type que les règles définies précédemment, avec le texte extrait dans la plage de caractères associée au noeud. Par exemple, on voit que l'option `C is a compiled language` a bien été extraite à la ligne 5, entre le byte 6 et 30 (`5:6  - 5:30`) en tant que `content`. Elle suit un token de `property` avec notre propriété `.ok` et le tiret de la règle `dash`.
+Après avoir appelé `tree-sitter generate` pour générer le code du parseur C et `tree-sitter build` pour le compiler, on peut maintenant parser un fichier donné et afficher le CST (Concrete Syntax Tree). Dans cet arbre qui démarre avec un noeud racine `source_file`, on retrouve des noeuds du même type que les règles définies précédemment, avec le texte extrait dans la plage de caractères associée au noeud. Par exemple, on voit que l'option `C is a compiled language` a bien été extraite à la ligne 5, entre le byte 6 et 30 (`5:6  - 5:30`) en tant que `content`. Elle suit un token de `property` avec notre propriété `.ok` et le tiret de la règle `dash`.
 
 #figure(
   image("../imgs/tree-sitter-cst.svg", width: 60%),
   caption: [CST généré par la grammaire définie sur le fichier `mcq.dy`],
 )
 
-La tokenisation fonctionne bien pour cet exemple, chaque élément est correctement découpé et catégorisé. Pour voir ce snippet en couleurs, il nous reste deux choses à définir. La première consiste en un fichier `queries/highlighting.scm` qui décrit des requêtes de surlignage sur l'arbre (_highlights query_) permettant de sélectionner des noeuds de l'arbre et leur attribuer un nom de surlignage (_highlighting name_). Ces noms ressemblent à `@variable`, `@constant`, `@function`, `@keyword`, `@string`... ou des versions plus spécifiques comme `@string.regexp`, `@string.special.path`. Ces noms sont ensuite utilisés par les thèmes pour appliquer un style.
+La tokenisation fonctionne bien pour cet exemple, chaque élément est correctement découpé et catégorisé. Pour voir ce snippet en couleurs, il nous reste deux éléments à définir. Le premier consiste en un fichier `queries/highlighting.scm` qui décrit des requêtes de surlignage sur l'arbre (_highlights query_) permettant de sélectionner des noeuds de l'arbre et leur attribuer un nom de surlignage (_highlighting name_). Ces noms ressemblent à `@variable`, `@constant`, `@function`, `@keyword`, `@string`... ou des versions plus spécifiques comme `@string.regexp`, `@string.special.path`. Ces noms sont ensuite utilisés par les thèmes pour appliquer un style.
 
 #figure(
 ```scm
@@ -540,7 +552,7 @@ La tokenisation fonctionne bien pour cet exemple, chaque élément est correctem
 (dash) @operator
 ``` , caption: [Aperçu du fichier `queries/highlights.scm`])
 
-Le CLI supporte directement la configuration d'un thème via son fichier de configuration, on reprend simplement chaque nom de surlignage en lui donnant une couleur.
+Le deuxième élément à définir est la couleur exacte pour chaque nom de surlignage. Le CLI `tree-sitter` supporte directement la configuration d'un thème via son fichier de configuration, un exemple est visible en @tsconfig.
 #figure(
 ```json
 {
@@ -553,7 +565,7 @@ Le CLI supporte directement la configuration d'un thème via son fichier de conf
         "comment": "#737a7e"
     }
 }
-```, caption: [Contenu du fichier de configuration de Tree-Sitter#linebreak()présent sur Linux au chemin `~/.config/tree-sitter/config.json`])
+```, caption: [Contenu du fichier de configuration de Tree-Sitter#linebreak()présent sur Linux au chemin `~/.config/tree-sitter/config.json`]) <tsconfig>
 
 #figure(
   box(image("../imgs/mcq.svg"), width:50%),
