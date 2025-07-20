@@ -443,7 +443,7 @@ int main(int argc, char *argv[]) {
 
 #import "@preview/zebraw:0.5.5": zebraw
 
-Sur le @ts-tree-c-code, l'arbre syntaxique concret généré par Tree-Sitter nous montre que les 2 lignes `hi` et `HEY` sont catégorisés comme des fonctions.
+Sur le @ts-tree-c-code, l'arbre syntaxique concret généré par Tree-Sitter nous montre que les appels de `hi` et `HEY` sont catégorisés comme des fonctions.
 #figure(
   block(width: 26em,
 zebraw(
