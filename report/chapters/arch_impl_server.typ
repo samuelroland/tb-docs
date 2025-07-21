@@ -75,7 +75,7 @@ Pour résoudre ce problème, le projet `tauri-specta` @TauriSpectaCratesio nous 
 #text(size: 0.8em)[
 #figure(
 
-  block(width: 38em,
+  block(width: 32em,
 zebraw(
     numbering: false,
     highlight-lines: (1, 7),
