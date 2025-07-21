@@ -16,7 +16,7 @@ Avant de commencer ce travail conséquent de créer une nouvelle syntaxe, il est
 
 Les parseurs JSON vérifient que le document est correcte, mais le choix des clés et des valeurs n'est pas vérifié. C'est pour cette raison que le projet JSON Schema @JsonSchemaWebsite existe. Un schéma JSON définit un ensemble de clés valides, les types attendus pour chaque valeur, les champs requis et optionnels. L'intégration de ce projet dans l'IDE permet d'intégrer des erreurs lorsque des structures ne respecte pas le schéma et facilite la rédaction avec l'autocomplétion des clés et des valeurs. Nous cherchons une solution qui mixe dans un seul outil la définition de la syntaxe et sa validation.
 
-La recherche se concentre sur les projets qui visent à créer des meilleurs alternatives aux formats bien répandus ou qui ont un lien avec l'éducation. On ignore aussi les projets dont la spécification ou l'implémentation n'est pas encore utilisable en production. Ainsi, le langage de balise pour les recettes de cuisines Cooklang @cooklangMention n'est pas présenté. La recherche n'est pas évidente comme il existe de nombreuses manières de nommer ce que l'on cherche: langage de balise (_markup language_), format de donnée, syntaxe, langage de donnée, langage spécifique à un domaine (_Domain Specific Language_ - DSL), ... La recherche a principalement été faite en anglais avec les mots-clés suivants la barre de recherche de Google, Github.com et de crates.io: `data format`, `syntax`, `human friendly`, `alternative to YAML`, `human writable`, et `human readable`.
+La recherche se concentre sur les projets qui visent à créer des meilleures alternatives aux formats bien répandus ou qui ont un lien avec l'éducation. On ignore aussi les projets dont la spécification ou l'implémentation n'est pas encore utilisable en production. Ainsi, le langage de balise pour les recettes de cuisines Cooklang @cooklangMention n'est pas présenté. La recherche n'est pas évidente comme il existe de nombreuses manières de nommer ce que l'on cherche: langage de balise (_markup language_), format de donnée, syntaxe, langage de donnée, langage spécifique à un domaine (_Domain Specific Language_ - DSL), ... La recherche a principalement été faite en anglais avec les mots-clés suivants la barre de recherche de Google, Github.com et de crates.io: `data format`, `syntax`, `human friendly`, `alternative to YAML`, `human writable`, et `human readable`.
 
 === KHI - Le langage de données universel
 D'abord nommée UDL (_Universal Data Language_) @UDLCratesio, cette syntaxe a été inventée pour mixer les possibilités du JSON, YAML, TOML, XML, CSV et Latex, afin de supporter toutes les structures de données modernes. Plus concrètement, les balises, les structures, les listes, les tuples, les tables/matrices, les énumérations et les arbres hiérarchiques sont supportés.
@@ -370,7 +370,7 @@ Maintenant que nous avons un petit serveur fonctionnel, nous pouvons lancer notr
 
 Par défaut un nouveau langage avec une extension de fichier dédiée reste en noir en blanc dans l'IDE. Pour faciliter la lecture, nous souhaitons pouvoir coloriser la majorité du contenu de notre syntaxe, tout en groupant les couleurs par type d'éléments surlignés. Pour notre syntaxe DY, on aimerait que toutes les clés aient la même couleur, tout comme les propriétés qui doivent être toutes colorisées d'une seconde couleur. Les commentaires doivent être grisés.
 
-Le bout de C `printf("salut");` est vu par un système de surlignage de code comme une suite de morceaux, des _tokens_ d'une certaine catégorie. Ce bout de code pourrait être subdivisé avec les tokens suivants `printf` (identifiant), `(` (séparateur), `"` (séparateur), `salut` (valeur litérale), `"`, `)` et `;` (séparateur).
+Le bout de C `printf("salut");` est vu par un système de surlignage de code comme une suite de morceaux, des _tokens_ d'une certaine catégorie. Ce bout de code pourrait être subdivisé avec les tokens suivants `printf` (identifiant), `(` (séparateur), `"` (séparateur), `salut` (valeur littérale), `"`, `)` et `;` (séparateur).
 
 Les IDE modernes intègrent des systèmes de surlignage de code (_code highlighting_) et définissent leur propre liste de catégories de tokens, par exemple: séparateur, opérateur, mot clé, variable, fonction, constante, macro, énumération, ... Une fois la catégorie attribuée, il reste encore à définir quel couleur concrète est utilisé pour chaque catégorie. C'est le rôle des thèmes comme Monokai, Darcula, Tokioynight et beaucoup d'autres. Les systèmes de surlignage supportent parfois un rendu web via une version HTML contenant des classes CSS spécifiques à chaque type de token. Des thèmes écrits en CSS peuvent ainsi appliquer leurs couleurs. Le surlignage peut être de type syntaxique (_syntax highlighting_), avec une analyse purement basée sur la présence et l'ordre des tokens, ou sémantique (_semantic highlighting_) après une analyse du sens du token.
 
@@ -424,7 +424,7 @@ Rédiger une grammaire Tree-Sitter consiste en l'écriture d'une grammaire en Ja
 === Surlignage sémantique
 Les deux solutions de surlignage syntaxique présentées précédement sont déjà satisfaisantes, mais ne tiennent pas compte de nombreuses informations sémantiques qui permettraient d'améliorer encore la colorisation.
 
-Sur le @example-c-colors surligné avec Tree-Sitter (surlignage syntaxique pour rappel), on voit que les appels de `HEY` et `hi` dans le `main` ont les mêmes couleurs alors que l'un est une macro, l'autre une fonction. A la définition, les couleurs sont bien différentes, parce que le `#define` permet de différencier la macro d'une fonction. A l'appel, il n'est pas possible de les différencier avec une analyse syntaxique, car les tokens extraits seront les mêmes (identifiant, parenthèse, chaine litéral, etc). La notation en majuscules de l'identifiant de la macro ne peuvent pas être utilisés pour différencier l'appel car ce n'est qu'une convention, ce n'est pas requis par le C.
+Sur le @example-c-colors surligné avec Tree-Sitter (surlignage syntaxique pour rappel), on voit que les appels de `HEY` et `hi` dans le `main` ont les mêmes couleurs alors que l'un est une macro, l'autre une fonction. À la définition, les couleurs sont bien différentes, parce que le `#define` permet de différencier la macro d'une fonction. À l'appel, il n'est pas possible de les différencier avec une analyse syntaxique, car les tokens extraits seront les mêmes (identifiant, parenthèse, chaine littérale, etc). La notation en majuscules de l'identifiant de la macro ne peuvent pas être utilisés pour différencier l'appel, car ce n'est qu'une convention, ce n'est pas requis par le C.
 #figure(
 ```c
 #include <stdio.h>
@@ -478,7 +478,7 @@ Semantic Tokens
 
 #figure(
   image("../imgs/neovim-semantic-highlighting.png", width: 60%),
-  caption: [Une fois `clangd` lancé, l'appel de `HEY` prend une couleur différente que l'appel de fonciton mais la même couleur que celle attribuée sur sa définition],
+  caption: [Une fois `clangd` lancé, l'appel de `HEY` prend une couleur différente que l'appel de fonction mais la même couleur que celle attribuée sur sa définition],
 ) <fig-neovim-semantic-highlighting>
 
 // exemple doublon !
@@ -490,7 +490,7 @@ Semantic Tokens
 En voyant la liste des tokens sémantiques définis dans la spécification LSP @LspSpecSemanticTokens, cela peut aider à comprendre l'intérêt et les possibilités d'un surlignage avancé. Par exemple, on trouve des tokens sémantiques comme `macro`, `regexp`, `typeParameter`, `interface`, `enum`, `enumMember`, qui seraient difficiles de détecter au niveau syntaxique.
 
 === Choix final
-L'auteur a ignoré l'option du système de SublimeText, pour la simple raison qu'il n'est supporté nativement que dans SublimeText, probablement parce que cet IDE est propriétaire @SublimeHQEULA. Ce système utilise des fichiers `.sublime-syntax`, qui ressemblent à TextMate @SublimeHQSyntax, mais qui sont rédigés en YAML.
+L'auteur a ignoré l'option du système de SublimeText, pour la simple raison qu'il n'est supporté nativement uniquement par SublimeText, probablement parce que cet IDE est propriétaire @SublimeHQEULA. Ce système utilise des fichiers `.sublime-syntax`, qui ressemblent à TextMate @SublimeHQSyntax, mais qui sont rédigés en YAML.
 
 *Si le temps le permet, une grammaire sera développée avec Tree-Sitter pour supporter du surlignage dans Neovim.* Le choix de ne pas explorer plus les grammaires Textmate, laisse penser que nous délaissons complètement VSCode. Ce choix peut paraître étonnant comme VSCode est régulièrement utilisé par 73% des 65,437 répondant·es au sondage de StackOverflow 2024 @StackoverflowSurveyIDE.
 
