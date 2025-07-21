@@ -1,3 +1,4 @@
+#import "@preview/zebraw:0.5.5": zebraw
 = État de l'art
 
 Cette section explore l'état de l'art de cinq sujets liés aux deux défis de ce travail. Avant de développer la syntaxe DY, une recherche est faite autour des *syntaxes existantes moins répandues* qui ont des objectifs proches à la nôtre. *Les librairies de parsing* en Rust sont discutées ensuite pour comprendre si elles peuvent nous aider à l'implémentation du parseur. Pour inclure la compréhension du parseur directement dans les IDE, nous verrons comment *les serveurs de langage* permettent d'améliorer grandement l'expérience d'édition. Nous parlerons également des techniques de *surlignage de code*, dans les IDEs et sur le web, qui permettent de rendre notre syntaxe agréable à lire.
@@ -440,7 +441,6 @@ int main(int argc, char *argv[]) {
 }
 ```, caption: [Exemple de code C `hello.c`, avec macro et fonction surligné de la même manière à l'appel dans le `main`]) <example-c-colors>
 
-#import "@preview/zebraw:0.5.5": zebraw
 
 Sur le @ts-tree-c-code, l'arbre syntaxique concret généré par Tree-Sitter nous montre que les appels de `hi` et `HEY` sont catégorisés comme des fonctions.
 #figure(

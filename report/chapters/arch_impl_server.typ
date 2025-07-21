@@ -1,3 +1,4 @@
+#import "@preview/zebraw:0.5.5": zebraw
 = Développement du serveur de session live <arch_impl_server>
 Cette partie documente l'architecture et l'implémentation du serveur de session live, l'implémentation d'un client dans PLX et le protocole définit entre les deux.
 
@@ -47,11 +48,11 @@ Le serveur PLX peut être déployé dans un conteneur Docker via la commande `pl
 // todo les commandes CLI autour du parseur dans tout ça il va où ?
 // todo ref tauri specta et typeshare
 === Typage des commandes Tauri
-Pour les commandes Tauri mises à disposition du frontend, l'appel d'une commande se fait via une fonction `invoke` faiblement typée: le nom de la commande est une _string_ et les paramètres sont mis dans un objet, comme montré sur le @notypescommand. Ces valeurs ne sont pas vérifiés à la compilation, seule l'exécution permet de trouver des erreurs dans la console de la fenêtre du _frontend_.
+Pour les commandes Tauri mises à disposition du frontend, l'appel d'une commande se fait par défaut via une fonction `invoke` faiblement typée: le nom de la commande est une _string_ et les paramètres sont mis dans un objet, comme montré sur le @notypescommand. Les types de ces valeurs ne sont pas vérifiés à la compilation, seule l'exécution permet de trouver des erreurs dans la console de la fenêtre du _frontend_. En cas de changement de signature en Rust, nous pourrions oublier d'adapter le code du _frontend_ sans s'en rendre compte.
 
+#text(size: 0.8em)[
 #figure(
-  text(size: 0.8em)[
-    #grid(columns: 2, rows: 1, align: horizon, column-gutter: 10pt,
+    grid(columns: 2, rows: 1, align: horizon, column-gutter: 10pt,
   ```rust
 #[tauri::command]
 pub async fn clone_course(repos: String) -> bool {
@@ -64,10 +65,37 @@ import { invoke } from "@tauri-apps/api/core";
 const success = await invoke("clone_course", {
     repos: "https://github.com/samuelroland/plx-demo"
 });
-```)]
+```)
 , caption: [Une commande Tauri en Rust pour cloner le repository d'un cours\ et son appel faiblement typé en TypeScript.]) <notypescommand>
+]
 
-Le projet `tauri-specta` @TauriSpectaCratesio nous permet de générer une définition une fonction bien typée de l'appel à la commande, après avoir annoté la fonction Rust avec `#[specta::specta]`. Il faut aussi annoter tous les types des paramètres passés.
+Pour résoudre ce problème, le projet `tauri-specta` @TauriSpectaCratesio nous permet de générer une définition une fonction bien typée de l'appel à la commande, après avoir annoté la fonction Rust et les types des paramètres.
+
+// todo remove label of Rust and fix the padding !!!
+#text(size: 0.8em)[
+#figure(
+
+  block(width: 38em,
+zebraw(
+    numbering: false,
+    highlight-lines: (1, 7),
+    highlight-color: blue.lighten(80%),
+      
+```rust
+#[derive(Serialize, Debug, specta::Type)]
+pub struct CourseWithConfig {
+    course: Course,
+    config: Option<LiveConfig>,
+}
+#[tauri::command]
+#[specta::specta]
+pub async fn get_local_courses() -> Vec<CourseWithConfig> {
+  // ...
+}
+```)) , caption: [Exemple d'annotation avec `tauri-specta` sur la commande Tauri et sur les structures associées]) <spectademo>
+]
+
+Le @spectademo démontre comment annoter une commande Tauri avec `#[specta::specta]`. Cette commande permet de récupérer les cours PLX locaux et retourne un vecteur de `CourseWithConfig`. Notre structure `CourseWithConfig` et les types utilisés dans ses champs, tels que `Course` et `LiveConfig`, ont également été annotées avec `specta::Type`.
 
 #text(size: 0.8em)[
 #figure(
@@ -255,7 +283,10 @@ TODO besoin de voir les actions effectuées de bout en bout pour un message `Sen
 
 // todo docs pas de support pour plusieurs leaders ou pas ?
 
-== Conclusion du développement
+== Tests de bouts en bouts
+TODO
 
+== Conclusion du développement
+TODO utile ?
 
 #pagebreak()
