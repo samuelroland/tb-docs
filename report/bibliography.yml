@@ -3,7 +3,7 @@
 
 AndersEricssonWiki:
   type: Web
-  url: https://en.wikipedia.org/wiki/K._Anders_Ericsson#cite_note-nytimesobit-1
+  url: https://en.wikipedia.org/wiki/K._Anders_Ericsson
   date: 2025
   title: K. Anders Ericsson - Wikipedia
 
@@ -645,12 +645,6 @@ MsgpackWebsite:
     prefix: et
   date: 2025
   url: https://msgpack.org/
-DocsRmp:
-  type: Web
-  title: rmp - The Rust MessagePack Library
-  author: ""
-  date: 2025
-  url: https://docs.rs/rmp/latest/rmp/
 CapnprotoWebsite:
   type: Web
   title: "Cap'n Proto: Introduction"
@@ -761,6 +755,12 @@ TreeSitterVscodeGithub:
   date: 2025
   title: "GitHub - AlecGhost/tree-sitter-vscode: Bring the power of Tree-sitter to VSCode"
   author: AlecGhost et contributeurs
+
+VSCodeUpdateWithTsExperimental:
+  type: Web
+  url: https://code.visualstudio.com/updates/v1_99#_treesitter-based-syntax-highlighting-preview
+  date: 2025-03
+  title: March 2025 (version 1.99) - Tree-Sitter based syntax highlighting (Preview)
 
 PlxDocsStatus:
   type: Web
