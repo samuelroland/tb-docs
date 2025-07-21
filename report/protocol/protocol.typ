@@ -11,7 +11,7 @@ Le protocole définit deux types de messages: les clients envoient des actions a
   caption: [Les deux types de messages ne sont envoyés que dans une direction],
 ) <fig-basic-event-action-flow>
 
-Ne pas avoir de système de compte implique que tous les clients sont égaux par défaut. Pour éviter que n'importe quel client puisse contrôler une session en cours et arrive à changer d'exercice ou arrêter la session, un système de rôle est défini. Nous aurions pu définir un rôle enseignant·e et étudiant·e, mais cela exclut d'autres contextes: lorsque des assistant·es sont présent·es ou qu'un groupe d'étudiant·es révisent ensemble, en dehors des cours. Nous avons besoin de définir deux rôles qui permettent de distinguer les clients qui gèrent une session et les autres qui y participent. Nous choisissons ainsi de les nommer respectivement *leader* et *follower*. Le serveur peut ainsi vérifier à chaque `Action` reçue que le rôle du client autorise l'action.
+Ne pas avoir de système de compte implique que tous les clients sont égaux par défaut. Pour éviter que n'importe quel client puisse contrôler une session en cours et arrive à changer d'exercice ou arrêter la session, un système de rôle est défini. Nous aurions pu définir un rôle enseignant·e et étudiant·e, mais cela exclut d'autres contextes: lorsque des assistant·es sont présent·es ou qu'un groupe d'étudiant·es révisent ensemble, en dehors des cours. Nous avons besoin de définir deux rôles qui permettent de distinguer les clients qui gèrent une session et les autres qui y participent. Nous choisissons ainsi de les nommer respectivement *leader* et *follower*. La personne qui crée la session devient leader et les autres qui rejoignent deviennent followers. Le serveur peut ainsi vérifier à chaque `Action` reçue que le rôle du client autorise l'action.
 
 Ce rôle est attribué à chaque client dans une session, avoir un rôle en dehors d'une session ne fait pas de sens. Les clients followers suivent les exercices lancés par les clients leaders et envoient le code et les résultats des checks à chaque changement. Les clients leaders ne participent pas aux exercices, mais le serveur leur transfère chaque modification envoyée par les clients followers. Le protocole n'empêche pas d'avoir plusieurs leaders par session, pour permettre certains contextes avec plusieurs enseignant·es ou assistant·es présent·es, pour aider à relire tous les morceaux de code envoyés.
 // TODO really la dernière phrase ?
@@ -22,20 +22,22 @@ Un système de gestion des pannes du serveur et des clients est défini, pour é
 === Définition des sessions live
 Le protocole tourne autour du concept de _session live_, qui peut être vu comme un endroit virtuel temporaire où plusieurs personnes s'entrainent sur les mêmes exercices au même moment. Une partie des personnes ne participent pas directement, mais observent l'entrainement des autres.
 
-Une session est définie par un nom et un ID de groupe (`group_id`), cette combinaison est unique sur le serveur. Cet ID textuel de groupe est complètement arbitraire. Par défaut, le client PLX va prendre le lien HTTPS du repository Git pour regrouper les sessions du même cours. Dans le cas d'un fork du cours qui souhaiterait apparaître dans la même liste, cet ID peut être reconfiguré. Cette ID peut paraitre inutile, mais elle présente deux intérêts importants: une simplification de l'accès à une session et une limitation du spam.
-
-Si 100 sessions live tournent en même temps, il serait difficile de trouver une session en particulier parmi une liste de 100 entrées. Ainsi, graĉe au regroupement par `group_id`, seules les sessions du cours seront listées. Si 1-6 enseignant·es enseignent un cours en même temps, la liste ne sera longue que de 1-6 entrées et le nom de la session sera suffisant pour que les étudiant·es puissent trouver celle qui les intéressent.
-
-Un problème potentiel de spam est la création automatisée d'autres sessions avec des noms très proches des sessions légitimes pour tromper les étudiant·es. Un autre cas encore plus ennuyant de pollution d'une session, est l'envoi de morceau de code aléatoire de centaines de clients fictifs. Cette attaque rendrait le tableau de bord des enseignant·es inutilisable, comme le code des 20 étudiant·es seraient noyés au milieu de centaines d'autres. Puisqu'il est nécessaire de connaître le lien d'un repository Git d'un cours PLX, ce qui ne donne accès à une partie de la liste des sessions en cours du serveur, ce genre d'attaque est déjà rendue plus difficile pour un·e attaquant·e externe à l'école.
-
 Une personne démarre une session pour un repository qui contient des exercices pour PLX et d'autres rejoignent pour faire ces exercices. Une fois une sélection d'exercices préparée, les exercices sont lancés l'un après l'autre au rythme imposé par le leader. La session vit jusqu'à que le leader l'arrête ou qu'un temps d'expiration côté serveur décide de l'arrêter après un certain temps d'inactivité. L'arrêt d'une session fait quitter tous les clients connectés mais ne coupe pas les connexions WebSocket.
+
+Une session est définie par un nom et un ID de groupe (`group_id`), cette combinaison est unique sur le serveur. Cet ID textuel de groupe est complètement arbitraire. Par défaut, le client PLX va prendre le lien HTTPS du repository Git pour regrouper les sessions du même cours. Cette ID peut paraitre inutile, mais elle présente deux intérêts importants: une simplification de l'accès à une session et une limitation du spam.
+
+Si 100 sessions live tournent en même temps, il serait difficile dans l'interface graphique de trouver une session en particulier parmi une liste de 100 entrées. Ainsi, grâce au regroupement par `group_id`, seules les sessions du cours seront listées. Si 1-6 enseignant·es enseignent un cours en même temps, la liste ne sera longue que de 1-6 entrées et le nom de la session sera suffisant pour que les étudiant·es puissent trouver celle qui les intéressent.
+
+Comme notre serveur n'a pas de compte et ni de gestion de classe ou d'école, il n'est pas possible de s'assurer les participant·es font bien parti·es de l'école. Ainsi des personnes externes pourraient tout à fait se connecter et tenter d'envoyer du spam pour perturber les cours. Un premier type d'attaque qui pourrait tromper les étudiant·es, serait de lancer la création automatisée d'autres sessions avec des noms très proches des sessions légitimes. Les étudiant·es pourraient rejoindre la mauvaise session. Une autre attaque plus ennuyante serait la pollution d'une session, simplement en envoyant plein de morceaux de code aléatoires pour des centaines de clients fictifs. Cette attaque rendrait le tableau de bord des enseignant·es inutilisable, comme le code des 30 étudiant·es seraient noyés au milieu de centaines d'autres.
+
+Les deux attaques mentionnées restent possible mais leur accès est rendu plus difficile pour un·e attaquant·e externe à l'école, grâce au `group_id`. Il n'est pas possible de lister toutes les sessions en cours du serveur sans connaître tous les `group_id` utilisés. Nous considérons que ce genre d'attaque n'a dans tous les cas pas tellement d'intérêt pour un·e attaquant·e. Le seul intérêt potentiel serait de récupérer du code des étudiant·es sur les exercices de PLX mais ceux-ci n'ont rien de sensible ni de personnel. Si la pollution du tableau de bord devient un problème, nous pourrons implémenter un système de modération pour ignorer ou bannir certains clients d'une session.
 
 === Définition, identifiants et configuration du client
 Un "client" est défini comme la partie logicielle de PLX qui se connecte à un serveur de session live. Un client n'a pas besoin d'être codé dans un langage ou pour une plateforme spécifique, le seul prérequis est la capacité d'utiliser le protocole WebSocket. Chaque client est anonyme (le nom n'est pas envoyé, il ne peut pas être connu de l'enseignant·e facilement), mais s'identifie par un `client_id`, qu'il doit persister. Cet ID doit rester secrète entre le client et serveur, sinon il devient possible de se faire passer pour un autre client, ce qui devient problématique pour un client leader.
 
 Par souci de simplicité, les clients PLX génèrent un UUID version 4 (exemple `1be216e1-220c-4a0e-a582-0572096cea07`) @uuidv4. Le protocole ne définit pas de contrainte sur le contenu de cet identifiant, un autre format de plus grande entropie pourrait facilement être utilisé plus tard, si une sécurité plus accrue devenait nécessaire.
 
-Les clients leader ont besoin d'identifier la source du message transféré. Est-ce qu'un bout de code vient d'un nouveau client ou correspond à une mise à jour d'un client existant ? Le `client_id` doit rester secret et ne doit pas être envoyé vers un autre client, il ne peut pas être utilisé pour ce problème. Nous avons besoin d'un autre identifiant de nature temporaire. Nous souhaitons garder l'intérêt de l'anonymité, cet identifiant doit être différent à chaque session pour un client donné.
+Les clients leader ont besoin d'identifier la source du message transféré. Quand un nouveau bout de code arrive dans l'interface, soit le bout de code se met en base de la liste pour un nouveau client, soit il met à jour le code existant du client existant. Le `client_id` ne peut pas être utilisé car il doit rester secret, il ne doit pas être envoyé vers un autre client. Nous avons besoin d'un autre identifiant, différent à chaque session pour un client donné pour garder l'intérêt de l'anonymat.
 
 La solution choisie consiste à générer un numéro de client `client_num`, valeur entière incrémentale (partant de zéro), attribué par le serveur dans l'ordre d'arrivée dans la session. L'ordre d'arrivée étant très souvent différent, chaque client devrait généralement avec un numéro différent. La deuxième utilité de ce numéro est de permettre aux participant·es de mentionner à l'oral un code spécifique, par exemple: _Je ne comprends pas l'erreur, est-ce que vous pouvez me dire pourquoi mon code ne compile pas, en numéro 8 ?_ Ou encore _Sur le code 23 que vous aviez montré avant, est-ce que l'approche était meilleure que ce code 12 ?_
 
@@ -76,14 +78,14 @@ ws://live.plx.rs:9120?live_protocol_version=0.1.0&live_client_id=e9fc3566-32e3-4
 Les navigateurs web ne pouvant pas définir des entêtes HTTPs via l'API `WebSocket`, il est nécessaire de passer via la querystring.
 // todo ref biblio
 
-Pour ce numéro de version on utilise le Semantic Versionning 2.0.0 @SemverWebsite. Le numéro actuel est `0.1.0` et restera sur la version majeur zéro (`0.x.y`) durant la suite du développement, jusqu'à que le protocole ait pris de la maturité.
+Pour ce numéro de version on utilise le Semantic Versionning 2.0.0 @SemverWebsite. Le numéro actuel est `0.1.0` et restera sur la version majeur zéro (`0.y.z`) durant la suite du développement, jusqu'à que le protocole ait pris de la maturité.
 
 La connexion WebSocket devrait se terminer comme le protocole WebSocket le définit, c'est à dire en fermant proprement la connexion WebSocket avec un message de type `Close`.
 // todo ref et check ? utile ?
 
 
 === Messages
-Voici les actions définies, avec l'événement associé en cas de succès de l'action. Tous les champs et le message final en JSON doivent être encodés en UTF-8. Toutes les dates sont générées par le serveur en UTC. Les dates sont sérialisées sous forme de _timestamp_ #footnote[le nombre de secondes depuis l'époque Unix (1er janvier 1970).].
+Voici les actions définies, avec l'événement associé en cas de succès de l'action. Tous les champs et le message final en JSON doivent être encodés en UTF-8. Toutes les dates sont générées par le serveur en UTC. Les dates sont sérialisées sous forme de _timestamp_ #footnote[Le nombre de secondes depuis l'époque Unix (1er janvier 1970).].
 // TODO ref biblio
 
 
@@ -175,6 +177,8 @@ Pour conclure cette liste de messages, voici la liste des types d'erreurs qui pe
 // - Client: En tant que client follower, configurer le mode du broadcast: sa fréquence (live, ou quelques secondes), le type de changement à recevoir (tout, seulement les checks) ou lancer une mise à jour maintenant
 // - Client: Mettre en pause le streaming des changements du serveur vers le client // système d'activation et désactivation de l'abonnement ? meilleur wording ?
 
+La gestion de plusieurs clients leaders, promu par le leader créateur, n'est pas encore supportée dans le protocole. Il suffirait d'ajouter deux messages pour ajouter ou retirer le rôle de leader à un client donné.
+// todo okay ?
 
 #pagebreak()
 

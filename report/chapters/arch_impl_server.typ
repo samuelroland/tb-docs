@@ -6,7 +6,7 @@ La @high-level-arch montre la vue d'ensemble des composants logiciels avec trois
 Tous les clients ont accès à tous les exercices, stockés dans des repository Git. Le parseur s'exécute sur les clients pour extraire les informations du cours, des compétences et des exercices. Le serveur n'a pas besoin de connaître les détails des exercices, il ne sert que de relai pour les participant·es d'une même session. Le serveur n'est utile que pour participer à des sessions live, PLX peut continuer d'être utilisé sans serveur pour l'entrainement seul·e.
 
 #figure(
-  image("../schemas/high-level-arch.png", width:100%),
+  image("../schemas/high-level-arch.png", width:90%),
   caption: [Vue d'ensemble avec le serveur de session live, des clients, et notre parseur],
 ) <high-level-arch>
 
@@ -96,7 +96,7 @@ Prenons un exemple avec le résultat d'un check. L'attribut `#[serde...]` demand
 // TODO make sure à jour après intégration finale
 
 #text(size: 0.8em)[
-#grid(columns: (auto, 1fr), rows: 1, align: horizon, column-gutter: 10pt,
+#grid(columns: (4fr, 3fr), rows: 1, align: horizon, column-gutter: 10pt,
 figure(
 ```rs
 #[derive(Serialize, Deserialize, Eq, PartialEq, Clone, Debug)]
@@ -203,22 +203,23 @@ SERVER: Sending to 4cd31b74-0192-4900-8807-70912cc9d5d8: {
 === Gestion de la concurrence
 L'exemple précédent ne comportait qu'un seul client, en pratique nous en auront des centaines connectés en même temps, ce qui pose un défi de répartition du travail sur le serveur. En effet, le serveur doit être capable de faire plusieurs choses à la fois, dont une partie des tâches qui sont bloquantes:
 + Réagir à la demande d'arrêt, lors d'un `Ctrl+c`, le serveur doit s'arrêter proprement pour fermer les sessions et envoyer un `Event::ServerStopped`.
-+ Attendre de futur clients qui voudraient ouvrir une connexion TCP
-+ Attendre de messages sur le websocket pour chaque client
++ Attendre de futurs clients qui voudraient ouvrir une connexion TCP
++ Attendre de messages sur le _socket_ pour chaque client
 + Parser le JSON des messages des clients et vérifier que le rôle permet l'action
 + Parcourir la liste des clients d'une session pour leur broadcaster un message l'un après l'autre
 + Envoyer un `Event` pour un client donné
 + Gérer les sessions présentes, permettre de rejoindre ou quitter, de lancer ou d'arrêter ces sessions
 
-Une approche basique serait de lancer un nouveau _thread_ natif (fil d'exécution, géré par l'OS) à chaque nouveau client pour que l'attente sur le socket des messages envoyés puisse se faire sans bloquer les autres. Cette stratégie pose des problèmes à large échelle, car un thread natif possède un coût non négligeable. L'ordonnancement de l'OS, qui décide sur quel coeur du processeur pourra travailler chaque thread et à quel moment, a un certain cout. Si on démarre des centaines de threads natifs, l'ordonnanceur va perdre beaucoup de temps à constammer ordonnancer tous ces thread et les mettre en place.
+Une approche basique serait de lancer un nouveau _thread_ natif (fil d'exécution, géré par l'OS) à chaque nouveau client pour que l'attente sur le socket des messages envoyés puisse se faire sans bloquer les autres. Cette stratégie pose des problèmes à large échelle, car un thread natif possède un coût non négligeable. L'ordonnancement de l'OS, qui décide sur quel coeur du processeur pourra travailler chaque thread et à quel moment, a un certain cout. Si on démarre des centaines de threads natifs, l'ordonnanceur va perdre beaucoup de temps à constamment ordonnancer tous ces threads et les mettre en place.
 
-Une solution à ce problème, est de passer vers du Rust `async`. Concrètement, il suffit d'avoir des fonctions préfixées du mots clé `async` et des appels de ces fonctions suffixés de `.await`). Grâce au _runtime_ `Tokio`, librairie largement utilisée dans l'écosystème Rust, le code devient asynchrone grâce au lancement de threads virtuelles, appelée des tâches Tokio. Au lieu d'être soumis à un ordonnancement préemptif de l'ordonnanceur de l'OS, les tâches Tokio ne sont pas préemptées mais redonnent le contrôle au runtime à chaque `.await`. Ainsi, dès qu'une fonction qui intéragit avec le réseau en lecture ou écriture, elle sera asynchrone, après l'avoir lancé l'usage de `.await` permettra d'attendre son résultat sans bloquer le thread natif sous jacent. Seul la tâche tokio sera mis dans un fil d'attente géré par le runtime pour être relancée plus tard une fois un résultat arrivé. Le runtime lui même exécute ses tâches sur plusieurs _threads_ natifs, pour permettre un parallélisme en plus de la concurrence possible sur un _thread_.
+Une solution à ce problème est de passer vers du Rust `async`. Concrètement, les fonctions asynchrones sont préfixées du mot-clé `async` et des appels de ces fonctions suffixés de `.await`). Grâce au _runtime_ `Tokio`, librairie largement utilisée dans l'écosystème Rust, le code devient asynchrone grâce au lancement de threads virtuels, appelés #quote("tâches Tokio") @TokioTasksDocs. Au lieu d'être soumis à un ordonnancement préemptif de l'ordonnanceur de l'OS, les tâches Tokio ne sont pas préemptées mais redonnent le contrôle au _runtime_ à chaque `.await`. Cette asynchronisme permet d'attendre le résultat du réseau sans bloquer le _thread_ natif sur laquelle est exécutée la tâche. Seul la tâche tokio sera mis dans un fil d'attente géré par le runtime pour être relancée plus tard une fois le résultat arrivé. Le _runtime_ lui même ordonnance ses tâches sur plusieurs _threads_ natifs, pour permettre un parallélisme en plus de la concurrence existante. #footnote([Plus de détails sur les tâches Tokio sont disponibles dans sa documentation @TokioTasksDocs])
 // TODO okay ?
 
-Ce runtime de threads virtuelles permet ainsi de lancer des milliers de tâches tokio sans que cela pose soucis au niveau du coût mémoire ou du temps dédié à leur ordonnancement qui est plus léger. Tokio est donc une solution bien adaptée aux applications en réseau avec de nombreux clients concurrents mais aussi beaucoup d'attente sur des entrées/sorties.
+Ce runtime de threads virtuelles permet ainsi de lancer des milliers de tâches tokio avec un faible cout mémoire ou du temps nécessaire à leur ordonnancement qui est plus léger. Tokio est donc une solution bien adaptée aux applications en réseau avec de nombreux clients concurrents mais aussi beaucoup d'attente sur des entrées/sorties. @TokioTasksDocs
 // TODO check explication tokio
 
-TODO: est-ce que ca doit faire partie de létat de lart plutot cet explication de Tokio et la réflexion sur sync vers async ??
+// TODO BCS
+// TODO: est-ce que ca doit faire partie de létat de lart plutot cet explication de Tokio et la réflexion sur sync vers async ??
 
 #pagebreak()
 
