@@ -225,30 +225,37 @@ Ce runtime de threads virtuelles permet ainsi de lancer des milliers de tâches 
 
 === Tâches tokio
 
-Sur la @servers-tasks, nous observons 12 clients connectés, les clients 1 à 6 sont connectés dans la session 1. Les clients 7 à 12 dans la session 2. Les clients en orange sont des leaders. Chaque bloc à l'intérieur du serveur, excepté le `SessionsManager` correspond à une tâche tokio indépendante, avec laquelle la communication se fait par _channel_.
+// Sur la @servers-tasks, nous observons 12 clients connectés, les clients 1 à 6 sont connectés dans la session 1. Les clients 7 à 12 dans la session 2. Les clients en orange sont des leaders. Chaque bloc à l'intérieur du serveur, excepté le `SessionsManagement` correspond à une tâche tokio indépendante, avec laquelle la communication se fait par _channel_.
+Sur la @servers-tasks, nous observons 5 clients connectés, les clients 1 à 4 sont connectés dans la session 1 et le 5ème n'est pas connecté à une session. Le client en orange est le leader de la session 1. Chaque rectangle à l'intérieur du serveur (sauf le `SessionsManagement`), correspond à une tâche tokio indépendante, avec laquelle la communication se fait uniquement par _channel_ (système de messages aussi appelé _message passing_).
 
-Le point d'entrée est le `LiveServer`, qui attend sur le port 9120, et qui doit accepter les nouveaux clients qui veulenet se connecter, et faire le _handshake_ WebSocket ensuite. La vérification du numéro de version et de la présence du `client_id` sont faite à ce moment. Une fois le client connecté avec succès, un nouveau `ClientManager` est lancé dans une tâche Tokio séparée, avec l'instance du WebSocket et une référence sur le `SessionsManager`.
+Le point d'entrée est le `LiveServer`. Il attend sur le port 9120 dans l'attente de nouveaux clients qui veulent se connecter en TCP. Il doit ensuite gérer l'initialisation de la connexion WebSocket (_handshake_), qui inclut la vérification du numéro de version et de la présence du `client_id`. Une fois le client connecté avec succès, le `LiveServer` lance un nouveau `ClientManager` dans une tâche Tokio séparée. Cette tâche devient propriétaire de l'instance du WebSocket et reçoit aussi une référence partagée sur le `SessionsManagement`. Le `LiveServer` peut ainsi continuer d'attendre d'autres clients.
 
-Le `ClientManager` étant de seul à accéder au WebSocket de son client, il doit s'occuper de recevoir des `Action`, parser le JSON, vérifier que le rôle permet l'action ou renvoyer une erreur, et lancer les actions demandées. Il doit aussi transmettre les `Event` que le `SessionBroadcaster` lui transfère.
+Le `SessionsManagement` n'est qu'un état partagé au serveur qui implémente différentes méthodes pour changer cet été. Il est initialisé par le `LiveServer` et accédé par les `ClientManager` et s'occupe de stocker les informations relatives aux sessions en cours.
 
-Tous les `ClientManager` ont un channel (flèche violette) vers les `SessionBroadcaster`. Comme leur nom l'indique, il ne serve qu'à broadcaster un message à tous les leaders ou tous les clients de la session. Leur état stocke la partie transmission de _channel_ vers chaque `ClientManager` de la session.
+Le `ClientManager` étant de seul à accéder au socket de son client, il doit s'occuper de recevoir des messages `Action` du client. Il doit aussi transmettre sur le socket les `Event` que le `SessionBroadcaster` lui transfère.
 
-Le `SessionsManager` quand a lui est le coordinateur de la gestion des sessions. Il maintiant la liste des sessions en cours, organisés par `group_id`.
-
-// TODO def channel ?
+Tous les `ClientManager` ont un _channel_ (flèche violette) vers les `SessionBroadcaster`. Comme leur nom l'indique, ils ne servent qu'à broadcaster un message à tous les leaders ou tous les clients de la session. Leur état stocke la partie transmission du _channel_ vers chaque `ClientManager` de la session (les flèches vertes).
 
 #figure(
   image("../schemas/server-components.png", width:100%),
-  caption: [Aperçu des tâches tokio lancées pour 12 clients et 2 sessions en cours.],
+  caption: [Aperçu des tâches tokio lancées et interactions possibles pour 5 clients et 1 session en cours.],
 ) <servers-tasks>
 
+Le `ClientManager`, lors de la réception d'un message, doit parser le JSON du message vers la structure `Action`. Une fois le message extrait, il doit vérifier que le rôle permet l'action ou alors renvoyer une erreur directement. Si la demande est autorisée et concerne la gestion de sessions alors il peut l'effectuer en utilisant une des méthodes de `SessionsManagement`, comme `get_sessions()` par exemple.
 
-// La crate `tokio-tungstenite` nous fournit une adaption de `tungstenite`, pour fonctionner avec Tokio.
+Le `SessionsManagement` possède deux `HashMap` (tables de hachage avec clés/valeurs): la première contient des sessions regroupées par `group_id`. Chaque session contient évidemment le nom et `group_id`, mais également le `client_id` du créateur de la session et le dernier `client_num` attribué. Une seconde liste existe pour lier `client_id` de leader vers la session créée pour facilement retrouver la session dans la première liste.
+
+TODO besoin de voir les actions effectuées de bout en bout pour un message `SendFile` pour mieux se représenter les interactions ou déjà clair ??
+
+// TODO def channel enough ?
 
 // Tous les types des structures de données du protocole sont définies en Rust. Les messages sont en fait des enumérations `Action` et `Event` en Rust. La version JSON des messages n'est qu'un dérivé d'une liste d'exemples utilisant ces types.
 
 // pas d'état plus que dernier code et résultats, pas de persistence.
 
-// pas de support pour plusieurs leaders
+// todo docs pas de support pour plusieurs leaders ou pas ?
+
+== Conclusion du développement
+
 
 #pagebreak()
