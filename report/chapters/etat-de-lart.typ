@@ -1,21 +1,22 @@
 = État de l'art
 
-Cette section explore l'état de l'art de cinq sujets liés aux deux défis de ce travail. Avant de développer la syntaxe DY, une recherche est faite autour des *syntaxes existantes moins répandues* qui ont des objectifs proches à la notre. *Les librairies de parsing* en Rust sont discutées ensuite pour comprendre si elles peuvent nous aider à l'implémentation du parseur. Pour inclure la compréhension du parseur directement dans les IDE, nous verrons comment *les serveurs de language* permettent d'améliorer grandement l'expérience d'édition. Nous parlerons également des techniques de *surlignage de code*, dans les IDEs et sur le web, qui permettent de rendre notre syntaxe agréable à lire.
+Cette section explore l'état de l'art de cinq sujets liés aux deux défis de ce travail. Avant de développer la syntaxe DY, une recherche est faite autour des *syntaxes existantes moins répandues* qui ont des objectifs proches à la nôtre. *Les librairies de parsing* en Rust sont discutées ensuite pour comprendre si elles peuvent nous aider à l'implémentation du parseur. Pour inclure la compréhension du parseur directement dans les IDE, nous verrons comment *les serveurs de langage* permettent d'améliorer grandement l'expérience d'édition. Nous parlerons également des techniques de *surlignage de code*, dans les IDEs et sur le web, qui permettent de rendre notre syntaxe agréable à lire.
 
-Pour conclure ces recherches, le défi du serveur de session live a demandé d'explorer les *protocoles de communication bidirectionnels*, pour nous permettre d'envoyer et recevoir des messages en temps réel. Ce dernier sujet inclut aussi une comparaison entre *formats textes et binaires de sérialisation* des messages.
+Pour conclure ces recherches, le défi du serveur de session live a demandé d'explorer les *protocoles de communication bidirectionnels*, pour nous permettre d'envoyer et de recevoir des messages en temps réel. Ce dernier sujet inclut aussi une comparaison entre *formats textes et binaires de sérialisation* des messages.
 
-En plus de la comparaison des solutions existantes, quelques *POCs* ont été développés pour découvrir et tester le fonctionnement des solutions choisies. Les POC ont été implémenté dans le dossier `pocs` du repository Git de la documentation du projet. Ce dossier est accessible sur #link("https://github.com/samuelroland/tb-docs/tree/main/pocs")
+En plus de la comparaison des solutions existantes, quelques *POCs* sont développés pour découvrir et tester le fonctionnement des solutions choisies. L'implémentation est disponible dans le dossier `pocs` du repository Git de la documentation du projet. Ce dossier est accessible sur #link("https://github.com/samuelroland/tb-docs/tree/main/pocs")
 // todo lien en bibliographie aussi ?
 
 // TODO: lien qqepart des 2-3 repos ?
 
 
 == Format de données humainement éditables existants
-Avant de commencer ce travail conséquent de créer une nouvelle syntaxe, il est nécessaire de s'assurer qu'il n'existe pas d'autres librairies qui existent déjà et qui pourraient apporter la même expérience, simplicité et rapidité de rédaction. Nous avons aussi besoin d'avoir une intégration Rust puisque PLX est développé en Rust. Nous cherchons aussi une validation du contenu intégrée à l'éditeur, pour éviter des allers retours constants entre l'éditeur et l'affichage d'erreurs de rédaction dans PLX.
 
-Les parseurs JSON vérifie que le document est correcte mais le choix des clés et valeurs n'est pas vérifié. C'est pour cette raison que le projet JSON Schema @JsonSchemaWebsite existe. Un schéma JSON définit un ensemble de clés valides, les types attendus pour chaque valeur, les champs requis et optionnels. L'intégration de ce projet dans l'IDE permet d'intégrer des erreurs lorsque des structures ne respecte pas le schéma et facilite la rédaction avec l'auto-complétion des clés et valeurs. Nous cherchons une solution qui mixe dans un seul outil la définition de la syntaxe et sa validation.
+Avant de commencer ce travail conséquent de créer une nouvelle syntaxe, il est nécessaire de s'assurer qu'il n'existe pas d'autres librairies qui existent déjà et qui pourraient apporter la même expérience, simplicité et rapidité de rédaction. Nous avons aussi besoin d'avoir une intégration Rust puisque PLX est développé en Rust. Nous cherchons aussi une validation du contenu intégrée à l'éditeur, pour éviter des allers-retours constants entre l'éditeur et l'affichage d'erreurs de rédaction dans PLX.
 
-La recherche se concentre sur les projets qui visent à créer des meilleurse alternatives aux formats bien répandus ou qui ont un lien avec l'éducation. On ignore aussi les projets dont la spécification ou l'implémentation n'est pas encore utilisable en production. Ainsi, le langage de balise pour les recettes de cuisines Cooklang @cooklangMention n'est pas présenté. La recherche n'est pas évidente comme il existe de nombreuses manières de nommer ce que l'on cherche: langage de balise (_markup language_), format de donnée, syntaxe, langage de donnée, langage spécifique à un domaine (_Domain Specific Language_ - DSL), ... La recherche a principalement été faite en anglais avec les mots-clés suivants la barre de recherche de Google, Github.com et de crates.io: `data format`, `syntax`, `human friendly`, `alternative to YAML`, `human writable`, et `human readable`.
+Les parseurs JSON vérifient que le document est correcte, mais le choix des clés et des valeurs n'est pas vérifié. C'est pour cette raison que le projet JSON Schema @JsonSchemaWebsite existe. Un schéma JSON définit un ensemble de clés valides, les types attendus pour chaque valeur, les champs requis et optionnels. L'intégration de ce projet dans l'IDE permet d'intégrer des erreurs lorsque des structures ne respecte pas le schéma et facilite la rédaction avec l'autocomplétion des clés et des valeurs. Nous cherchons une solution qui mixe dans un seul outil la définition de la syntaxe et sa validation.
+
+La recherche se concentre sur les projets qui visent à créer des meilleurs alternatives aux formats bien répandus ou qui ont un lien avec l'éducation. On ignore aussi les projets dont la spécification ou l'implémentation n'est pas encore utilisable en production. Ainsi, le langage de balise pour les recettes de cuisines Cooklang @cooklangMention n'est pas présenté. La recherche n'est pas évidente comme il existe de nombreuses manières de nommer ce que l'on cherche: langage de balise (_markup language_), format de donnée, syntaxe, langage de donnée, langage spécifique à un domaine (_Domain Specific Language_ - DSL), ... La recherche a principalement été faite en anglais avec les mots-clés suivants la barre de recherche de Google, Github.com et de crates.io: `data format`, `syntax`, `human friendly`, `alternative to YAML`, `human writable`, et `human readable`.
 
 === KHI - Le langage de données universel
 D'abord nommée UDL (_Universal Data Language_) @UDLCratesio, cette syntaxe a été inventée pour mixer les possibilités du JSON, YAML, TOML, XML, CSV et Latex, afin de supporter toutes les structures de données modernes. Plus concrètement, les balises, les structures, les listes, les tuples, les tables/matrices, les énumérations et les arbres hiérarchiques sont supportés.
@@ -53,7 +54,7 @@ De nombreux formats de données existent pour décrire du contenu éducatif digi
 
 Bitmark est un standard open-source @bitmarkLicense, qui vise à uniformiser tous ces formats pour améliorer l'interopérabilité @bitmarkAssociation. Leur stratégie est de définir un format basé sur le contenu (_Content-first_) plutôt que son rendu (_Layout-first_) permettant de supporter un affichage sur un maximum de plateformes, incluant les appareils mobiles @bitmarkAssociation. C'est la Bitmark Association en Suisse à Zurich qui développe ce standard, notamment à travers des Hackatons organisés en 2023 et 2024 @bitmarkAssociationHackaton.
 
-Le standard permet de décrire du contenu statique, comme des articles, et du contenu interactif comme des quiz de divers formats. Deux équivalents sont définis : le _bitmark markup language_ et le _bitmark JSON data model_ @bitmarkDocs. La partie quiz du standard inclut des textes à trous, des questions à choix multiple, du texte à surligner, des essais, des vrai/faux, des photos à prendre, des audios à enregistrer et de nombreux autres types d'exercices.
+Le standard permet de décrire du contenu statique comme des articles et du contenu interactif sur des quiz de divers formats. Deux équivalents sont définis : le _bitmark markup language_ et le _bitmark JSON data model_ @bitmarkDocs. La partie quiz du standard inclut des textes à trous, des questions à choix multiple, du texte à surligner, des essais, des vrai/faux, des photos à prendre, des audios à enregistrer et de nombreux autres types d'exercices.
 
 #figure(
 ```
@@ -119,10 +120,10 @@ curl "https://taskpool.taskbase.com/exercises?translationPair=de->en&word=school
 )
 Une autre plateforme, Classtime, utilise Bitmark pour son système d'import et export de questions @classtimeUsingBitmark. On voit dans leur documentation @ClasstimeDocs que le système de création d'exercices reste basé sur des formulaires.
 
-Ces 2 exemples donnent l'impression que la structure JSON est plus utilisée que le _markup_. Au vu de tous séparateurs et symboles de ponctuations à se rappeler,  et la présence d'un équivalent JSON, la spécification du _markup_ n'a peut-être pas été optimisée pour la rédaction à la main directement. En plus, Bitmark ne spécifie pas de type d'exercices programmation nécessaires à PLX. On salue au passage l'envie de standardiser le format des différentes plateformes, à long-terme cela ne peut que simplifier la vie des enseignant·es dans la gestion de leur contenu et augmenter la qualité de la pratique des étudiant·es.
+Ces deux exemples donnent l'impression que la structure JSON est plus utilisée que le _markup_. Au vu de tous séparateurs et symboles de ponctuations à se rappeler et la présence d'un équivalent JSON, la spécification du _markup_ n'a peut-être pas été optimisée pour la rédaction à la main directement. En plus, Bitmark ne spécifie pas de type d'exercices programmation nécessaires à PLX. On salue au passage l'envie de standardiser le format des différentes plateformes, à long-terme cela ne peut que simplifier la vie des enseignant·es dans la gestion de leur contenu et augmenter la qualité de la pratique des étudiant·es.
 
 === NestedText — Un meilleur JSON
-NestedText se veut _human-friendly_, similaire au JSON, mais pensé pour être facile à modifier et visualiser par les humains. Le seul type de donnée scalaire supporté est la chaîne de caractères, afin de simplifier la syntaxe et retirer les guillemets @nestedTextGithub. En plus des types de données restreints, l'autre différence avec le YAML est la facilité d'intégrer des morceaux de code sans échappements ni guillemets, les caractères de données ne peuvent pas être confondus avec NestedText @nestedTextVsYaml.
+NestedText se veut _human-friendly_, similaire au JSON, mais pensé pour être facile à modifier et à visualiser par les humains. Le seul type de donnée scalaire supporté est la chaîne de caractères, afin de simplifier la syntaxe et retirer les guillemets @nestedTextGithub. En plus des types de données restreints, l'autre différence avec le YAML est la facilité d'intégrer des morceaux de code sans échappements ni guillemets, les caractères de données ne peuvent pas être confondus avec NestedText @nestedTextVsYaml.
 
 #figure(
 ```
@@ -140,13 +141,13 @@ Margaret Hodge:
   caption: [Exemple tiré de leur README @nestedTextGithub ]
 )
 
-Les tabulations restent nécessaires pour définir la hiéarchie. Tout comme le JSON la validation du contenu n'est géré que par des librairies externes qui vérifient la validité à l'aide d'un schéma @nestedTextSchemasLib. De plus, l'implémentation officielle est en Python et il n'en existe pas pour le Rust. Il existe une crate réservée qui est restée vide @nestedTextRsCrateEmpty.
+Les tabulations restent nécessaires pour définir la hiérarchie. Tout comme le JSON la validation du contenu n'est géré que par des librairies externes qui vérifient la validité à l'aide d'un schéma @nestedTextSchemasLib. De plus, l'implémentation officielle est en Python et il n'en existe pas pour le Rust. Il existe une crate réservée qui est restée vide @nestedTextRsCrateEmpty.
 
 #pagebreak()
 
 === SDLang - Simple Declarative Language
 
-SDLang se définit comme #quote("une manière simple et concise de représenter des données textuellement. Il a une structure similaire au XML : des tags, des valeurs et des attributs, ce qui en fait un choix polyvalent pour la sérialisation de données, des fichiers de configuration ou des langages déclaratifs.") (Traduction personnelle de leur site web @sdlangWebsite). SDLang définit également différents types de nombres (32 bits, 64 bits, entiers, flottants...), 4 valeurs de booléens (`true`, `false`, `on`, `off`), différents formats de dates et un moyen d'intégrer des données binaires encodées en Base64.
+SDLang se définit comme #quote("une manière simple et concise de représenter des données textuellement. Il a une structure similaire au XML : des tags, des valeurs et des attributs, ce qui en fait un choix polyvalent pour la sérialisation de données, des fichiers de configuration ou des langages déclaratifs.") (Traduction personnelle de leur site web @sdlangWebsite). SDLang définit également différents types de nombres (32 bits, 64 bits, entiers, flottants...), quatre valeurs de booléens (`true`, `false`, `on`, `off`), différents formats de dates et un moyen d'intégrer des données binaires encodées en Base64.
 
 #figure(
 ```
@@ -180,7 +181,7 @@ matrix {
   caption: [Exemple de SDLang tiré de leur site web @sdlangWebsite]
 ) <sdl>
 
-Cet exemple en @sdl est intéressant par le faible nombre de caractères réservés et la densité d'information. Il s'approche de ce qui avait été imaginé sur la syntaxe DY, dans l'introduction en @exemple-dy. En YAML, trois lignes auraient été nécessaires à définir l'auteur avec son nom, email et un attribut booléen. En SDLang une seule ligne suffit: `author "Peter Parker" email="peter@example.org" active=true`. Les neuf valeurs de la matrice sont définie sur seulement cinq lignes, avec l'espace comme séparateur.
+Cet exemple en @sdl est intéressant par le faible nombre de caractères réservés et la densité d'information. Il s'approche de ce qui avait été imaginé sur la syntaxe DY, dans l'introduction en @exemple-dy. En YAML, trois lignes auraient été nécessaires à définir l'auteur avec son nom, email et un attribut booléen. En SDLang une seule ligne suffit: `author "Peter Parker" email="peter@example.org" active=true`. Les neuf valeurs de la matrice sont définies sur seulement cinq lignes, avec l'espace comme séparateur.
 
 Il est regrettable que les strings doivent être entourées de guillemets. Le texte brut sur plusieurs lignes (comme du code) doit être entouré de backticks ``` ` ``` @sdlangWebsiteReferenceStrings. De même, la définition de la hiérarchie d'objets nécessite d'utiliser une paire d'accolades.
 
@@ -214,16 +215,17 @@ package {
 ```,
   caption: [Exemple de KDL simplifié tiré de leur site web @kdlWebsite]
 ) <kdl>
-Si l'exemple en @kdl paraît proche de SDLang, c'est normal puisque KDL est un fork de SDLang. Les améliorations qui nous intéressent concernent la possibilité de retirer des guillemets pour les strings sans espace (`person name=Samuel` au lieu de `person name="Samuel"`). Cette simplification n'inclut malheureusement pas le texte multiligne, qui demande d'être entourée par `"""`. Le problème d'intégration de morceaux de code entre #raw("`") pour certains langages qui utilisent ce symbole (comme Bash), a été relevé par l'auteur du fork dans la FAQ. Le text brut est ainsi supportée avec un `#` ajouté autour des guillemets, par exemple `regex #"\d{3} "[^/"]+""#` ou dans la @kdl avec le noeud `build`. Une répétition des `#` permet d'inclure ce caractère littéral pour éviter tout besoin d'échappement. Par exemple `msg ##"hello#"john"##` contient un noeud `msg` avec la valeur `hello#"john` @kdlWebsite.
+Si l'exemple en @kdl paraît proche de SDLang, c'est normal puisque KDL est un fork de SDLang. Les améliorations qui nous intéressent concernent la possibilité de retirer des guillemets pour les strings sans espace (`person name=Samuel` au lieu de `person name="Samuel"`). Cette simplification n'inclut malheureusement pas le texte multiligne, qui demande d'être entourée par `"""`. Le problème d'intégration de morceaux de code entre #raw("`")
+  pour certains langages qui utilisent ce symbole (comme Bash), a été relevé par l'auteur du fork dans la FAQ. Le texte brut est ainsi supporté avec un `#` ajouté autour des guillemets, par exemple `regex #"\d{3} "[^/"]+""#` ou dans la @kdl avec le noeud `build`. Une répétition des `#` permet d'inclure ce caractère littéral pour éviter tout besoin d'échappement. Par exemple `msg ##"hello#"john"##` contient un noeud `msg` avec la valeur `hello#"john` @kdlWebsite.
 
-En dehors des autres désavantages déjà évoqués pour SDLang, il reste toujours le problème des types de nombres qui peuvent créer des ambiguités avec le texte. Ce noeud `version 1.2.3` est interprété comme nombre à virgule avec une erreur de format, il a besoin de guillemets `version "1.2.3"` pour indiquer que ce n'est pas un nombre.
+En dehors des autres désavantages déjà évoqués pour SDLang, il reste toujours le problème des types de nombres qui peuvent créer des ambiguïtés avec le texte. Ce noeud `version 1.2.3` est interprété comme nombre à virgule avec une erreur de format, il a besoin de guillemets `version "1.2.3"` pour indiquer que ce n'est pas un nombre.
 
 === Conclusion
-En conclusion, au vu du nombre de tentatives/variantes existantes, qui va au delà de ce qui a été documenté dans ce rapport, on voit que la verbosité des formats largement répandus du XML, JSON et même du YAML est un problème identifié par plusieurs personnes. Même Apple a fait son propre format de configuration, le Pkl qui mixe des constructions de programmation et de données pour la validation des fichiers @PklLangWebsite.
+En conclusion, au vu du nombre de tentatives/variantes existantes, qui va au-delà de ce qui a été documenté dans ce rapport, on voit que la verbosité des formats largement répandus du XML, JSON et même du YAML est un problème identifié par plusieurs personnes. Même Apple a fait son propre format de configuration, le Pkl qui mixe des constructions de programmation et de données pour la validation des fichiers @PklLangWebsite.
 
-La diminution de la verbosité des syntaxes décrites précédement est intéressante: on évite des guillemets, des accolades, et d'autres séparateurs ce qui facilite la rédaction. Le contenu multiligne devient plus facile à intégrer en évitant d'échapper des caractères particuliers. Le problème reste que pour supporter des structures de données avancées, elles sont toujours obligées d'avoir un minimum de séparateurs. Souvent ne proposent pas de validation intégrée.
+La diminution de la verbosité des syntaxes décrites précédemment est intéressante: on évite des guillemets, des accolades, et d'autres séparateurs ce qui facilite la rédaction. Le contenu multiligne devient plus facile à intégrer en évitant d'échapper des caractères particuliers. Le problème reste que pour supporter des structures de données avancées, elles sont toujours obligées d'avoir un minimum de séparateurs. Souvent ne proposent pas de validation intégrée.
 
-Ces améliorations sont déjà un gain important mais il est possible d'aller encore plus loin, en sacrifiant une partie des structures de données. Notre syntaxe DY propose une approche encore plus légère. En se limitant à un ensemble de clés autorisées avec une hiérarchie définie, nous pouvons exprimer la hiérachie du document sans nécessiter de tabulations ni d'accolades et valider le document directement durant le parsing.
+Ces améliorations sont déjà un gain important, mais il est possible d'aller encore plus loin, en sacrifiant une partie des structures de données. Notre syntaxe DY propose une approche encore plus légère. En se limitant à un ensemble de clés autorisées avec une hiérarchie définie, nous pouvons exprimer la hiérarchie du document sans nécessiter de tabulations ni d'accolades et valider le document directement durant le parsing.
 
 // TODO BCS okay cet conclusion avec un peu de spoil mais pas bcp sur pourquoi la syntaxe DY est différente et vaut la peine
 
@@ -238,10 +240,10 @@ Après s'être intéressé aux syntaxes existantes, nous nous intéressons maint
 - `combine` @combineCratesio
 - `chumsky` @chumskyCratesio
 
-À noter aussi l'existence de la crate `serde` @serders, un framework de sérialisation et desérialisation très populaire dans l'écosystème Rust (selon le site lib.rs @librsMostPopular). Il est notamment utilisé pour les parseurs JSON `serde_json` et TOML `toml`. Ce n'est pas une librairie de parsing mais un modèle de donnée basée sur des _traits_ Rust (des interfaces) pour faciliter le passage d'un arbre syntaxique abstrait (AST) aux structures de données Rust. Le modèle de données de Serde @serdersDatamodel supporte 29 types de données. Trois raisons nous poussent à ne pas construire un parseur compatible avec `serde`:
+À noter aussi l'existence de la crate `serde` @serders, un framework de sérialisation et désérialisation très populaire dans l'écosystème Rust (selon le site lib.rs @librsMostPopular). Il est notamment utilisé pour les parseurs JSON `serde_json` et TOML `toml`. Ce n'est pas une librairie de parsing mais un modèle de donnée basée sur des _traits_ Rust (des interfaces) pour faciliter le passage d'un arbre syntaxique abstrait (AST) aux structures de données Rust. Le modèle de données de Serde @serdersDatamodel supporte 29 types de données. Trois raisons nous poussent à ne pas construire un parseur compatible avec `serde`:
 + Seulement les strings, listes et structs sont utiles pour PLX. Par exemple, les 12 types de nombres sont inutiles à différencier.
-+ La sérialisation (structure Rust vers syntaxe DY) n'est pas prévue, seul la desérialisation nous intéresse
-+ L'association des clés et propriétés vers les attributs des structs Rust n'est pas du 1:1. La valeur après `exo` contient le nom de l'exercice puis la consigne, ce qui signifie une seule string pour deux champs `name` et `instruction` dans la structure `Exo` finale.
++ La sérialisation (structure Rust vers syntaxe DY) n'est pas prévue, seul la désérialisation nous intéresse
++ L'association des clés et les propriétés vers les attributs des structs Rust n'est pas du 1:1. La valeur après `exo` contient le nom de l'exercice puis la consigne, ce qui signifie une seule string pour deux champs `name` et `instruction` dans la structure `Exo` finale.
 
 Parser des simples expressions de math comme `((23+4) * 5)` est idéal pour ces outils: les débuts et fin de chaque partie sont claires, une combinaison de fonctions de parsing permettraient facilement d'identifier les expressions parenthésées, les opérateurs puis les nombres. Elles semblent bien adaptées à ignorer des espaces, extraire les nombres tant qu'ils contiennent des chiffres, extraire des opérateurs et les deux opérandes autour...
 
@@ -260,23 +262,22 @@ La syntaxe DY est relativement simple à parser et sa nature implicite rend comp
 
 Par défaut, avec un nouveau langage, il faut manuellement lancer le compilateur ou le parseur sur son fichier, voir les erreurs et de revenir dans l'éditeur pour les corriger. Certaines opérations répétitives, comme renommer une fonction à chaque appel, doivent être faites à la main. Pour ces raisons, il devient très intéressant d'intégrer un nouveau langage aux différents IDE utilisés dans le monde, mais cela posent de nombreux challenges.
 
-Le support d'un éditeur consiste à intégrer les erreurs du parseur, l'auto-complétion, les propositions de corrections, des informations au survol... et de nombreuses petites fonctionnalités qui améliorent l'expérience de rédaction. L'avantage d'avoir les erreurs de compilation directement soulignées dans l'éditeur c'est de pouvoir voir les erreurs dans leur contexte et de corriger immédiatement les problèmes. Supporter chaque éditeur de code indépendamment signifie travailler avec des API légèrement différentes pour supporter la même fonctionnalité et utiliser plusieurs langages de programmation différents.
+Le support d'un éditeur consiste à intégrer les erreurs du parseur, l'autocomplétion, les propositions de corrections, des informations au survol... et de nombreuses petites fonctionnalités qui améliorent l'expérience de rédaction. L'avantage d'avoir les erreurs de compilation directement soulignées dans l'éditeur, c'est de pouvoir voir les erreurs dans leur contexte et de corriger immédiatement les problèmes. Supporter chaque éditeur de code indépendamment signifie travailler avec des API légèrement différentes pour supporter la même fonctionnalité et utiliser plusieurs langages de programmation différents.
 
-Les développeur·euses de nouveaux IDE font face à un défi similaire mais encore plus large, celui de supporter des centaines de langages pour qu'un maximum de monde puisse développer avec. Microsoft était face au même problème pour son éditeur VSCode et a inventé un protocole, nommé `Language Server Protocol (LSP)` @lspWebsite. Ce protocole définit un pont commun entre un client LSP implémenté à l'interne de chaque IDE et un serveur LSP, appelé serveur de langage (_language server_). L'IDE peut ainsi demander de manière unique des informations, tel que _Donne moi les résultats d'auto-complétion pour le curseur a tel position_ sans devoir supporter des détails du langage édité. Le projet a pour but de simplifier la vie des développeur·euses de nouveaux langages et des nouveaux éditeurs qui peuventt intégrer rapidement des centaines de langages en implémentant "juste" un client LSP.
+Les développeur·euses de nouveaux IDE font face à un défi similaire, mais encore plus difficile, celui de supporter des centaines de langages pour qu'un maximum de monde puisse développer avec. Microsoft était face au même problème pour son éditeur VSCode et a inventé un protocole, nommé `Language Server Protocol (LSP)` @lspWebsite. Ce protocole définit un pont commun entre un client LSP implémenté à l'interne de chaque IDE et un serveur LSP, appelé serveur de langage (_language server_). L'IDE peut ainsi demander de manière unique des informations, tel que _Donne moi les résultats d'autocomplétion pour le curseur à cette position_ sans devoir supporter des détails du langage édité. Le projet a pour but de simplifier la vie des développeur·euses de nouveaux langages et des nouveaux éditeurs qui peuvent intégrer rapidement des centaines de langages en implémentant "juste" un client LSP.
 
 Les serveurs de langages tournent dans des processus séparés de l'éditeur, ce qui permet de ne pas imposer de langage de programmation. Le client LSP se charge de lancer le processus du serveur, de lancer des requêtes et d'intégrer les données des réponses dans leur interface visuelle. Les serveurs de langage n'ont aucune idée de l'éditeur qui leur demande des informations et ils n'en ont pas besoin puisque le protocole définit les réponses attendues en retour.
 
 #figure(
   image("../imgs/neovim-autocompletion-example.png", width: 70%),
-  caption: [Exemple d'auto-complétion dans Neovim, générée par le serveur de langage `rust-analyzer` sur l'appel d'une méthode sur les `&str`],
+  caption: [Exemple d'autocomplétion dans Neovim, générée par le serveur de langage `rust-analyzer` sur l'appel d'une méthode sur les `&str`],
 ) <fig-neovim-autocompletion-example>
 
 Un serveur de langage n'a pas besoin d'implémenter toutes les fonctionnalités du protocole. Un système de capacités (_Capabilities_) est défini pour annoncer les méthodes implémentées @lspCapabilities. Nous pourrons ainsi implémenter que la petite partie du protocole qui nous intéresse.
 
-Le protocole *JSON-RPC* (_JSON Remote Procedure Call_) est utilisé comme protocole de communication. Similaire au HTTP, il possède des entêtes et un corps. Ce standard définit quelques structures de données à respecter. Une requête doit contenir un champ `jsonrpc`, `id`, `method` et optionnellement `params` @jsonrpcSpec. L'`id` sert à associer une réponse à une requête. Il est aussi possible d'envoyer une notification, c'est à dire une requête qui n'attend pas de réponse. Le champ `method` va indiquer l'action à appeler. Le transport des messages JSON-RPC peut se faire en `stdio` (flux standards d'entrée/sortie), sockets TCP ou même en HTTP.
+Le protocole *JSON-RPC* (_JSON Remote Procedure Call_) est utilisé comme protocole de communication. Similaire au HTTP, il possède des entêtes et un corps. Ce standard définit quelques structures de données à respecter. Une requête doit contenir un champ `jsonrpc`, `id`, `method` et optionnellement `params` @jsonrpcSpec. L'`id` sert à associer une réponse à une requête. Il est aussi possible d'envoyer une notification, c'est-à-dire une requête qui n'attend pas de réponse. Le champ `method` va indiquer l'action à appeler. Le transport des messages JSON-RPC peut se faire en `stdio` (flux standards d'entrée/sortie), sockets TCP ou même en HTTP.
 
 // todo vraiment utile ce morceau du coup ??
-#figure(
 ```
 Content-Length: ...\r\n
 \r\n
@@ -289,7 +290,7 @@ Content-Length: ...\r\n
     }
 }
 ```,
-  caption: [Exemple de requête JSON-RPC du client pour demander des propositions d'auto-complétion (`textDocument/completion`). Tiré de la spécification @lspCompletionExample],
+  caption: [Exemple de requête JSON-RPC du client pour demander des propositions d'autocomplétion (`textDocument/completion`). Tiré de la spécification @lspCompletionExample],
 ) <jsonRpcExample>
 
 Quelques exemples de serveurs de langages implémentés en Rust
@@ -305,7 +306,7 @@ D'autres exemples de serveurs de langages implémentés dans d'autres langages
 
 
 === Adoption
-Selon la liste sur le site de la spécification @lspClientsList, la liste des IDE qui supportent le LSP est longue : Atom, Eclipse, Emacs, GoLand, Intellij IDEA, Helix, Neovim, Visual Studio, VSCode bien sûr et d'autres. La liste des serveurs LSP @lspServersList quant à elle, contient plus de 200 projets, dont 40 implémentés en Rust ! Ce large support et ces nombreux exemples faciliteront le développement de ce serveur de langage et son intégration dans différents IDE.
+Selon la liste sur le site de la spécification @lspClientsList, la liste des IDE qui supportent le LSP est longue: Atom, Eclipse, Emacs, GoLand, Intellij IDEA, Helix, Neovim, Visual Studio, VSCode bien sûr et d'autres. La liste des serveurs LSP @lspServersList quant à elle, contient plus de 200 projets, dont 40 implémentés en Rust ! Ce large support et ces nombreux exemples faciliteront le développement de ce serveur de langage et son intégration dans différents IDE.
 
 === Librairies disponibles
 Pour ne pas devoir réimplémenter la mise en place d'un serveur, il existe plusieurs crates qui prennent en charge une partie des parties du protocole commune à tous les langages, comme l'initialisation de la communication.
@@ -317,7 +318,7 @@ Le projet `tinymist` a extrait une crate `sync-ls`, mais le README déconseille 
 === Choix final
 L'auteur travaillant dans Neovim, l'intégration se fera en priorité dans Neovim pour ce travail. L'intégration dans VSCode pourra être fait dans le futur et devrait être relativement simple.
 
-Le choix de `lsp-types` fait sens mais les nombreuses autres crates ne facilitent pas leur choix. Les 2 projets les plus utilisés (en termes de _reverse dependencies_ sur crates.io) sont `lsp-server` (56 projets) @LspServerCratesio et `tower-lsp` (85 projets) @TowerLspCratesio. L'auteur a choisi d'utiliser la crate `lsp-server` étant développé par la communauté Rust, la probabilité d'une maintenance long-terme est plus élevée. L'autre argument est que le projet `tower-lsp` est basée sur des abstractions asynchrones, nous préférons partir sur la version synchrone pour simplifier l'implémentation.
+Le choix de `lsp-types` est facilement choisi mais les quantités des autres crates ne rend pas le choix immédiat. Les 2 projets les plus utilisés (en termes de _reverse dependencies_ sur crates.io) sont `lsp-server` (56 projets) @LspServerCratesio et `tower-lsp` (85 projets) @TowerLspCratesio. L'auteur a choisi d'utiliser la crate `lsp-server` étant développé par la communauté Rust, la probabilité d'une maintenance long-terme est plus élevée. L'autre argument est que le projet `tower-lsp` est basée sur des abstractions asynchrones, nous préférons partir sur la version synchrone pour simplifier l'implémentation.
 
 Cette partie est un _nice-to-have_, nous espérons avoir le temps de l'intégrer dans ce travail. Après quelques heures sur le POC suivant, cela semble être assez facile et rapide.
 
@@ -352,7 +353,7 @@ Le code du serveur qui gère la requête du type `GotoDefinition` est visible en
 
 
 #pagebreak()
-Maintenant que nous avons un mini serveur, nous pouvons lancer notre client. Sur la @lsp-demo les lignes après `CLIENT:` sont envoyés en `stdin` et celles après `SERVER:` sont reçues en `stdout`.
+Maintenant que nous avons un petit serveur fonctionnel, nous pouvons lancer notre client. Sur la @lsp-demo les lignes après `CLIENT:` sont envoyés en `stdin` et celles après `SERVER:` sont reçues en `stdout`.
 + Durant l'initialisation, le serveur nous indique qu'il supporte un _fournisseur de définition_ avec `definitionProvider` à `true`.
 + Le client envoie ensuite une requête `textDocument/definition`, pour le symbole dans un fichier `/tmp/test.rs` sur la ligne 7 au caractère 23.
 + Le serveur lui répond comme attendu.
@@ -367,16 +368,16 @@ Maintenant que nous avons un mini serveur, nous pouvons lancer notre client. Sur
 
 // todo surlignage de code comme terme prioritaire, à refactor
 
-Par défaut un nouveau langage avec une extension de fichier dédiée reste en noir en blanc dans l'IDE. Pour faciliter la lecture, nous souhaitons pouvoir coloriser la majorité du contenu de notre syntaxe, tout en groupant les couleurs par type d'éléments surlignés. Pour notre syntaxe DY, on aimerait que toutes les clés aient la même couleur, tout comme les propriétés qui doivent être toutes colorisés d'une seconde couleur. Les commentaires doivent être grisés.
+Par défaut un nouveau langage avec une extension de fichier dédiée reste en noir en blanc dans l'IDE. Pour faciliter la lecture, nous souhaitons pouvoir coloriser la majorité du contenu de notre syntaxe, tout en groupant les couleurs par type d'éléments surlignés. Pour notre syntaxe DY, on aimerait que toutes les clés aient la même couleur, tout comme les propriétés qui doivent être toutes colorisées d'une seconde couleur. Les commentaires doivent être grisés.
 
-Le bout de C `printf("salut");` est vu par un système de surlignage de code comme une suite de morceaux d'une certaines catégorie, qu'on appelle _tokens_. Ce bout de code pourrait être subdivisé avec les tokens suivants `printf` (identifiant), `(` (séparateur), `"` (séparateur), `salut` (valeur litérale), `"`, `)` et `;` (séparateur).
+Le bout de C `printf("salut");` est vu par un système de surlignage de code comme une suite de morceaux, des _tokens_ d'une certaine catégorie. Ce bout de code pourrait être subdivisé avec les tokens suivants `printf` (identifiant), `(` (séparateur), `"` (séparateur), `salut` (valeur litérale), `"`, `)` et `;` (séparateur).
 
 Les IDE modernes intègrent des systèmes de surlignage de code (_code highlighting_) et définissent leur propre liste de catégories de tokens, par exemple: séparateur, opérateur, mot clé, variable, fonction, constante, macro, énumération, ... Une fois la catégorie attribuée, il reste encore à définir quel couleur concrète est utilisé pour chaque catégorie. C'est le rôle des thèmes comme Monokai, Darcula, Tokioynight et beaucoup d'autres. Les systèmes de surlignage supportent parfois un rendu web via une version HTML contenant des classes CSS spécifiques à chaque type de token. Des thèmes écrits en CSS peuvent ainsi appliquer leurs couleurs. Le surlignage peut être de type syntaxique (_syntax highlighting_), avec une analyse purement basée sur la présence et l'ordre des tokens, ou sémantique (_semantic highlighting_) après une analyse du sens du token.
 
 === Textmate - surlignage syntaxique
 TextMate est un IDE pour macOS qui a introduit un concept de grammaires. Ces grammaires permettent de définir la manière dont le code doit être séparé en tokens, à l’aide d'expressions régulières issues de la bibliothèque C Oniguruma (55) @textmateRegex. VSCode s’appuie sur ces grammaires TextMate @vscodeSyntaxHighlighting, tout comme IntelliJ IDEA, qui les utilise pour le Swift, C++ ou Perl qui ne sont pas supportés nativement @ideaSyntaxHighlighting.
 
-Le @textmateexemple montre un exemple de grammaire Textmate décrivant un langage nommé `untitled` avec 4 mots clés (`if`, `while`, `for`, `return`) et des chaines de caractères entre guillemets. Les expressions régulières données en `match`, `begin` et `end` permettent de trouver les tokens dans le document et leur attribué une catégorie (comme `keyword.control.untitled`).
+Le @textmateexemple montre un exemple de grammaire Textmate décrivant un langage nommé `untitled` avec quatre mots clés (`if`, `while`, `for`, `return`) et des chaines de caractères entre guillemets. Les expressions régulières données en `match`, `begin` et `end` permettent de trouver les tokens dans le document et leur attribuer une catégorie (comme un mot clé avec `keyword.control.untitled`).
 #figure(
 ```js
 {  scopeName = 'source.untitled';
@@ -489,17 +490,17 @@ Semantic Tokens
 En voyant la liste des tokens sémantiques définis dans la spécification LSP @LspSpecSemanticTokens, cela peut aider à comprendre l'intérêt et les possibilités d'un surlignage avancé. Par exemple, on trouve des tokens sémantiques comme `macro`, `regexp`, `typeParameter`, `interface`, `enum`, `enumMember`, qui seraient difficiles de détecter au niveau syntaxique.
 
 === Choix final
-L'auteur a ignoré l'option du système de SublimeText, pour la simple raison qu'il n'est supporté nativement que dans SublimeText, probablement parce que cet IDE est propriétaire @SublimeHQEULA. Ce système utilisent des fichiers `.sublime-syntax`, qui ressemblent à TextMate @SublimeHQSyntax, mais qui sont rédigés en YAML.
+L'auteur a ignoré l'option du système de SublimeText, pour la simple raison qu'il n'est supporté nativement que dans SublimeText, probablement parce que cet IDE est propriétaire @SublimeHQEULA. Ce système utilise des fichiers `.sublime-syntax`, qui ressemblent à TextMate @SublimeHQSyntax, mais qui sont rédigés en YAML.
 
 *Si le temps le permet, une grammaire sera développée avec Tree-Sitter pour supporter du surlignage dans Neovim.* Le choix de ne pas explorer plus les grammaires Textmate, laisse penser que nous délaissons complètement VSCode. Ce choix peut paraître étonnant comme VSCode est régulièrement utilisé par 73% des 65,437 répondant·es au sondage de StackOverflow 2024 @StackoverflowSurveyIDE.
 
-Cette décision se justifie notamment par la roadmap de VSCode: entre mars et mai 2025 @TSVSCodeWorkStart @TSVSCodeWorkNow, des employé·es de Microsoft ont commencé un travail d'investigation autour de Tree-Sitter pour explorer les grammaires existantes et l'usage de surlignage dans VSCode @ExploreTSVSCodeCodeHighlight. Des premiers efforts d'exploration avait d'ailleurs déjà eu lieu en septembre 2022 @EarlyTSVSCodeExp.\ La version de VSCode de mars 2025 (1.99) supporte de manière expérimentale le surlignage avec Tree-Sitter des fichiers CSS et des expressions régulières dans les fichiers TypeScript. @VSCodeUpdateWithTsExperimental
+Cette décision se justifie notamment par la roadmap de VSCode: entre mars et mai 2025 @TSVSCodeWorkStart @TSVSCodeWorkNow, des employé·es de Microsoft ont commencé un travail d'investigation autour de Tree-Sitter pour explorer les grammaires existantes et l'usage de surlignage dans VSCode @ExploreTSVSCodeCodeHighlight. Des premiers efforts d'exploration avaient d'ailleurs déjà eu lieu en septembre 2022 @EarlyTSVSCodeExp.\ La version de VSCode de mars 2025 (1.99) supporte de manière expérimentale le surlignage avec Tree-Sitter des fichiers CSS et des expressions régulières dans les fichiers TypeScript. @VSCodeUpdateWithTsExperimental
 
-L'usage du surlignage sémantique n'est pas au programme de ce travail mais pourra être exploré dans le futur si certains éléments sémantiques pourraient en bénéficier.
+L'usage du surlignage sémantique n'est pas au programme de ce travail, mais pourra être exploré dans le futur si certains éléments sémantiques pourraient en bénéficier.
 
 === POC de surlignage de notre syntaxe avec Tree-Sitter
 // todo les propriétés à introduire qqepart ?????????
-Ce POC vise à prouver que l'usage de Tree-Sitter fonctionne pour coloriser les clés et les propriétés. L'exemple du @exo-dy-ts-poc est un exercice de choix multiples. Ce format n'est pas supporté par PLX mais cela nous permet de coloriser un exemple minimaliste incluant des clés `exo` (titre) et `opt` (options) avec en plus des propriétés `.ok` et `.multiple`.
+Ce POC vise à prouver que l'usage de Tree-Sitter fonctionne pour coloriser les clés et les propriétés. L'exemple du @exo-dy-ts-poc est un exercice de choix multiples. Ce format n'est pas supporté par PLX, mais cela nous permet de coloriser un exemple minimaliste incluant des clés `exo` (titre) et `opt` (options) avec en plus des propriétés `.ok` et `.multiple`.
 
 // todo mentionner aussi sur dy impl ?
 
@@ -532,8 +533,8 @@ module.exports = grammar({
 On observe dans le @grammar-js-poc plusieurs règles:
 - `source_file`: décrit le point d'entrée d'un fichier source, défini comme une répétition de ligne.
 - `_line`: une ligne est une séquence d'un choix entre 4 types de lignes, chacune décrites en dessous, puis un retour à la ligne
-- `line_withkey`: une ligne avec une clé consiste en une séquence de token composé d'une clé, puis optionnellement d'une ou plusieurs propriétés. Elle se termine optionnellement par un contenu qui commence après un premier espace
-- `commented_line` définit les commentaires comme `//` puis un reste
+- `line_withkey`: une ligne avec une clé consiste en une séquence de token composé d'une clé, ensuite de zéro à plusieurs propriétés. Elle se termine optionnellement par un contenu qui commence après un premier espace
+- `commented_line` définit les commentaires comme `//`, puis un reste
 - `list_line`, `dash` et le reste des règles suivent la même logique
 
 Après avoir appelé `tree-sitter generate` pour générer le code du parseur C et `tree-sitter build` pour le compiler, on peut maintenant parser un fichier donné et afficher le CST (Concrete Syntax Tree). Dans cet arbre qui démarre avec un noeud racine `source_file`, on retrouve des noeuds du même type que les règles définies précédemment, avec le texte extrait dans la plage de caractères associée au noeud. Par exemple, on voit que l'option `C is a compiled language` a bien été extraite à la ligne 5, entre le byte 6 et 30 (`5:6  - 5:30`) en tant que `content`. Elle suit un token de `property` avec notre propriété `.ok` et le tiret de la règle `dash`.
@@ -581,12 +582,11 @@ Le résultat de ce POC est encourageant, même s'il faudra probablement plus de 
 
 // TODO vraiment ???
 
-Le surlignage sémantique pourrait être utile en attendant l'intégration de Tree-Sitter dans VSCode. L'extension `tree-sitter-vscode` en fait déjà une intégration avec cette approche, qui s'avère beaucoup plus lente qu'une intégration native mais permettrait d'avoir une solution fonctionnelle temporaire. À noter que l'extension n'est pas triviale à installer et configurer, son usage est encore expérimental. Elle nécessite d'avoir un build WebAssembly de notre parseur Tree-Sitter @TreeSitterVscodeGithub.
+Le surlignage sémantique pourrait être utile en attendant l'intégration de Tree-Sitter dans VSCode. L'extension `tree-sitter-vscode` en fait déjà une intégration avec cette approche, qui s'avère beaucoup plus lente qu'une intégration native, mais permettrait d'avoir une solution fonctionnelle temporaire. À noter que l'extension n'est pas triviale à installer et ni à configurer, son usage est encore expérimental. Elle nécessite d'avoir un build WebAssembly de notre parseur Tree-Sitter @TreeSitterVscodeGithub.
 #figure(
   image("../imgs/tree-sitter-vscode-ext-demo.png", width: 60%),
   caption: [Screenshot dans VSCode une fois l'extension `tree-sitter-vscode`\ configurée pour notre grammaire Tree-Sitter],
 ) <fig-tree-sitter-vscode-ext-demo>
-
 #pagebreak()
 
 == Protocoles de communication bidirectionnels et formats de sérialisation
@@ -635,8 +635,8 @@ fn main() {
 }
 ``` , caption: [Exemple de sérialisation en JSON d'une structure arbitraire,#linebreak()tiré de leur documentation @DocsRSSerdeJsonConJsonVal.]))
 
-=== Websocket
-Le protocole Websocket, défini dans la RFC 6455, permet une communication bidirectionnelle entre un client et un serveur. A la place de l'approche de requête-réponses du HTTP, le protocole Websocket définit une manière de garder une connexion TCP ouverte et un moyen d'envoyer des messages dans les 2 sens.
+=== WebSocket
+Le protocole WebSocket, défini dans la RFC 6455, permet une communication bidirectionnelle entre un client et un serveur. A la place de l'approche de requête-réponses du HTTP, le protocole WebSocket définit une manière de garder une connexion TCP ouverte et un moyen d'envoyer des messages dans les deux sens.
 On évite ainsi d'ouvrir plusieurs connexions HTTP à chaque requête. La technologie a été pensée pour être utilisée par des applications dans les navigateurs, mais fonctionne également en dehors @WSRFC.
 
 La section _1.5 Design Philosophy_ explique que le protocole est conçu pour un _minimal framing_ (encadrement minimal autour des données envoyées), juste assez pour permettre de découper le flux TCP en _frame_ (en message d'une longueur variable) et de distinguer le texte des données binaires. @WSRFConepointfive Le protocole supporte ainsi d'envoyer un type de message pour le texte qui doit être de l'UTF8 et un autre pour le binaire @WSRFC.
@@ -674,14 +674,14 @@ La crate `tungstenite` propose une abstraction du protocole qui permet de facile
 // ``` , caption: [Exemple de serveur echo en WebSocket avec la crate `tungstenite`. Tiré de leur README @TungsteniteCratesio])
 //
 
-Comme nous avons besoin de gérer des milliers de clients simultanés, les threads natifs ne sont pas adaptés et nous avons besoin d'un système asynchrone. L'approche asynchrone requiert un _runtime_, qui ressemble à l'ordonnanceur d'un OS mais qui gère des tâches asynchrone en dehors de l'espace noyau, pour que ces threads virtuels puissent laisser la place à d'autres dès qu'une interaction avec le réseau les fait attendre.
+Comme nous avons besoin de gérer des milliers de clients simultanés, les threads natifs ne sont pas adaptés et nous avons besoin d'un système asynchrone. L'approche asynchrone requiert un _runtime_, qui ressemble à l'ordonnanceur d'un OS, mais qui gère des tâches asynchrones en dehors de l'espace noyau, pour que ces threads virtuels puissent laisser la place à d'autres dès qu'une interaction avec le réseau les fait attendre.
 
 En Rust, `tokio` est la solution la plus populaire à ce problème @librsMostPopular. Une version `async` autour de `tungstenite` existe pour le _runtime_ Tokio et s'appelle `tokio-tungstenite` @TokioTungsteniteCratesio. Nous avons aussi besoin de pouvoir écrire et lire sur un socket en même temps (pour attendre des messages tout en continuant d'en envoyer) et `tokio-tungstenite` supporte ce besoin.
 
 Il existe une crate `websocket` avec une approche sync et async, qui est dépréciée et dont le README @WebsocketCratesio conseille l'usage de `tungstenite` ou `tokio-tungstenite` à la place @WebsocketCratesio. Pour conclure cette section, il est intéressant de relever qu'il existe d'autres crates tel que `fastwebsockets` @FastwebsocketsCratesio à disposition, qui semblent demander de travailler à un plus bas niveau.
 
 === Formats binaires
-*Protocol Buffers*, dit _Protobuf_, est un format binaire développé par Google pour sérialiser des données structurées, de manière compacte, rapide et simple. L'idée est de définir un schéma dans un style qui ne dépend pas d'un langage de programmation, puis de générer automatiquement du code de sérialisation pour interagir avec ces structures depuis du C++, Java, Go, Ruby, C\# et d'autres. @ProtobufWebsite
+*Protocol Buffers*, dit _Protobuf_, est un format binaire développé par Google pour sérialiser des données structurées, de manière compacte, rapide et simple. L'idée est de définir un schéma dans un style qui ne dépend pas d'un langage de programmation. À partir de ce schéma du code de sérialisation est généré pour interagir avec ces structures depuis du C++, Java, Go, Ruby, C\# et d'autres. @ProtobufWebsite
 
 #grid(columns: 2, column-gutter:  10pt,
 figure(
@@ -732,7 +732,7 @@ Par soucis de facilité d'implémentation et d'intégration, nous avons choisi d
 
 Quand l'usage de PLX dépassera des dizaines/centaines d'étudiants connectés en même moment et que la latence sera trop forte ou que les coûts d'infrastructures deviendront trop élevés, les formats binaires plus légers seront une option à considérer. Au vu des nombreux choix, mesurer la taille des messages, le temps de sérialisation et la facilité d'intégration sera nécessaire pour faire un choix.
 
-=== POC de synchronisation de messages JSON via Websocket avec tungstenite
+=== POC de synchronisation de messages JSON via WebSocket avec tungstenite
 Pour vérifier la faisabilité technique d'envoyer des messages en temps réel en Rust via WebSocket, un petit POC a été développé dans le dossier `pocs/websockets-json`. Le code et les résultats des checks doivent être transmis depuis le client PLX des étudiant·es vers celui de l'enseignant·e, en passant par le serveur de session live. À cause de sa nature interactive, il n'est pas évident de retranscrire ce qui s'y passe quand on lance le POC dans trois shells côte à côte, le mieux serait d'aller compiler et lancer à la main. Nous documentons ici un aperçu du résultat.
 
 Ce petit programme en Rust prend en argument son rôle (`server`, `teacher` ou `student`), tout le code est ainsi dans un seul fichier `main.rs` et un seul binaire. Notre POC contient un sous dossier `fake-exo` contenant l'exercice fictif à implémenter.
@@ -743,7 +743,7 @@ Ce petit programme en Rust prend en argument son rôle (`server`, `teacher` ou `
 fn main() {
     println!("Hello, world!");
 }
-```, caption: [Code Rust de départ de l'exercice fictif à compléter par l'étudiant])
+```, caption: [Code Rust de départ de l'exercice fictif à compléter par l'étudiant·e])
 
 Le protocole définit pour permettre cette synchronisation est découpé en 2 étapes. La première partie consiste en une mise en place de la connexion et l'annonce de son rôle. La deuxième partie consiste en la compilation régulière et l'envoi du résultat du check vers le serveur, qui ne fait que de transmettre au socket associé au `teacher`.
 #grid(
@@ -782,7 +782,7 @@ figure(
 Teacher connected, saved associated socket.
 ``` , caption: [Shell 1])
 )
-On lance le serveur sur le S1, qui attent des connexions sur le port 9120. On lance ensuite le `teacher` sur le shell 2 (S2), connexion au serveur et envoi d'un premier message avec le texte #quote("teacher") pour annoncer son rôle. Le serveur a bien reçu la connexion d'un client et a détecté le rôle de `teacher`.
+On lance le serveur sur le S1, qui attend des connexions sur le port 9120. On lance ensuite le `teacher` sur le shell 2 (S2), connexion au serveur et envoi d'un premier message avec le texte #quote("teacher") pour annoncer son rôle. Le serveur a bien reçu la connexion d'un client et a détecté le rôle de `teacher`.
 
 Dans le shell 3 (S3), on lance finalement le `student`.
 #figure(
@@ -837,7 +837,6 @@ Si l'étudiant introduit une erreur de compilation, un message avec un statut di
     caption: [Le `teacher` a bien reçu le code actuel avec l'erreur de compilation de Cargo]
 )
 
-Seul la crate `tungstenite` est utilisée pour ce POC, car `tokio-tungstenite` n'était pas certain d'être utilisé au départ. Cette deuxième crate exposant simplement une API autour, devrait être similaire à l'usage au niveau de la facilité d'accès aux éléments du protocole.
+Seul la crate `tungstenite` est utilisée pour ce POC, car `tokio-tungstenite` n'était pas certain d'être utilisé au départ. Cette deuxième crate exposant simplement une API autour, devrait être similaire au niveau de la facilité d'accès aux éléments du protocole.
 
-Le système de synchronisation en temps réel fonctionne et permet d'envoyer différents messages du `student` au serveur qui le retransmet immédiatement au `teacher`. Même si cet exemple est minimal puisqu'il n'y a qu'un· seul·e étudiant· et enseignant·e impliqué·e, nous avons démontré que la crate `tungstenite` fonctionne et peut être utilisé comme base de notre serveur de session live.
-
+Le système de synchronisation en temps réel fonctionne et permet d'envoyer différents messages du `student` au serveur qui le retransmet immédiatement au `teacher`. Même si cet exemple est minimal puisqu'il n'y a qu'un· seul·e étudiant· et enseignant·e impliqué·e, nous avons démontré que la crate `tungstenite` fonctionne et peut être utilisée comme base de notre serveur de session live.
