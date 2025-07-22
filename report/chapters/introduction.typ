@@ -1,8 +1,6 @@
 #import "../template/style.typ": roundedbox
 = Introduction <introduction>
 
-// TODO restructurer avec problème d'abord puis PLX, puis changement à faire dans PLX
-
 == Contexte
 
 // Etat actuel de l'enseignement en informatique (sans jugement)
@@ -90,9 +88,6 @@ En conclusion, le problème est que l'entrainement est fastidieux pour les étud
 // - une interface de visualisation du code et des checks en temps réel pour les profs
 // - permet de faire des feedbacks, générer des discussions et voir l'avancement global par l'état des checks
 
-// TODO "poursuivre" au lieu de "développer", okay ?
-
-// l'existant
 Ce travail de Bachelor vise à poursuivre le développement du projet PLX @plxWebsite, application desktop écrite en Rust, VueJS @VuejsWebsite et TypeScript. Cette application permet aux étudiant·es de se concentrer pleinement sur l'écriture du code. PLX est inspiré de Rustlings (Terminal User Interface (TUI) pour apprendre le Rust), permettant de s'habituer aux erreurs du compilateur Rust et de prendre en main la syntaxe @RustlingsWebsite. PLX fournit actuellement une expérience locale similaire pour le C et C++.
 
 Pour commencer à s'entrainer, les étudiant·es clonent un repository Git contenant tous les exercices. Ensuites, ils et elles peuvent travailler localement dans leur IDE favori, qui s'exécute en parallèle de PLX. Les scénarios de vérifications, exécutés auparavant manuellement, sont lancés automatiquement à chaque sauvegarde de fichier. Ces suites de tests automatisées, appelées "checks", permettent d'apporter à l'étudiant·e un feedback automatisé immédiat, riche et continu. Au lieu de perdre sept minutes sur dix sur des tâches "administratives", PLX en automatise la majorité et permet à l'étudiant·e de réduire ce temps à une minute.
@@ -105,8 +100,6 @@ Pour commencer à s'entrainer, les étudiant·es clonent un repository Git conte
 Ces checks restent pour l'instant assez primitifs, seulement l'output est comparée à celui attendu. D'autres vérifications plus avancées pourront être supportées dans le futur. Les enseignant·es rédigent le titre, la consigne, ainsi que les détails des checks dans des fichiers texte en format TOML.
 
 // todo yatil des études scientifiques dans l'état de l'art à mentionner ? peut-être qui soutient les défaut du YAML ou d'autres formats ?
-
-// TODO la liste des cours ?
 
 #figure(
   box(stroke: 2pt + gray,  image("../imgs/plx-course-details.png", width: 90%)),
@@ -134,9 +127,6 @@ Ces checks restent pour l'instant assez primitifs, seulement l'output est compar
 
 == Nouveaux défis
 Le besoin de feedback humain pour les étudiant·es en plus du feedback automatisé, et celui de permettre aux enseignant·es d'accéder aux réponses, ne sont pas encore résolus par PLX. Ces nouveaux défis sont le point de départ des deux extensions majeures qui seront développées dans le cadre de ce travail.
-
-// potentiel utile ?
-// PLX peut à terme aider de nombreux cours à la HEIG-VD (tels que PRG1, PRG2, PCO, SYE...) à passer de longs moments de théorie en session d'entrainement dynamique et très interactive. L'ambition est qu'à terme, cela génère un apprentissage plus profond de modèles mentaux solides chez les étudiants. Cela aidera les étudiants qui ont beaucoup de peine à s'approprier la programmation à avoir moins de difficultés avec ces cours. Et ceux qui sont plus à l'aise pourront développer des compétences encore plus avancées.
 
 === Défi 1: Comment les enseignant·es peuvent voir le code et les résultats en temps réel ?
 

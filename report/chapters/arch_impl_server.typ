@@ -46,7 +46,6 @@ Le serveur PLX peut être déployé dans un conteneur Docker via la commande `pl
 ) <network-arch-ipc-websockets>
 
 // todo les commandes CLI autour du parseur dans tout ça il va où ?
-// todo ref tauri specta et typeshare
 === Typage des commandes Tauri
 Pour les commandes Tauri mises à disposition du frontend, l'appel d'une commande se fait par défaut via une fonction `invoke` faiblement typée: le nom de la commande est une _string_ et les paramètres sont mis dans un objet, comme montré sur le @notypescommand. Les types de ces valeurs ne sont pas vérifiés à la compilation, seule l'exécution permet de trouver des erreurs dans la console de la fenêtre du _frontend_. En cas de changement de signature en Rust, nous pourrions oublier d'adapter le code du _frontend_ sans s'en rendre compte.
 
@@ -160,9 +159,6 @@ export interface ExoCheckResult {
 // really named CheckStatus ?
 )
 ]
-
-// todo ou mettre ca
-// TODO utile
 
 == Implémentation du client
 
@@ -285,8 +281,3 @@ TODO besoin de voir les actions effectuées de bout en bout pour un message `Sen
 
 == Tests de bouts en bouts
 TODO
-
-== Conclusion du développement
-TODO utile ?
-
-#pagebreak()

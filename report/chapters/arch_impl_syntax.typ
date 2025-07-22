@@ -2,6 +2,15 @@
 
 Cette partie documente la définition et l'implémentation de la syntaxe DY, son parseur, l'intégration dans PLX et l'intégration IDE.
 
+== Données à décrire pour PLX
+Avant de spécifier une syntaxe et d'implémentater un parseur, il est nécessaire de définir les données que nous souhaitons extraire.
+
+Pour que l'application desktop de PLX fonctionne, nous avons besoin de décrire un cours, divisé en compétences, qui regroupent des exercices. Un exercice définit un ou plusieurs checks. Voici une liste des informations associés à ces trois objets.
++ *Un cours*: un nom (par exemple `Programmation 2`), un code (souvent il existe un raccourci du nom, comme `PRG2`) et une description de l'objectif du cours. Une liste de compétences.
++ *Une compétence*: un nom, une description et un ensemble d'exercices. Une compétence peut aussi être une sous compétence, afin de diviser un niveau de plus et rendre les sous compétences plus spécifiques. Dans un cours existant, les enseignant·es ont la liberté
++ *Un exercice*: un nom, une consigne et un ou plusieurs checks pour vérifier le comportement d'un programme.
++ *Un check*: un nom, des arguments à passer au programme, un code d'exit attendue et une séquence d'action/assertions à lancer (simuler de taper au clavier et s'assurer que l'output est correcte).
+
 == Vue d'ensemble
 
 Tout l'enjeu de cette syntaxe DY est d'arriver à convertir un bout de texte vers une _struct_ Rust.
@@ -35,14 +44,6 @@ En DY, la spec DY est le schéma et se définit directement en Rust au lieu d'ê
 
 == Définition de la syntaxe DY
 
-=== Besoin de PLX
-La syntaxe DY ne sera pas propre à PLX, en effet le parseur ne connaitra pas les détails des besoins de description de PLX. Cependant ces besoins influencent ce que la syntaxe 
-
-PLX a besoin de décrire un cours, divisé en compétences, qui regroupent des exercices. Un exercice définit des checks. Voici une liste des informations associés à ces trois objets.
-+ Un cours: un nom (par exemple `Programmation 2`), un code (souvent il existe un raccourci du nom, comme `PRG2`) et une description de l'objectif du cours. Une liste de compétences.
-+ Une compétence: un nom, une description et un ensemble d'exercices. Une compétence peut aussi être une sous compétence, afin de diviser un niveau de plus et rendre les sous compétences plus spécifiques. Dans un cours existant, les enseignant·es ont la liberté
-+ Un exercice: un nom, une consigne et un ou plusieurs checks pour vérifier le comportement d'un programme.
-+ Un check: un nom, des arguments à passer au programme, une séquence d'action et d'assertions à lancer
 
 
 === Vue d'ensemble
@@ -149,12 +150,6 @@ TODO fix headings level
 TODO
 
 == Intégration de `dy` dans PLX
-TODO
-
-== Implémentation de la syntaxe Tree-Sitter
-TODO
-
-== Implémentation du serveur de langage
 TODO
 
 #figure(
