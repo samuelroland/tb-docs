@@ -1,0 +1,33 @@
+<svg width="720px" height="128px" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .fg { fill: #000000 }
+    .bg { background: #000000 }
+    .fg-rgb-20A8C3 { fill: #20A8C3 }
+    .container {
+      padding: 0 10px;
+      line-height: 18px;
+    }
+    .bold { font-weight: bold; }
+    tspan {
+      font: 14px SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+      white-space: pre;
+      line-height: 18px;
+    }
+  </style>
+
+  <text xml:space="preserve" class="container fg">
+    <tspan x="10px" y="28px"><tspan class="fg-rgb-20A8C3 bold">exo</tspan><tspan> Fibonnaci suite</tspan>
+</tspan>
+    <tspan x="10px" y="46px">
+</tspan>
+    <tspan x="10px" y="64px"><tspan>Print the Fibonnaci suite for 100 values. Make sure to</tspan>
+</tspan>
+    <tspan x="10px" y="82px"><tspan> check the code is correctly formatted.</tspan>
+</tspan>
+    <tspan x="10px" y="100px">
+</tspan>
+    <tspan x="10px" y="118px"><tspan class="fg-rgb-20A8C3 bold">check</tspan><tspan> ...</tspan>
+</tspan>
+  </text>
+
+</svg>
