@@ -14,13 +14,13 @@ En se basant sur le calendrier des travaux de Bachelor, voici un aperçu du déc
 
 ==== Rendu 1 - 10 avril 2025 - Cahier des charges
 - Rédaction du cahier des charges.
-- Analyse de l'état de l'art des parsers, des formats existants de données humainement éditables, du syntax highlighting et des serveurs de langages.
-- Analyse de l'état de l'art des protocoles bidirectionnels temps réel (Websocket, gRPC...) et des formats de sérialisation (JSON, Protobuf, ...).
+- Analyse de l'état de l'art des parseurs, des formats existants de données humainement éditables, du surlignage de code et des serveurs de langages.
+- Analyse de l'état de l'art des protocoles bidirectionnels temps réel (WebSocket, gRPC...) et des formats de sérialisation (JSON, Protobuf, ...).
 - Prototype avec les librairies disponibles de parsing et de serveurs de langages en Rust, choix du niveau d'abstraction espéré et réutilisation possible.
 
 ==== Rendu 2 - 23 mai 2025 - Rapport intermédiaire
 - Rédaction du rapport intermédiaire.
-- Définition de la syntaxe DY à parser, des préfixes et propriétés liés à PLX, et la liste des vérifications et des erreurs associées.
+- Définition de la syntaxe DY à parser, des clés liés à PLX, la liste des vérifications et des erreurs associées.
 - Définition d'un protocole de synchronisation du code entre les participants d'une session.
 - Prototype d'implémentation de cette synchronisation.
 - Prototype des tests automatisés sur le serveur PLX.
@@ -38,7 +38,18 @@ En se basant sur le calendrier des travaux de Bachelor, voici un aperçu du déc
 - Rédaction du rapport final.
 
 == Planification finale
-Voici les étapes des jalons majeures atteints durant le travail.
+La rédaction du rapport de l'état de l'art a pris beaucoup de temps au début du projet, en plus de la finition du cahier des charges, pour bien creuser les cinq sujets concernés par ce travail. Le nombre important de technologies à investiguer, en parallèle du développement des POCs, a retardé la spécification du protocole de communication et de la syntaxe DY.
 
-TODO
+De manière générale, la rédaction du rapport a pris important dans ce travail. Pour apprendre petit à petit à mieux contextualiser, à expliquer d'abord les problèmes puis les solutions, il a fallu passer par de multiples relectures et éditions, demander des retours à d'autres personnes et intégrer ces retours.
 
+L'écriture des tests de validation du protocole, qui était prévue avant de commencer le serveur, s'est finalement intégrée au développement du serveur. Cela avait plus du sens d'écrire les tests au fur et à mesure que les nouveaux messages du protocole étaient définis, pour s'adapter aux nombreuses ajustements des structures de données et de l'architecture.
+
+Après la préparation du développement du serveur qui a permis de spécifier le protocole et le comportement attendu du client et du serveur, le développement a été plus rapide que prévu. Nous pensions passer deux semaines de développement et une semaine pour les tests et de rapport. Au final, l'historique Git nous montre que c'est plutôt en une semaine, entre le 24 juin et le 30 juin, que la majorité du serveur a pu être mise en place. Cela n'a pas permis de prendre de l'avance sur le programme, car l'intégration dans l'application desktop de PLX n'a pas été évidente.
+
+Heureusement, la deuxième partie de développement autour de notre syntaxe DY a été également plus courte que prévue. Entre le 13 et 18 juillet, le développement du parseur de son intégration dans PLX desktop et dans un CLI ont pu être menés à bien.
+
+Malgré ces décalages, nous avons réussi à développer et documenter tous les éléments planifiés.
+
+Ce que l'on peut retenir comme apprentissage de cette planification, c'est que le développement, lorsqu'il est bien préparé en amont, peut aller plus vite que prévu. Au contraire, le temps de rédaction et raffinage du rapport est souvent le double ou le triple du temps estimé au départ.
+
+Le fait de fixer des dates de relectures externes avec des collègues ou de proposer de montrer notre application à une personne qui pourrait être intéressé de l'utiliser, est un vrai moteur pour avancer plus rapidement et se concentrer sur les parties les plus importantes.
