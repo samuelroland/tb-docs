@@ -1,0 +1,16 @@
+exo Parser la syntaxe DY
+
+Faites en sorte d'extraire en C++ l'exercice suivant défini dans la syntaxe de PLX.
+
+```
+// A simple comment
+exo print hello world
+just in C++
+check output is correct
+see Hello, World !
+```
+
+check L'exercice a pu être parsé, la structure JSON est affichée
+see { "name": "print hello world", "instruction": "just in C++",
+"checks": [ { "name": "output is correct", "args": [], "exit": null,
+"sequence": [ { "See": "Hello, World !" } ] } ] }

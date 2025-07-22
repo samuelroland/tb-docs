@@ -1,0 +1,55 @@
+<svg width="720px" height="308px" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .fg { fill: #000000 }
+    .bg { background: #000000 }
+    .fg-rgb-20A8C3 { fill: #20A8C3 }
+    .fg-rgb-737A7E { fill: #737A7E }
+    .container {
+      padding: 0 10px;
+      line-height: 18px;
+    }
+    .bold { font-weight: bold; }
+    .italic { font-style: italic; }
+    tspan {
+      font: 14px SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+      white-space: pre;
+      line-height: 18px;
+    }
+  </style>
+
+  <text xml:space="preserve" class="container fg">
+    <tspan x="10px" y="28px"><tspan class="fg-rgb-20A8C3 bold">exo</tspan><tspan> Parser la syntaxe DY</tspan>
+</tspan>
+    <tspan x="10px" y="46px">
+</tspan>
+    <tspan x="10px" y="64px"><tspan>Faites en sorte d'extraire en C++ l'exercice suivant défini dans la syntaxe de PLX.</tspan>
+</tspan>
+    <tspan x="10px" y="82px">
+</tspan>
+    <tspan x="10px" y="100px"><tspan>```</tspan>
+</tspan>
+    <tspan x="10px" y="118px"><tspan>// A simple comment</tspan>
+</tspan>
+    <tspan x="10px" y="136px"><tspan>exo print hello world</tspan>
+</tspan>
+    <tspan x="10px" y="154px"><tspan>just in C++</tspan>
+</tspan>
+    <tspan x="10px" y="172px"><tspan>check output is correct</tspan>
+</tspan>
+    <tspan x="10px" y="190px"><tspan>see Hello, World !</tspan>
+</tspan>
+    <tspan x="10px" y="208px"><tspan>```</tspan>
+</tspan>
+    <tspan x="10px" y="226px">
+</tspan>
+    <tspan x="10px" y="244px"><tspan class="fg-rgb-20A8C3 bold">check</tspan><tspan> L'exercice a pu être parsé</tspan>
+</tspan>
+    <tspan x="10px" y="262px"><tspan class="fg-rgb-20A8C3 bold">see</tspan><tspan> { "name": "print hello world", "instruction": "just in C++",</tspan>
+</tspan>
+    <tspan x="10px" y="280px"><tspan>"checks": [ { "name": "output is correct", "args": [], "exit": null,</tspan>
+</tspan>
+    <tspan x="10px" y="298px"><tspan>"sequence": [ { "See": "Hello, World !" } ] } ] }</tspan>
+</tspan>
+  </text>
+
+</svg>
