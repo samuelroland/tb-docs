@@ -21,7 +21,7 @@ Tous les clients ont accès à tous les exercices, stockés dans des repository 
 Nous avons implémenté un nouveau module Rust nommé `live` dans la librairie existante de PLX. Cette librairie est prévue pour un usage interne actuellement et n'est pas pensée pour être réutilisée par d'autres projets. Ce module `live` contient plusieurs fichiers pour implémenter le protocole et le serveur.
 
 === La librairie et son module `live`
-Dans la @library-live-arch-deps, l'application desktop et le serveur dépendent de cette librairie. L'application desktop dépend du code Rust des modules existants `app`, `core` et `models` qui rendent possible l'entrainement local. Elle dépend aussi de `LiveConfig` pour charger un fichier `live.toml`.
+Dans la @library-live-arch-deps, l'application desktop et le CLI dépendent de cette librairie. Le CLI contient une sous-commande `plx server` pour démarrer le serveur. L'application desktop dépend du code Rust des modules existants `app`, `core` et `models` qui rendent possible l'entrainement local. Elle dépend aussi de `LiveConfig` pour charger un fichier `live.toml`.
 
 Le fichier `protocol.rs` contient toutes les structures de données autour des messages du protocole: `Session`, `ClientNum`, `ClientRole`, les messages `Action` et `Event` et les types d'erreurs `LiveProtocolError`. Le reste des fichiers implémente les différentes tâches concurrentes gérées par le serveur. Le point d'entrée du serveur est la structure `LiveServer`. Le module `live` dépend aussi de `tokio` pour gérer la concurrence des tâches et `tokio-tungstenite` pour l'implémentation WebSocket.
 

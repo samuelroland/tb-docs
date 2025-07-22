@@ -1,33 +1,106 @@
 = Développement de la syntaxe DY <arch_impl_dy>
 
-Cette partie documente la définition et l'implémentation de la syntaxe DY, son parseur, l'intégration dans PLX et l'intégration IDE.
-
-== Données à décrire pour PLX
-Avant de spécifier une syntaxe et d'implémentater un parseur, il est nécessaire de définir les données que nous souhaitons extraire.
-
-Pour que l'application desktop de PLX fonctionne, nous avons besoin de décrire un cours, divisé en compétences, qui regroupent des exercices. Un exercice définit un ou plusieurs checks. Voici une liste des informations associés à ces trois objets.
-+ *Un cours*: un nom (par exemple `Programmation 2`), un code (souvent il existe un raccourci du nom, comme `PRG2`) et une description de l'objectif du cours. Une liste de compétences.
-+ *Une compétence*: un nom, une description et un ensemble d'exercices. Une compétence peut aussi être une sous compétence, afin de diviser un niveau de plus et rendre les sous compétences plus spécifiques. Dans un cours existant, les enseignant·es ont la liberté
-+ *Un exercice*: un nom, une consigne et un ou plusieurs checks pour vérifier le comportement d'un programme.
-+ *Un check*: un nom, des arguments à passer au programme, un code d'exit attendue et une séquence d'action/assertions à lancer (simuler de taper au clavier et s'assurer que l'output est correcte).
+Cette partie documente les besoins de PLX, la définition et l'implémentation de la syntaxe DY, son parseur, l'intégration dans PLX et son usage via le CLI.
 
 == Vue d'ensemble
-
 Tout l'enjeu de cette syntaxe DY est d'arriver à convertir un bout de texte vers une _struct_ Rust.
-#grid(columns: (2fr, 1fr), align: horizon, gutter: 19pt,
-figure(
-  image("../syntax/course/course.svg", width: 90%),
+#grid(columns: (2fr, 1fr) , gutter: 19pt,
+[#figure(
+  image("../syntax/course/course.svg", width: 100%),
   caption: [Définition d'un cours PLX en syntaxe DY],
-),
-figure(
+) <course-basic>],
+[#figure(
 ```rust
 struct Course {
     name: String,
     code: String,
     goal: String,
 }
-``` , caption: [Struct Rust d'un cours PLX])
+``` , caption: [Struct Rust\ d'un cours PLX]) <rust-course-struct>]
 )
+Dans la @course-basic, les clés sont `course`, `code` et `goal`, chaque clé introduit une valeur sur la même ligne. Ces valeurs doivent être extraites et doivent permet de remplir la struct Rust du @rust-course-struct.
+
+Nous sommes parti du modèle de données de PLX, en définissant les clés possibles et leur contraintes. Cette idée de syntaxe DY pourrait être très utile à d'autres projets ou d'autres d'exercices, nous ne voulons pas construire un parseur uniquement pour PLX. Nous cherchons plutôt à mettre en place une abstraction qui nous permet rapidement de définir d'autres clés, des erreurs de validation avancée pour ses clés et le moyens de convertir les données extraites dans une struct Rust associé. La syntaxe DY se base sur une hiérarchie de clés qui permet au parseur d'extraire le contenu et de le valider en partie.
+
+Pour des erreurs plus spécifiques, il est possible de définir en Rust des validations plus avancées.
+
+Pour la détection d'erreurs, si on adoptait l'approche des compilateurs de langages de programmation qui échoue la compilation à la moindre erreur, l'expérience serait très frustrante. Au moindre exercice mal retranscrit parmi une centaine présents, tout le cours serait inaccessible dans l'interface de PLX.
+
+Nous préférons avoir des structures partielles (un exercice avec un titre vide) et d'afficher les erreurs dans l'interface pour avertir qu'une erreur est présente. La structure éronnée est ignorée tout en préservant ce qui a pu être extrait, quitte à utiliser des valeurs par défaut ou vides. 
+// todo how to improve
+
+Le parseur prend en entrée une `String` directement et n'est pas responsable d'aller lire un fichier. Ceci nous permet de parser du contenu sans avoir de fichier sous jaçent, notamment dans des snippets de DY intégrée à une documentation web. Nous verrons quels fichiers PLX a choisi d'utiliser pour stocker son modèle de données.
+
+Tout le développement du parseur s'est fait en _Test Driven Development_ (TDD), ce qui était facile à mettre en place comme chaque étape possède des entrées et sorties bien définies.
+
+== Modèle de données de PLX et choix des clés
+Avant de spécifier une syntaxe et d'implémentater un parseur, il est nécessaire de définir les données que nous souhaitons extraire.
+
+Pour que l'application desktop de PLX fonctionne, nous avons besoin de décrire un cours, divisé en compétences, qui regroupent des exercices. Un exercice définit un ou plusieurs checks. Voici une liste des informations associés à ces quatres objets.
++ *Un cours*: un nom (par exemple `Programmation 2`), un code (souvent il existe un raccourci du nom, comme `PRG2`) et une description de l'objectif du cours. Une liste de compétences.
++ *Une compétence*: un nom, une description et un ensemble d'exercices. Une compétence peut aussi être une sous compétence, afin de diviser un niveau de plus et rendre les sous compétences plus spécifiques.
++ *Un exercice*: un nom, une consigne et un ou plusieurs checks pour vérifier le comportement d'un programme.
++ *Un check*: un nom, des arguments à passer au programme, un code d'exit attendu et une séquence d'actions/assertions à lancer. Une action peut être ce qu'on tape au clavier et une assertion concerne la vérification que l'output est correct.
+
+Nous avons ensuite défini la liste de clés et leur hiérarchie pour le modèle de données précédent, ainsi que les structs finales à remplir.
++ Pour un cours
+  - `course` est le nom du cours
+    - `code` donne un raccourci du nom du cours
+    - `goal` permet de détailler l'objectif du cours, sur plusieurs lignes
+
+  ```rust
+  pub struct DYCourse {
+      pub name: String,
+      pub code: String,
+      pub goal: String,
+  }
+  ```
+
++ Pour une compétence
+  - `skill` définit un nom la même ligne et une description optionnel sur les lignes suivantes.
+    - `dir` est le dossier dans lequel on trouve les exercices de cette compétences
+    - `subskill`: une sous compétence, pour découper en compétences plus spécifiques
+  ```rust
+  pub struct DYSkill {
+      pub name: String,
+      pub description: String,
+      pub directory: String,
+      pub subskills: Vec<DYSkill>,
+  }
+  ```
++ Pour un exercice
+  - `exo` définit un nom sur la même ligne et une consigne optionnel sur les lignes suivantes.
+    - `check` introduit le début d'un check avec un titre
+      - `args` définit les arguments du programme de l'exercice
+      - `see` demande à voir une ou plusieurs lignes en sortie standard. L'entrée peut être sur plusieurs lignes.
+      - `type` simule une entrée au clavier
+      - `exit` définit le code d'exit attendu, valeur optionnelle
+
+```rust
+pub enum TermAction {
+    See(String),
+    Type(String),
+}
+pub struct Check {
+    pub name: String,
+    pub args: Vec<String>,
+    pub exit: Option<i32>,
+    pub sequence: Vec<TermAction>,
+}
+pub struct DYExo {
+    pub name: String,
+    pub instruction: String,
+    pub checks: Vec<Check>,
+}
+```
+  // - `run` donne la commande de démarrage du programme.
+  // - `skip` avec la propriété `.until` permet de cacher toutes les lignes d'output jusqu'à voir la ligne donnée.
+  // - et finalement `kill` indique comment arrêter le programme, ici en envoyant le `.signal` `9` sur le processus `qemu-system-arm` (qui a été lancé par notre script `./st`).
+
+
+
+== Abstraction du coeur du parseur
+
 Nous ne voulons pas créer de parseur spécifique aux données d'un cours ni même des données de PLX. A la place, nous souhaitons pouvoir utiliser une abstraction qui nous permette de facilement définir des nouveaux objets en DY et avec le minimum de code pour l'extraire dans une struct Rust dédiée. Nous ne pouvons pas tout implémenter au même endroit, car cela demanderait de constamment changer la logique du parseur pour s'adapter à de nouvelles clés.
 
 L'implémentation est donc divisée en deux parties très claires: le coeur du parseur et les spécifications DY (appelées par la suite #quote("spec DY")). Les deux sont indispensables et leur combinaison permet de parser du contenu définit par un spec DY. L'implémentation est faite dans deux crates Rust: le coeur du parseur dans la crate `dy` et la spec DY pour PLX dans la crate `plx-dy`.
@@ -45,11 +118,7 @@ En DY, la spec DY est le schéma et se définit directement en Rust au lieu d'ê
 == Définition de la syntaxe DY
 
 
-
-=== Vue d'ensemble
 // todo tout spoiler dans les grandes lignes ici.
-Nous avons vu précédemment différent exemples d'exercices de C décrits dans notre syntaxe. Lister des exemples n'est pas forcément suffisant pour comprendre les possibilités, contraintes et règles qui ont été choisie.
-
 === Lignes directrices
 Ces lignes directrices sont la base de tous les choix de conceptions de la syntaxe.
 + *Pas de tabulations ni d'espace en début de ligne*. Cela introduit le fameux débat des espaces versus tabulations. En utilisant des espaces, le nombre d'espaces devient configurable. Cela complexifie la collaboration et le démarrage. Les changements dans Git deviennent plus difficile à lire si deux enseignant·es n'utilisent pas les mêmes réglages.
@@ -73,7 +142,7 @@ Les clés sont tirés du concept de clé/valeur du JSON. Une clé est une string
 Dans l'exemple de la @keys-example, les clés sont `course`, `code` et `goal`. La clé `course` introduit une valeur (le nom du court) et un objet (le cours) qui contient les valeurs tirées des clés enfants (`code` et `goal`). Les types de valeurs introduites peuvent être soit sur une ligne ou multilignes. La clé `code` introduit la valeur `PRG1`, qui ne peut être définit que sur une ligne, car un code raccourci ne peut pas contenir de retour à la ligne. Tandis que la valeur de la clé `goal` peut s'étendre sur plusieurs lignes. Si une ligne suffit, cela est aussi valide.
 #figure(
   image("../syntax/keys-example/course.svg", width: 80%),
-  caption: [Exemple d'usage de clés et de leur hiéarchie avec un cours PLX],
+  caption: [Exemple d'usage de clés et de leur hiérarchie avec un cours PLX],
 ) <keys-example>
 
 Si du contenu devait contenir un mot qui est aussi utilisé pour une clé il suffit de ne pas le placer au début d'une ligne. Ajouter un espace devant le mot suffit à respecter cette contrainte comme le démontre @escaped-exo. Cet espace supplémentaire n'aura pas d'impact sur l'affichage si le Markdown est interprété en HTML, puisque le rendu graphique d'un navigateur ignore les double espaces.
@@ -115,7 +184,7 @@ Tous les champs supportent le Markdown, cela signifie que les snippets de code e
 )
 
 === Hiérarchie implicite
-Les fins de ligne définissent la fin du contenu pour les clés sur une seule ligne. La clé `exo` supporte plusieurs lignes, son contenu se termine ainsi dès qu'une autre clé valide est détecté (ici `check`). La hiérarchie est implicite dans la sémantique, un exercice contient un ou plusieurs checks, sans qu'il y ait besoin d'indentation ou d'accolades pour indiquer les relations de parents et enfants. De même, un check contient une séquence d'action à effectuer (`run`, `see`, `type` et `kill`), ces clés n'ont de sens qu'à l'intérieur la définition d'un check (uniquement après une ligne avec la clé `check`).
+Les fins de ligne définissent la fin du contenu pour les clés sur une seule ligne. La clé `exo` supporte plusieurs lignes, son contenu se termine ainsi dès qu'une autre clé valide est détecté (ici `check`). La hiérarchie est implicite dans la sémantique, un exercice contient un ou plusieurs checks, sans qu'il y ait besoin d'indentation ou d'accolades pour indiquer les relations de parents et enfants. De même, un check contient une séquence d'actions à effectuer (`run`, `see`, `type` et `kill`), ces clés n'ont de sens qu'à l'intérieur la définition d'un check (uniquement après une ligne avec la clé `check`).
 
 TODO
 
@@ -123,22 +192,6 @@ TODO
 
 == Usage de la syntaxe dans PLX
 TODO
-
-=== Exemple d'usage dans PLX
-#figure(
-  image("../sources/plx-dy-all.svg", width:100%),
-  caption: [Aperçu des possibilités de DY sur un exercice plus complexe],
-) <exemple-dy-all>
-
-Le @exemple-dy-all nous montre qu'il existe plusieurs clés
-- La clé `exo` introduit un exercice, avec un titre sur la même ligne et le reste de la consigne en Markdown sur les lignes suivantes.
-- `check` introduit le début d'un check avec un titre, en Markdown également.
-- `run` donne la commande de démarrage du programme.
-- `skip` avec la propriété `.until` permet de cacher toutes les lignes d'output jusqu'à voir la ligne donnée.
-- `see` demande à voir une ou plusieurs lignes en sortie standard.
-- `type` simule une entrée au clavier
-- et finalement `kill` indique comment arrêter le programme, ici en envoyant le `.signal` `9` sur le processus `qemu-system-arm` (qui a été lancé par notre script `./st`).
-
 Toutes les propriétés sont optionnelles, soit elles ont une valeur par défaut, soit la configuration est implicite.
 
 ==== Détection d'erreurs spécifiques à PLX
@@ -232,7 +285,7 @@ TODO
 
 TODO add these ideas
 
-Grâce à la connaissance des clés à extraire, la hiéarchie peut être implicite.
+Grâce à la connaissance des clés à extraire, la hiérarchie peut être implicite.
 
 moins de chose représentée, juste les éléments des specs définis et peu de strucures de données. mais extensible via le post processing. chaque projet peut ainsi choisir de définir des éléments supplémentaires de post parsing.
 
