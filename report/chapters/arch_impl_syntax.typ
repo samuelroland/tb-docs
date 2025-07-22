@@ -43,23 +43,30 @@ Pour que l'application desktop de PLX fonctionne, nous avons besoin de décrire 
 + *Un check*: un nom, des arguments à passer au programme, un code d'exit attendu et une séquence d'actions/assertions à lancer. Une action peut être ce qu'on tape au clavier et une assertion concerne la vérification que l'output est correct.
 
 Nous avons ensuite défini la liste de clés et leur hiérarchie pour le modèle de données précédent, ainsi que les structs finales à remplir.
-+ Pour un cours
+#grid(columns: 2, gutter: 10pt,
+[
+Un cours
   - `course` est le nom du cours
     - `code` donne un raccourci du nom du cours
-    - `goal` permet de détailler l'objectif du cours, sur plusieurs lignes
+    - `goal` pour l'objectif du cours, sur plusieurs lignes
+],
 
+figure(
   ```rust
   pub struct DYCourse {
       pub name: String,
       pub code: String,
       pub goal: String,
   }
-  ```
+  ``` , caption: [Simple struct Rust pour un cours]),
 
-+ Pour une compétence
+[
+Une compétence
   - `skill` définit un nom la même ligne et une description optionnel sur les lignes suivantes.
-    - `dir` est le dossier dans lequel on trouve les exercices de cette compétences
+    - `dir` est le dossier dans lequels sont définis les exercices de cette compétences
     - `subskill`: une sous compétence, pour découper en compétences plus spécifiques
+],
+figure(
   ```rust
   pub struct DYSkill {
       pub name: String,
@@ -67,15 +74,16 @@ Nous avons ensuite défini la liste de clés et leur hiérarchie pour le modèle
       pub directory: String,
       pub subskills: Vec<DYSkill>,
   }
-  ```
-+ Pour un exercice
+  ``` , caption: [Le nom et description sont séparés en deux champs pour les compétences]),
+  [ Un exercice
   - `exo` définit un nom sur la même ligne et une consigne optionnel sur les lignes suivantes.
     - `check` introduit le début d'un check avec un titre
       - `args` définit les arguments du programme de l'exercice
       - `see` demande à voir une ou plusieurs lignes en sortie standard. L'entrée peut être sur plusieurs lignes.
       - `type` simule une entrée au clavier
       - `exit` définit le code d'exit attendu, valeur optionnelle
-
+  ],
+figure(
 ```rust
 pub enum TermAction {
     See(String),
@@ -92,18 +100,30 @@ pub struct DYExo {
     pub instruction: String,
     pub checks: Vec<Check>,
 }
-```
-  // - `run` donne la commande de démarrage du programme.
-  // - `skip` avec la propriété `.until` permet de cacher toutes les lignes d'output jusqu'à voir la ligne donnée.
-  // - et finalement `kill` indique comment arrêter le programme, ici en envoyant le `.signal` `9` sur le processus `qemu-system-arm` (qui a été lancé par notre script `./st`).
-
-
+``` , caption: [Définition d'un exercice, avec des checks et la séquence d'action])
+)
 
 == Abstraction du coeur du parseur
 
 Nous ne voulons pas créer de parseur spécifique aux données d'un cours ni même des données de PLX. A la place, nous souhaitons pouvoir utiliser une abstraction qui nous permette de facilement définir des nouveaux objets en DY et avec le minimum de code pour l'extraire dans une struct Rust dédiée. Nous ne pouvons pas tout implémenter au même endroit, car cela demanderait de constamment changer la logique du parseur pour s'adapter à de nouvelles clés.
 
 L'implémentation est donc divisée en deux parties très claires: le coeur du parseur et les spécifications DY (appelées par la suite #quote("spec DY")). Les deux sont indispensables et leur combinaison permet de parser du contenu définit par un spec DY. L'implémentation est faite dans deux crates Rust: le coeur du parseur dans la crate `dy` et la spec DY pour PLX dans la crate `plx-dy`.
+
+#figure(
+  image("../schemas/parser-core-specs-separation.png", width:100%),
+  caption: [Aperçu de l'abstraction du coeur du parseur et des specs DY],
+) <parser-core-specs-separation>
+
+#figure(
+```rust
+pub fn parse_course(some_file: &Option<String>, content: &str) -> ParseResult<DYCourse> {
+    parse_with_spec::<DYCourse>(
+        &ValidDYSpec::new(COURSE_SPEC).expect("COURSE_SPEC is invalid !"),
+        some_file,
+        content,
+    )
+}
+``` , caption: [Exemple d'usage de `parse_with_spec` pour définir la fonction `parse_course`]) <parse-with-spec-example>
 
 // todo update tout vers prg2 !!!
 
@@ -158,19 +178,45 @@ Note: les mentions de "clés parents" sur des clés à la racine, concerne le do
 Les clés, créés dans une spec DY en Rust à l'aide de la struct `KeySpec`, possèdent les attributs suivants
 + `id`: le texte de la clé (exemple `course`), qui doit être unique à travers la syntaxe
 + `desc`: Une description qui sert à documenter le but de la clé, qui sera utile pour la documentation au survol et l'autocomplétion pour le futur serveur de langage
++ `subkeys`: un vecteur de sous clés possibles, qui peut être vide.
 + `vt`: Un type de valeur, soit ligne simple soit multilignes, défini via l'enum `ValueType`.
 + `once`: champ booléen qui définit si la clé ne peut se retrouver qu'une seule fois dans chaque objet définit par la clé parent.
 + `required`: si la clé doit exister au moins une fois dans tout objet de la clé parent et si une valeur est requise pour la clé. Si ces contraintes ne sont pas respectées des erreurs `MissingRequiredKey` ou `MissingRequiredValue` sont générées.
-+ `subkeys`: un vecteur de sous clés possibles, qui peut être vide.
 
 Une valeur ne peut être que de type string. Elle commence après la clé et se termine dès qu'une autre clé valide est trouvée ou que la fin du fichier est atteint. Si le type de valeur (attribut `vt`) est une ligne simple, alors le contenu s'arrête à la fin de la ligne, les lignes suivantes qui ne contiendrait pas de 
+
+#figure(
+```rust
+const GOAL_KEYSPEC: &KeySpec = &KeySpec {
+    id: "goal",
+    desc: "The goal key describes the learning goals of this course.",
+    subkeys: &[],
+    vt: ValueType::Multiline,
+    once: true,
+    required: true,
+};
+const CODE_KEYSPEC: &KeySpec = &KeySpec {
+    id: "code",
+    desc: "The code of the course is a shorter name of the course, under 10 letters usually.",
+    subkeys: &[],
+    vt: ValueType::SingleLine,
+    once: true,
+    required: true,
+};
+const COURSE_KEYSPEC: &KeySpec = &KeySpec {
+    id: "course",
+    desc: "A PLX course is grouping skills and exos related to a common set of learning goals.",
+    subkeys: &[CODE_KEYSPEC, GOAL_KEYSPEC],
+    vt: ValueType::SingleLine,
+    once: true,
+    required: true,
+};
+pub const COURSE_SPEC: &DYSpec = &[COURSE_KEYSPEC];
+``` , caption: [Exemple de définition en Rust de la spec DY des cours PLX, avec 3 `KeySpec` pour les 3 clés])
 
 Les lignes vident sont autorisées. Elles n'ont pas d'impact ...
 
 // que string (ce qui nous permet d'éviter les guillements ou des ambiguités)
-
-=== Les propriétés
-TODO what to do ??
 
 === Commentaires
 Pour permettre de communiquer des informations supplémentaires durant la rédaction, les commentaires sont supportés et ne sont visibles que dans le fichier directement. Le parseur les ignore et ne se rappelle pas de leur position. Les commentaires ne peuvent être définits que sur une ligne dédiée, les 2 premiers caractères de la ligne doivent être `//` et le reste de la ligne est complètement libre. Le texte tel que `exo intro // c'est basique` n'est pas considéré comme un incluant commentaire, contrairement au C et d'autres langages.
