@@ -25,7 +25,12 @@ Ce travail de Bachelor s'inscrit dans ce contexte en poursuivant le projet PLX, 
 == Problèmes de l'expérience actuelle
 Pour mieux comprendre à quel point le processus actuel d'entrainement est fastidieux, regardons un exercice concret de C pour débutant. Une enseignante qui suit une classe de 40 étudiant·es, fournit la consigne suivante sur un serveur, comme premier exercice de la session.
 
-#roundedbox()[#include "../sources/plx-dy-simple.typ"]
+#figure(
+align(left)[
+    #roundedbox()[
+#set heading(numbering: none)
+#include "../sources/plx-dy-simple.typ"
+]], caption: [Exemple d'exercice de C, avec un scénario à suivre pour vérifier le programme.])
 
 // Problème de la friction pour les étudiants sur un exercice
 
@@ -285,6 +290,7 @@ Ces solutions existantes sont intéressantes mais ne couvrent qu'une partie des 
 == Glossaire
 La rédaction du rapport s'est permise un certain nombre d'anglicismes quand un équivalent français n'existe pas. Certaines constructions de programmations bien connues comme les `strings` au lieu d'écrire `chaînes de caractères` sont également utilisées. Certaines sont spécifiques à certains langages et sont décrites ci-dessous pour aider à la lecture.
 
+- `repository Git`: Un repository Git est un projet dans lequel on peut gérer de multiples versions de fichiers souvent textuels. Git est un CLI et aussi un serveur qui facilite cette gestion.
 - `POC`: _Proof Of Concept_, preuve qu'un concept fonctionne en pratique. Consiste ici en un petit morceau de code développé juste pour démontrer que le concept est fonctionnel, sans soin particulier apporté à la qualité de l'implémentation. Ce code n'est pas réutilisé par la suite, il sert seulement d'inspiration pour l'implémentation réelle.
 - `output`: flux de texte de la sortie standard du programme / texte affiché dans la console par le programme
 - `exo`: abréviation familière de `exercice`. Elle est utilisée dans la syntaxe DY, le code et le protocole pour rendre la rédaction plus concise.
