@@ -464,9 +464,16 @@ rankdir=LR;\n"
                 keys: vec![
                     (
                         "text",
-                        format!("\"{}\"", break_by_words(&b.text.join("\\n<br/>"), 5).trim()),
+                        break_by_words(
+                            b.text
+                                .iter()
+                                .map(|l| format!("\"{l}\""))
+                                .collect::<Vec<String>>()
+                                .join(",<br/>")
+                                .as_ref(),
+                            5,
+                        ),
                     ),
-                    ("key", b.key.id.to_string()),
                     (
                         "range",
                         format!(
@@ -514,7 +521,7 @@ style="rounded,filled"
 fillcolor=" #f5f5f5"
 FIXEDSIZE="FALSE"
     label=<<B>{}</B><BR/><FONT POINT-SIZE="12">{}</FONT>
-    >, margin="0.5,0.2"];
+    >, margin="0.6,0.2"];
 {}
 {}
 "#,
@@ -575,15 +582,15 @@ exit 0
 
 fn main() {
     // Trash existing files under messages folder to avoid old Message files
-    let dest_folder = get_destination();
-    if dest_folder.exists() {
-        remove_dir_all(&dest_folder).unwrap();
-    }
-    let _ = create_dir(&dest_folder);
-    exports_plx_dy_specs();
-    export_parser_steps();
-    export_protocol_messages();
-    export_plantuml_diagrams().unwrap();
+    // let dest_folder = get_destination();
+    // if dest_folder.exists() {
+    //     remove_dir_all(&dest_folder).unwrap();
+    // }
+    // let _ = create_dir(&dest_folder);
+    // exports_plx_dy_specs();
+    // export_parser_steps();
+    // export_protocol_messages();
+    // export_plantuml_diagrams().unwrap();
     exports_dy_blocks();
 
     println!(

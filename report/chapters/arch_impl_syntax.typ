@@ -191,6 +191,8 @@ La première étape consiste à prendre le fichier brut, d'itérer sur chaque li
 )
 
 #figure(
+  text(size: 0.9em)[
+
 ```rust
 Line { index: 0, slice: "exo Salue-moi", lt: WithKey(KeySpec 'exo')},
 Line { index: 1, slice: "Un petit programme qui te salue avec ton nom complet.", lt: Unknown},
@@ -202,7 +204,14 @@ Line { index: 6, slice: "see Salut John, quel est ton nom de famille ?", lt: Wit
 Line { index: 7, slice: "type Doe", lt: WithKey(KeySpec 'type',) },
 Line { index: 8, slice: "see Passe une belle journée John Doe !", lt: WithKey(KeySpec 'see')},
 Line { index: 9, slice: "exit 0", lt: WithKey(KeySpec 'exit')},
-``` , caption: [Liste de lignes avec un index, la référence vers le morceau de texte de la ligne, ainsi que type de ligne `lt`])
+```], caption: [Liste de lignes avec un index, la référence vers le morceau de texte de la ligne, ainsi que type de ligne `lt`]) <somelines>
+
+
+#figure(
+  image("../syntax/blocks/salue-moi-blocks.svg", width:100%),
+  caption: [Arbre de blocs généré à partir des lignes du @somelines, les blocs sont ordrés de haut en bas.],
+)
+
 
 // todo tout spoiler dans les grandes lignes ici.
 
