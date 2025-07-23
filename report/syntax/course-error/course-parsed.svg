@@ -35,7 +35,7 @@
 </tspan>
     <tspan x="10px" y="172px"><tspan>course Programmation 1</tspan>
 </tspan>
-    <tspan x="10px" y="190px"><tspan class="fg-red">|</tspan><tspan class="fg-red bold"> Missing required key 'goal'</tspan>
+    <tspan x="10px" y="190px"><tspan class="fg-red">|</tspan><tspan class="fg-red bold"> Missing required key 'code'</tspan>
 </tspan>
     <tspan x="10px" y="208px">
 </tspan>
@@ -43,7 +43,7 @@
 </tspan>
     <tspan x="10px" y="244px"><tspan>course Programmation 1</tspan>
 </tspan>
-    <tspan x="10px" y="262px"><tspan class="fg-red">|</tspan><tspan class="fg-red bold"> Missing required key 'code'</tspan>
+    <tspan x="10px" y="262px"><tspan class="fg-red">|</tspan><tspan class="fg-red bold"> Missing required key 'goal'</tspan>
 </tspan>
   </text>
 

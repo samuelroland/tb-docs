@@ -16,11 +16,11 @@
   </style>
 
   <text xml:space="preserve" class="container fg">
-    <tspan x="10px" y="28px"><tspan class="fg-rgb-20A8C3 bold">exo</tspan><tspan> Fibonnaci suite</tspan>
+    <tspan x="10px" y="28px"><tspan class="fg-rgb-20A8C3 bold">exo</tspan><tspan> Fibonacci suite</tspan>
 </tspan>
     <tspan x="10px" y="46px">
 </tspan>
-    <tspan x="10px" y="64px"><tspan>Print the Fibonnaci suite for 100 values. Make sure to</tspan>
+    <tspan x="10px" y="64px"><tspan>Print the Fibonacci suite for 100 values. Make sure to</tspan>
 </tspan>
     <tspan x="10px" y="82px"><tspan> check the code is correctly formatted.</tspan>
 </tspan>
