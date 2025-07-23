@@ -20,8 +20,8 @@
 #import "template/_title.typ": *
 #_title(TBtitle, TBsubtitle, TBacademicYears, TBdpt, TBfiliere, TBorient, TBauthor, TBsupervisor, TBindustryContact, TBindustryName, TBindustryAddress, confidential)
 // TODO renable this at the end
-// #import "template/_second_title.typ": *
-// #_second_title(TBtitle, TBacademicYears, TBdpt, TBfiliere, TBorient, TBauthor, TBsupervisor, TBindustryName, TBresumePubliable)
+#import "template/_second_title.typ": *
+#_second_title(TBtitle, TBacademicYears, TBdpt, TBfiliere, TBorient, TBauthor, TBsupervisor, TBindustryName, TBresumePubliable)
 #include "template/_preambule.typ"
 
 #include "chapters/remerciements.typ"
@@ -31,6 +31,9 @@
 
 
 #show: MyStyle
+
+// Set numbering for content
+#set heading(numbering: "1.1")
 
 /*
  Table of Content
@@ -53,6 +56,9 @@
 #include "chapters/arch_impl_syntax.typ"
 
 #include "chapters/conclusion.typ"
+
+// Remove numbering after content
+#set heading(numbering: none)
 
 /*
  Tables
