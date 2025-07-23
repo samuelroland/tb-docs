@@ -3,7 +3,7 @@
 Cette partie documente les besoins de PLX, la définition et l'implémentation de la syntaxe DY, son parseur, l'intégration dans PLX et son usage via le CLI. Le nom *DY* vient de *deliberately* en référence à la pratique délibérée qui a inspiré le projet de PLX.
 
 == Vue d'ensemble
-Tout l'enjeu de ce développement consiste à prendre un bout de texte écrit dans notre notre syntaxe DY et de la convertir vers une struct Rust.
+Tout l'enjeu de ce développement consiste à prendre un bout de texte écrit dans notre syntaxe DY et de la convertir vers une struct Rust.
 #grid(columns: (2fr, 1fr) , gutter: 19pt,
 [#figure(
   image("../syntax/course/course.svg", width: 100%),
@@ -11,7 +11,7 @@ Tout l'enjeu de ce développement consiste à prendre un bout de texte écrit da
 ) <course-basic>],
 [#figure(
 ```rust
-struct Course {
+struct DYCourse {
     name: String,
     code: String,
     goal: String,
@@ -20,25 +20,27 @@ struct Course {
 )
 Dans la @course-basic, les clés sont `course`, `code` et `goal`, chaque clé introduit une valeur. Le but est de remplir la struct Rust du @rust-course-struct avec ces valeurs.
 
-Cette idée de syntaxe légère et optimisée pour l'écriture par des humains peut être utile à d'autres projets ou d'autres exercices en dehors de la programmation, le but n'est pas de construire un parseur spécifique à PLX. Nous cherchons à mettre en place une abstraction qui nous permet rapidement d'intégrer cette syntaxe dans un autre contexte qui souhaite utiliser des fichiers textes structurés. La syntaxe DY se base se base d'un côté sur une hiérarchie de clés, qui est fournie au coeur du parseur afin d'extraire le contenu et de le valider en partie. Pour des erreurs plus spécifiques que la vérification des contraintes définies sur les clés, il est possible de définir en Rust des validations plus avancées.
+Cette idée de syntaxe légère et optimisée pour l'écriture par des humains peut être utile à d'autres projets ou d'autres exercices en dehors de la programmation, le but n'est pas de construire un parseur spécifique à PLX. Nous cherchons à mettre en place une abstraction qui nous permet rapidement d'intégrer cette syntaxe dans un autre contexte qui souhaite utiliser des fichiers textes structurés. La syntaxe DY se base d'un côté sur une hiérarchie de clés, qui est fournie au coeur du parseur afin d'extraire le contenu et de le valider en partie. Pour des erreurs plus spécifiques que la vérification des contraintes définies sur les clés, il est possible de définir en Rust des validations plus avancées.
 
-Pour la détection d'erreurs, si on adoptait l'approche des compilateurs de langages de programmation qui échoue la compilation à la moindre erreur, l'expérience serait très frustrante. Au moindre exercice mal retranscrit parmi une centaine présents, tout le cours serait inaccessible dans l'interface de PLX. Nous préférons au contraire accepter d'avoir des objets partielles (un exercice avec un titre vide, mais une consigne et des checks valides par exemple) et d'afficher les erreurs dans l'interface pour avertir des erreurs présentes. Les parties éronnées ne sont pas extraites pour ne pas impacter le reste des données valides.
+Pour la détection d'erreurs, si on adoptait l'approche des compilateurs de langages de programmation qui échoue la compilation à la moindre erreur, l'expérience serait très frustrante. Au moindre exercice mal retranscrit parmi une centaine présents, tout le cours serait inaccessible dans l'interface de PLX. Nous préférons au contraire accepter d'avoir des objets partiels (un exercice avec un titre vide, mais une consigne et des checks valides par exemple) et d'afficher les erreurs dans l'interface pour avertir des erreurs présentes. Les parties éronnées ne sont pas extraites pour ne pas impacter le reste des données valides.
 
-Le parseur prend en entrée une `String` directement et n'est pas responsable d'aller lire un fichier. Ceci nous permet de parser du contenu sans avoir de fichier sous-jaçent, notamment dans des snippets DY intégrée à une documentation web. Cela laisse aussi le choix au projet qui intègre la syntaxe, de choisir les noms de fichiers. Nous verrons quels fichiers PLX a choisi d'utiliser pour stocker son modèle de données.
+// todo objet
 
-Tout le développement du parseur s'est fait en _Test Driven Development_ (TDD), qui s'est révelé très facile à mettre en place comme chaque étape possède des entrées et sorties bien définies.
+Le parseur prend en entrée une `String` directement et n'est pas responsable d'aller lire un fichier. Ceci nous permet de parser du contenu sans avoir de fichier sous-jacent, notamment dans des snippets DY intégrés à une documentation web. Cela laisse aussi le choix au projet qui intègre la syntaxe, de choisir les noms de fichiers. Nous verrons quels fichiers PLX a choisi d'utiliser pour stocker son modèle de données.
 
-L'extension de fichier recommendée est `.dy`. Ces fichiers doivent être encodés en UTF8 et le caractère de retour à la ligne doit être le `\n`.
+Tout le développement du parseur s'est fait en _Test Driven Development_ (TDD), qui s'est révélé très facile à mettre en place comme chaque étape possède des entrées et sorties bien définies.
+
+L'extension de fichier recommandée est `.dy`. Ces fichiers doivent être encodés en UTF8 et le caractère de retour à la ligne doit être le `\n`.
 
 === Librairies implémentées
 
-L'implémentation est divisée en deux parties très claires: le coeur du parseur et les spécifications DY (appelées par la suite #quote("spec DY")). Les deux sont inséparables et leur combinaison permet de parser du contenu définit par un spec DY. Le coeur du parseur définit le "comment parser" et la spécification définit le "parser quoi" et "comment gérer le résultat".
+L'implémentation est divisée en deux parties très claires: le coeur du parseur et les spécifications DY (appelées par la suite #quote("spec DY")). Les deux sont inséparables et leur combinaison permet de parser du contenu définit par un spec DY. Le coeur du parseur définit le "comment parser" et la spécification définit le "parser quoi" et "comment gérer le résultat". Une spec DY définit l'ensemble des clés valides et leur hiérarchie pour un objet donné. Elle est associée à une struct qui définit l'objet en question. Par exemple, la définition de la @course-basic aura une spec DY qui définit la clé `course` et les sous-clés `code` et `goal`. La struct associée le `DYCourse`. La clé `course` servira à remplir l'attribut `name` et les deux autres clés, les attributs de même noms.
 
-Le projet PLX a maintenant 3 librairies. En plus de `plx-core` déjà présenté pour le développement du serveur, nous avons créé deux nouvelles crates: la crate `dy` pour implémenter le coeur du parseur et la crate `plx-dy` pour définir la spec DY de PLX. Cet dernière inclut des fonctions haut-niveaux comme `parse_course()`, facilement utilisable par le CLI et `plx-core`.
+Le projet PLX a maintenant 3 librairies. En plus de `plx-core` déjà présenté pour le développement du serveur, nous avons créé deux nouvelles crates: la crate `dy` pour implémenter le coeur du parseur et la crate `plx-dy` pour définir la spec DY de PLX. Cette dernière inclut des fonctions haut-niveaux comme `parse_course()`, facilement utilisable par le CLI et `plx-core`.
 
 #figure(
   image("../schemas/parser-libs-deps.png", width: 80%),
-  caption: [Aperçu des librairies en jeu, ainsi que les dépendences entre librairie et du CLI et de l'application desktop.],
+  caption: [Aperçu des librairies en jeu, ainsi que les dépendances entre librairie et du CLI et de l'application desktop.],
 )
 // todo update tout vers prg2 !!!
 
@@ -53,25 +55,27 @@ Une spec DY est le schéma et se définit directement en Rust au lieu d'être da
   caption: [Aperçu de la séparation claire des concepts entre spec DY et coeur du parseur, développés dans deux librairies différentes.],
 )
 
+TODO mentionner résumé du dessus
+
 === Lignes directrices de conception
 Ces lignes directrices permettent de mieux comprendre certains choix de clés, de syntaxe ou de stratégie.
-+ *Privilégier la facilité plutôt de rédaction, plutôt que la facilité de parsing*
-+ *Pas de tabulations ni d'espace en début de ligne*. Cela introduit le fameux débat des espaces versus tabulations. En utilisant des espaces, le nombre d'espaces devient configurable. Ces possibilités ne font perdre du temps de discussion, configuration et conventions, ou de collaboration comme les changements dans Git deviennent plus difficile à lire si deux enseignant·es n'utilisent pas les mêmes réglages. Créer un formateur automatique n'est pas une solution, car cela demande de l'installer et le configurer également. Si une partie de l'équipe d'enseignant·es ne l'utilisent pas, son utilité est diminuée.
++ *Privilégier la facilité de rédaction, plutôt que la facilité de parsing*
++ *Pas de tabulations ni d'espace en début de ligne*. Cela introduit le fameux débat des espaces versus tabulations. En utilisant des espaces, le nombre d'espaces par tabulation devient configurable, ce qui va générer de la perte de temps autour de la rédaction. Du temps sera perdu à discuter du style à adopter, à configurer son IDE ou à relire des changements dans Git qui contiendraient principalement des changements de formatage. Créer un formateur automatique n'est pas une solution, car cela demande de l'installer et le configurer également. Si une partie de l'équipe d'enseignant·es ne l'utilisent pas, son utilité est diminuée.
 + *Une seule manière de définir un objet*. Au lieu d'ajouter différentes variantes pour arriver au même résultat juste pour satisfaire différents style, ne garder qu'une seule possibilité. Dès que des variantes sont introduites, cela complexifie le parseur et l'apprentissage de la syntaxe. On trouve le même problème autour des formateurs ou linters que précédemment.
 // + *Privilégier une limitation des mouvements du curseur*: lors de la rédaction d'un nouvel exercice, le curseur de l'éditeur ne devrait jamais avoir besoin de retourner en arrière.
-+ *Peu de caractères réservés, simple à taper et restreint à certains endroits*. Le moins de caractère réservés possible doivent être définis car cela pourrait rentrer en conflit avec le contenu. Ils doivent toujours restreint à zones spécifiques du texte, pour être facilement détournées si nécessaire. L'échappement via un caractère du type `\` n'est pas une bonne option.
-+ *Pas de caractères en pairs*. Les caractères réservés ne doivent pas être `()`, `{}`, ou `[]` ou d'autres caractères qui vont toujours ensemble pour délimiter le début et la fin d'un élément. Surtout durant la retranscriptions, ces pairs requièrent des mouvements de curseur plus complexe, pour aller une fois au début et une fois à la fin de la zone délimitée.
++ *Peu de caractères réservés, simple à taper et restreint à certains endroits*. Le moins de caractère réservés possible doivent être définis car cela pourrait rentrer en conflit avec le contenu. Ils doivent toujours rester restreints à des zones spécifiques du texte, pour être facilement détournées si nécessaire. L'échappement via un caractère du type `\` n'est pas une bonne option.
++ *Pas de caractères en pair*. Les caractères réservés ne doivent pas être `()`, `{}`, ou `[]` ou d'autres caractères qui vont toujours ensemble pour délimiter le début et la fin d'un élément. Surtout durant la retranscription, ces pairs requièrent des mouvements de curseur plus complexe, pour aller une fois au début et une fois à la fin de la zone délimitée.
 + *Utiliser des clés courtes*. Si une clé est utilisée très souvent et que son nom est long (plus de 5 lettres), il peut être judicieux de choisir une alternative plus courte. L'alternative peut être un surnom (`exercise` -> `exo`) ou le début (`directory` -> `dir`). Une clé devrait au minimum avoir deux lettres. L'autocomplétion du serveur de langage pourra aider à taper des clés plus longues, mais il n'est pas sûr que tout le monde ait pu l'installer ou travail avec un des IDE supportés.
 + *Une erreur ne doit pas empêcher le reste de l'extraction*. Le parseur doit détecter les erreurs mais continuer comme si elle n'était pas là. Une information manquante prend ainsi une valeur par défaut, pour permettre un usage ou aperçu limité plutôt qu'aucune information.
-+ *La struct Rust des objets extraits ne doit pas contraindre la structure de rédaction*. Par exemple, pour une struct `Exo` avec deux champs `name` et `instruction` (consigne), ne doit pas contraindre la rédaction à l'usage de deux clés séparées `exo` et `instruction`.
-+ *Le seul type natif est la string*. Les projets qui intègre la syntaxe DY ne récupérent que des strings en valeurs après les clés définies. Tout d'abord pour éviter le besoin de guillemets. Ensuite, contrairement au YAML, TOML et d'autres, aucun type de dates, nombre entiers ou flottants n'est défini pour garder une base minimaliste et éviter toute ambiguité d'interprétation. Pour rappel, ces problèmes étaient mentionnés sur plusieurs syntaxes dans l'état de l'art. Cela n'empêche pas que ces projets décident de supporter des nouveaux types et s'occupent eux-même du parsing et de la validation de ces valeurs.
++ *Les attributs de la struct Rust ne doivent pas contraindre la définition des clés*. Par exemple, pour une struct Rust `Exo` avec deux champs `name` et `instruction` (consigne), ne doit pas imposer la présence de deux clés de même nom dans spec DY. Dans ce cas, on pourrait préférer avoir une seule clé `exo` qui contient les deux valeurs, qui seraient séparées à la fin.
++ *Le seul type natif est la string*. Les projets qui intègrent la syntaxe DY ne récupèrent que des strings en valeurs après les clés définies. Tout d'abord pour éviter le besoin de guillemets. Ensuite, contrairement au YAML, TOML et d'autres, aucun type de dates, nombres entiers ou flottants ne sont pas définis, afin de garder une base minimaliste et éviter toute ambiguïté d'interprétation. Pour rappel, ces problèmes étaient mentionnés sur plusieurs syntaxes dans l'état de l'art. Cela n'empêche pas que ces projets décident de supporter des nouveaux types et s'occupent eux-même du parsing et de la validation de ces valeurs.
 
 Dans l'état actuel, la syntaxe DY n'a pas de tabulations ni d'espace, aucun caractère réservé (la fin de ligne et l'espace sont des séparateurs mais ne sont pas réservés à la syntaxe). Les clés réservées peuvent être échappées facilement pour écrire le mot littéral.
 
 // + Réutiliser des concepts déjà utilisés dans d'autres formats quand ils sont concis: concept de clé comme le YAML, usage des commentaires en `//`
 
 === Commentaires
-Pour permettre de communiquer des informations supplémentaires durant la rédaction, les commentaires sont supportés et ne sont visibles que dans le fichier DY. Le parseur les ignore et ne se rappelle pas de leur position. Les commentaires ne peuvent être définits que sur une ligne dédiée, les 2 premiers caractères de la ligne doivent être `//` et le reste de la ligne est complètement libre. Le texte tel que `exo intro // c'est basique` ne contient pas de commentaire, contrairement au C et d'autres langages.
+Pour permettre de communiquer des informations supplémentaires durant la rédaction, les commentaires sont supportés et ne sont visibles que dans le fichier DY. Le parseur les ignore et ne se rappelle pas de leur position. Les commentaires ne peuvent être définis que sur une ligne dédiée, les 2 premiers caractères de la ligne doivent être `//` et le reste de la ligne est complètement libre. Le texte tel que `exo intro // c'est basique` ne contient pas de commentaire, contrairement au C et d'autres langages.
 
 === Support du Markdown
 Tous les champs supportent le Markdown. La syntaxe du Markdown n'est pas interprétée sauf pour les snippets de code qui sont considérées comme du contenu à ne pas analyser. La zone concernée commence par #raw("```") ou `~~~`, elle est ignorée jusqu'à trouver le même marqueur. Ainsi, de potentielles clés ou commentaires présents ne sont pas considérés. Cette spécificité permet aussi de préserver les commentaires de code dans le texte extrait et de ne pas les ignorer comme les commentaires DY.
@@ -82,9 +86,9 @@ Tous les champs supportent le Markdown. La syntaxe du Markdown n'est pas interpr
 )
 
 === Définition et contraintes des clés
-Les clés sont tirés du concept de clé/valeur du JSON. Une clé est une string en minuscule, contenant uniquement des caractères alphabétiques. Elle doit se trouver tout au début d'une ligne sans espace. Si un caractère existe après la clé, il ne peut être que l'espace ou le retour à la ligne `\n`. Ainsi `coursetest` ne contient pas la clé `course`. Les clés introduisent une valeur et parfois le début d'un objet si elles contiennent d'autres clés enfants.
+Les clés sont tirées du concept de clé/valeur du JSON. Une clé est une string en minuscule, contenant uniquement des caractères alphabétiques. Elle doit se trouver tout au début d'une ligne sans espace. Si un caractère existe après la clé, il ne peut être que l'espace ou le retour à la ligne `\n`. Ainsi `coursetest` ne contient pas la clé `course`. Les clés introduisent une valeur et parfois le début d'un objet si elles contiennent d'autres clés enfants.
 
-Dans l'exemple de la @keys-example, les clés sont `course`, `code` et `goal`. La clé `course` introduit une valeur (le nom du cours) et un objet (le cours) qui contiendra les valeurs tirées des clés enfants (`code` et `goal`). Les types de valeurs introduites est toujours une string qui s'étend au maximum sur une seule ligne ou sur plusieurs. La clé `code` introduit la valeur `PRG1`, qui ne peut être définit que sur une ligne, car un code raccourci ne peut pas contenir de retour à la ligne. La valeur de la clé `goal` peut s'étendre sur plusieurs lignes.
+Dans l'exemple de la @keys-example, les clés sont `course`, `code` et `goal`. La clé `course` introduit une valeur (le nom du cours) et un objet (le cours) qui contiendra les valeurs tirées des clés enfants (`code` et `goal`). Les types de valeurs introduites sont toujours une string qui s'étend au maximum sur une seule ligne ou sur plusieurs. La clé `code` introduit la valeur `PRG1`, qui ne peut être définie que sur une ligne, car un code raccourci ne peut pas contenir de retour à la ligne. La valeur de la clé `goal` peut s'étendre sur plusieurs lignes.
 #figure(
   image("../syntax/keys-example/course.svg", width: 80%),
   caption: [Exemple d'usage de clés et de leur hiérarchie avec un cours PLX],
@@ -94,11 +98,11 @@ Si du contenu devait contenir un mot qui est aussi utilisé pour une clé il suf
 
 #figure(
   image("../syntax/escaped-exo/exo.svg", width: 80%),
-  caption: [Exemple ],
+  caption: [Exemple de consigne avec un mot en début de ligne qui est aussi une clé, ici `check` à échapper par un espace],
 ) <escaped-exo>
 
-En Rust, les clés sont définies grâce à la struct `KeySpec` définie par la librairie `dy`. Cette struct contient tous les attributs suivants à définir obgligatoirement pour que le code compile. Cette déclaration des clés n'est que déclarative, elle ne contient pas de code.
-+ `id`: Le texte de la clé (exemple `course`), qui doit être unique pour toute la spec DY, en minuscule et avec des caractères alphabétique uniquement.
+En Rust, les clés sont définies grâce à la struct `KeySpec` définie par la librairie `dy`. Cette struct contient tous les attributs suivants à définir obligatoirement pour que le code compile. Cette déclaration des clés n'est que déclarative, elle ne contient pas de code.
++ `id`: Le texte de la clé (exemple `course`), qui doit être unique pour toute la spec DY, en minuscule et avec des caractères alphabétiques uniquement.
 + `desc`: Une description qui sert à documenter le but de la clé, qui sera utile pour la documentation au survol et l'autocomplétion pour le futur serveur de langage.
 + `subkeys`: un vecteur de sous-clés possibles, qui peut être vide.
 + `vt`: Un type de valeur, soit ligne simple ou multiple, défini via l'enum `ValueType`.
@@ -128,7 +132,7 @@ where
     T: FromDYBlock<'a> {...}
 ``` , caption: [La définition de `parse_with_spec`, avec la contrainte que `T` doit implémenter le trait `FromDYBlock` (visible après)]) <parsesig>
 
-Le @parseresult donne la définition de `ParseResult` qui inclut un vecteur de résultat du type générique et les erreurs détectées. Le nom du fichier est inclus s'il a été fourni à `parse_with_spec`. Une copie du contenu du fichier est inclus en cas d'erreurs pour permettre l'affichage dans le contexte du fichier.
+Le @parseresult donne la définition du type de retour de `parse_with_spec`, la struct `ParseResult` qui inclut un vecteur de résultat du type générique et les erreurs détectées. Le nom du fichier est inclus s'il a été fourni à l'appel de `parse_with_spec`. Une copie du contenu du fichier est inclus en cas d'erreurs pour permettre l'affichage des erreurs avec les lignes associées.
 #figure(
 ```rust
 pub struct ParseResult<T> {
@@ -146,15 +150,44 @@ pub trait FromDYBlock<'a> {
 }
 ``` , caption: [Un trait (interface) `FromDYBlock` qui impose d'implémentater `from_block_with_validation`, utilisé sur chaque struct final associée à une spec DY])
 
+=== Types d'erreurs
+
+Les erreurs stockées dans `ParseResult`, présenté précédemment en @parseresult, sont de types `ParseError` visibles en @parseerrors. Chaque erreur contient un `Range`, type tirés de la crate `lsp-types` qui définit une plage de caractères entre un caractère de début et de fin, afin de définir la zone à surligner lors de l'affichage de l'erreur. Cette plage sera aussi utilisé dans le futur serveur de langage pour indiquer à l'éditeur quel zone doit être soulignée de vaguelettes rouges.
+
+#figure(
+```rust
+pub struct ParseError {
+    pub range: Range,
+    pub error: ParseErrorType,
+}
+
+#[derive(thiserror::Error)]
+pub enum ParseErrorType {
+    // Blocks tree building errors
+    #[error("The '{0}' key can be only used under a `{1}`")]
+    WrongKeyPosition(String, String),
+    DuplicatedKey(String, u8),
+    InvalidMultilineContent(String),
+    ContentOutOfKey,
+    MissingRequiredKey(String),
+    MissingRequiredValue(String),
+
+    /// An error generated by FromDYBlock::from_block_with_validation()
+    #[error("{0}")]
+    ValidationError(String),
+}
+``` , caption: [Définition de `ParseError` et extrait simplifié de `ParseErrorType` (dans le code chaque variante possède une `#[error]` qui définit son message)]) <parseerrors>
+
+Pour que le code pour chaque implémentation de `FromDYBlock` puisse également générer des erreurs spécifiques, une variante `ValidationError` a été définie pour cet usage.
 
 === Catégorisation des lignes
-La première étape consiste à prendre le fichier brut, d'itérer sur chaque ligne et de catégoriser la ligne pour définir si elle contient une clé (`WithKey`) ou non (`Unknown`). Une liste de toutes les clés présente dans l'arbre `ValidDYSpec` est extraite. Pour ne pas comparer à chaque fois toutes les clés, elles sont regroupées par longueur dans une `HashMap`. A chaque ligne, on extrait le premier mot et on regarde uniquement les clés de même longeur que ce mot.
+La première étape consiste à prendre le contenu brut, d'itérer sur chaque ligne et de catégoriser la ligne pour définir si elle contient une clé (`WithKey`) ou non (`Unknown`). Une liste de toutes les clés présente dans l'arbre `ValidDYSpec` est extraite avant ce parcours. Pour ne pas comparer toutes les clés à chaque ligne, elles sont regroupées par longueur dans une `HashMap`. A chaque ligne, on extrait le premier mot et on regarde uniquement les clés de même longeur que ce mot.
 
 #figure(
   image("../syntax/exo/exo.svg", width: 100%),
-  caption: [Reprenons l'exercice Salue-moi en exemple],
+  caption: [L'exercice Salue-moi, déjà présentée en introduction],
 )
-
+En reprenant l'exercice Salue-moi, la catégorisation des lignes est affiché en @somelines.
 #figure(
   text(size: 0.8em)[
 
@@ -171,6 +204,8 @@ Line { index: 8, slice: "see Passe une belle journée John Doe !", lt: WithKey(K
 Line { index: 9, slice: "exit 0", lt: WithKey(KeySpec 'exit')},
 ```], caption: [Liste de lignes avec un index, la référence vers le morceau de texte de la ligne, ainsi que type de ligne `lt`]) <somelines>
 
+A ce stade, aucune analyse de la hiérarchie des clés et effectuée, nous cherchons seulement à distinguer les lignes avec clé du reste, pour mieux générer certaines erreurs durant la phase suivante. Par exemple si une clé n'est pas au bon endroit (prenons le `code` d'un cours avant le `cours`), elle risque d'être considéré simplement contenu en dehors d'objets `ContentOutOfKey` alors que nous aimerions être plus spécifique avec l'erreur `WrongKeyPosition`. En parcourant la hiérarchie de clé plus tard, nous ne pouvons pas détecter que `code` est en fait une clé valide, même si ce n'est pas la bonne position, car la définition de la clé se trouve sous la définition de la clé `course`.
+
 === Construction d'un arbre de blocs
 Cet arbre représente la hiérarchie des clés et valeurs trouvées et respecte en tout temps la hiérarchie de `ValidDYSpec`. Un bloc contient le texte extrait (sous forme de vecteur de lignes), la plage du contenu concerné (`Range`) et une référence vers la définition de la clé associée au bloc. Les erreurs recontrées au fur et à mesure n'impacte pas cet arbre et sont insérées dans une liste d'erreurs séparées. Les commentaires ne sont pas inclus.
 
@@ -181,17 +216,7 @@ Cet arbre représente la hiérarchie des clés et valeurs trouvées et respecte 
 
 === Conversion vers la struct T
 
-Grâce à l'interface `FromDYBlock`, nous pouvons donner chaque bloc racine à la méthode `T::from_block_with_validation(&block)` afin qu'il puisse être converti en type `T` et générer d'autres erreurs si nécessaires. La liste d'erreur créé durant la construction de l'arbre de blocs 
-
-Pour finir l'exemple de 
-
-#figure(
-  text(size: 0.8em)[
-
-```rust
-
-```], caption: [])
-
+Grâce à l'interface `FromDYBlock`, nous pouvons donner chaque bloc racine à la méthode `T::from_block_with_validation(&block)` afin qu'il puisse être converti en type `T`. La liste d'erreur créé durant la construction de l'arbre de blocs est étendue avec les erreurs retournée par `from_block_with_validation`. Les erreurs
 
 == Implémentation de `plx-dy`
 

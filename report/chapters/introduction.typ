@@ -283,7 +283,7 @@ Ces solutions existantes sont intéressantes mais ne couvrent qu'une partie des 
 #pagebreak()
 // todo move that somewhere useful once we have bottom page notes
 == Glossaire
-L'auteur de ce travail se permet un certain nombre d'anglicismes quand un équivalent français n'existe pas. Certaines constructions de programmations bien connues comme les `strings` au lieu d'écrire `chaînes de caractères` sont également utilisées. Certaines sont spécifiques à certains langages et sont décrites ci-dessous pour aider à la lecture.
+La rédaction du rapport s'est permise un certain nombre d'anglicismes quand un équivalent français n'existe pas. Certaines constructions de programmations bien connues comme les `strings` au lieu d'écrire `chaînes de caractères` sont également utilisées. Certaines sont spécifiques à certains langages et sont décrites ci-dessous pour aider à la lecture.
 
 - `POC`: _Proof Of Concept_, preuve qu'un concept fonctionne en pratique. Consiste ici en un petit morceau de code développé juste pour démontrer que le concept est fonctionnel, sans soin particulier apporté à la qualité de l'implémentation. Ce code n'est pas réutilisé par la suite, il sert seulement d'inspiration pour l'implémentation réelle.
 - `output`: flux de texte de la sortie standard du programme / texte affiché dans la console par le programme
@@ -301,8 +301,6 @@ L'auteur de ce travail se permet un certain nombre d'anglicismes quand un équiv
 - `regex`: raccourcis pour les expressions régulières
 - `snippet`: court morceau de code ou de données
 - `querystring`: partie d'un URL après le `?` tel que `?action=send&id=23`, qui se termine au premier `#` rencontré
-
-// todo add note de bas de page à chaque première apparition du mot !
 
 // todo check ces définitions
 
