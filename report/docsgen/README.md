@@ -3,6 +3,7 @@ A small program to generate documentation for the protocol dynamically. It solve
 
 1. Instead of writing JSON messages by hand for the report, I export them from Rust directly.
 1. Instead of manually exporting PlantUML diagram, just export them with a local server
+1. Generate highlighting with Tree-Sitter of all `.dy` files under `../syntax/` as SVG + generate the output as SVG of `plx parse thisfile.dy`
 
 ## How to run
 ```sh

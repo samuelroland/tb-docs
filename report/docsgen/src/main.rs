@@ -1,9 +1,8 @@
+//
 // We use the strum crate with AsRefStr derive macro to be able to get the enum variant name by event.as_ref() on the Event enum for example
 use std::{
-    env::consts::OS,
-    ffi::{OsStr, OsString},
-    fmt::format,
-    fs::{create_dir, read, remove_dir_all, rename, write},
+    ffi::OsStr,
+    fs::{read, write},
     path::PathBuf,
     process::Command,
     time::SystemTime,
@@ -13,11 +12,16 @@ use anstyle::Color;
 use anstyle_svg::Term;
 use chrono::{DateTime, Utc};
 use colored::Colorize;
+use dy::{
+    parser::tokenize_into_lines,
+    semantic::{Block, build_blocks_tree},
+    spec::ValidDYSpec,
+};
 use plx_core::live::protocol::{
     Action, CheckStatus, ClientNum, Event, ExoCheckResult, ForwardedFile, ForwardedResult,
     LiveProtocolError, Session, SessionStats,
 };
-use plx_dy::{course::COURSES_SPEC, exo::EXOS_SPEC, skill::SKILLS_SPEC};
+use plx_dy::{course::COURSE_SPEC, exo::EXO_SPEC, skill::SKILLS_SPEC};
 use walkdir::WalkDir;
 
 const PLANTUML_SERVER_URL: &str = "http://localhost:5076";
@@ -406,7 +410,7 @@ struct GraphTree<'a> {
 impl<'a> GraphTree<'a> {
     fn export(&self, file: &PathBuf) {
         let mut schema = "digraph G {
-rankdir=TB;\n"
+rankdir=LR;\n"
             .to_string();
         schema.push_str(
             &self
@@ -426,7 +430,10 @@ rankdir=TB;\n"
             "-o",
             file.to_str().unwrap(),
         ]);
-        cmd.output().unwrap();
+        dbg!(String::from_utf8(cmd.output().unwrap().stdout).unwrap());
+        dbg!(String::from_utf8(cmd.output().unwrap().stderr).unwrap());
+        assert_eq!(cmd.output().unwrap().status.success(), true);
+        println!("Saved {file:?}");
     }
 
     fn from_spec(specs: &dy::spec::DYSpec<'a>) -> Self {
@@ -434,8 +441,8 @@ rankdir=TB;\n"
         graph.keys = specs
             .iter()
             .map(|s| GraphKey {
-                title: s.id,
-                desc: s.desc,
+                key: s.id.to_string(),
+                title: s.id.to_string(),
                 keys: vec![
                     ("ValueType", format!("{:?}", s.vt)),
                     ("Once", s.once.to_string()),
@@ -446,28 +453,68 @@ rankdir=TB;\n"
             .collect();
         graph
     }
+
+    fn from_blocks(blocks: &Vec<Block<'a>>) -> Self {
+        let mut graph = GraphTree { keys: vec![] };
+        graph.keys = blocks
+            .iter()
+            .map(|b| GraphKey {
+                key: b.range.start.line.to_string(),
+                title: b.key.id.to_string(),
+                keys: vec![
+                    (
+                        "text",
+                        format!("\"{}\"", break_by_words(&b.text.join("\\n<br/>"), 5).trim()),
+                    ),
+                    ("key", b.key.id.to_string()),
+                    (
+                        "range",
+                        format!(
+                            "{}:{}-{}:{}",
+                            b.range.start.line,
+                            b.range.start.character,
+                            b.range.end.line,
+                            b.range.end.character,
+                        ),
+                    ),
+                ],
+                subtree: GraphTree::from_blocks(&b.subblocks),
+            })
+            .collect();
+        graph
+    }
 }
 
 struct GraphKey<'a> {
-    title: &'a str,
-    desc: &'a str,
+    key: String,
+    title: String,
     keys: Vec<(&'a str, String)>,
     subtree: GraphTree<'a>,
 }
 
+fn break_by_words(sentence: &str, count: usize) -> String {
+    let words: Vec<&str> = sentence.split_whitespace().collect();
+    let mut result = String::new();
+    for chunk in words.chunks(count) {
+        if !result.is_empty() {
+            result.push_str("<br/>");
+        }
+        result.push_str(&chunk.join(" "));
+    }
+    result
+}
+
 impl<'a> GraphKey<'a> {
     fn describe(&self) -> String {
-        let key = self.title.to_lowercase();
+        let key = &self.key;
         // todo: include desc ? how to split in small pieces ??
         let format = format!(
             r#"{key} [shape=box,
 style="rounded,filled"
 fillcolor=" #f5f5f5"
-    label=<
-    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" WIDTH="80">
-        <TR><TD><FONT POINT-SIZE="17"><B>{}</B></FONT></TD></TR>
-        <TR><TD><FONT POINT-SIZE="12">{}</FONT></TD></TR>
-    </TABLE>>, margin="0.5,0.2"];
+FIXEDSIZE="FALSE"
+    label=<<B>{}</B><BR/><FONT POINT-SIZE="12">{}</FONT>
+    >, margin="0.5,0.2"];
 {}
 {}
 "#,
@@ -481,7 +528,7 @@ fillcolor=" #f5f5f5"
             self.subtree
                 .keys
                 .iter()
-                .map(|k| format!("{key} -> {}", k.title.to_lowercase()))
+                .map(|k| format!("{key} -> {}", k.key))
                 .collect::<Vec<String>>()
                 .join("\n"),
             self.subtree
@@ -496,14 +543,34 @@ fillcolor=" #f5f5f5"
 }
 
 fn exports_plx_dy_specs() {
-    let tree = GraphTree::from_spec(COURSES_SPEC);
+    let tree = GraphTree::from_spec(COURSE_SPEC);
     tree.export(&PathBuf::from("../syntax/specs/course.spec.svg"));
 
     let tree = GraphTree::from_spec(SKILLS_SPEC);
     tree.export(&PathBuf::from("../syntax/specs/skills.spec.svg"));
 
-    let tree = GraphTree::from_spec(EXOS_SPEC);
+    let tree = GraphTree::from_spec(EXO_SPEC);
     tree.export(&PathBuf::from("../syntax/specs/exo.spec.svg"));
+}
+
+fn exports_dy_blocks() {
+    let exo = "exo Salue-moi
+Un petit programme qui te salue avec ton nom complet.
+
+check Il est possible d'être salué avec son nom complet
+see Quel est ton prénom ?
+type John
+see Salut John, quel est ton nom de famille ?
+type Doe
+see Passe une belle journée John Doe !
+exit 0
+";
+    let validspec = &ValidDYSpec::new(EXO_SPEC).unwrap();
+    let lines = tokenize_into_lines(validspec, exo);
+    let blocks = build_blocks_tree(validspec, lines);
+
+    let tree = GraphTree::from_blocks(&blocks.0);
+    tree.export(&PathBuf::from("../syntax/blocks/salue-moi-blocks.svg"));
 }
 
 fn main() {
@@ -517,6 +584,7 @@ fn main() {
     export_parser_steps();
     export_protocol_messages();
     export_plantuml_diagrams().unwrap();
+    exports_dy_blocks();
 
     println!(
         "\nNote: remember to manually update LiveProtocolError list of errors if you added one manually !"

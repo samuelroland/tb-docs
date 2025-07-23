@@ -33,6 +33,22 @@ Le parseur prend en entrée une `String` directement et n'est pas responsable d'
 
 Tout le développement du parseur s'est fait en _Test Driven Development_ (TDD), ce qui était facile à mettre en place comme chaque étape possède des entrées et sorties bien définies.
 
+=== Lignes directrices de conception
+Ces lignes directrices sont la base des choix de conceptions de la syntaxe. Ils permettent de mieux comprendre certains choix de clés, de syntaxe ou de stratégie.
++ *Privilégier la facilité plutôt de rédaction, plutôt que la facilité d'extraction*: quand de nouveaux éléments syntaxiques sont ajoutés, l'optimisation de la rédaction est la priorité, face
++ *Pas de tabulations ni d'espace en début de ligne*. Cela introduit le fameux débat des espaces versus tabulations. En utilisant des espaces, le nombre d'espaces devient configurable. Les espaces complexifient un peu la collaboration comme les changements dans Git deviennent plus difficile à lire si deux enseignant·es n'utilisent pas les mêmes réglages.
++ *Une seule manière de définir un objet*. Au lieu d'ajouter différentes variantes pour arriver au même résultat juste pour satisfaire différents style, ne garder qu'une seule possibilité. Dès que des variantes sont introduites, cela complexifie le parseur et l'apprentissage. Pour garder un style commun, il faut discuter pour se mettre d'accord sur le style ou accepter de mixer les variantes dans un cours.
+// + *Privilégier une limitation des mouvements du curseur*: lors de la rédaction d'un nouvel exercice, le curseur de l'éditeur ne devrait jamais avoir besoin de retourner en arrière.
++ *Peu de caractères réservés, simple à taper et restreint à certains endroits*. Le moins de caractère réservés doivent être définis car cela pourra rentrer en conflit avec le contenu. Ils doivent toujours restreint à zones spécifiques du texte, pour que ces contraintes puissent être détournées si nécessaire.
++ *Pas de caractères en pairs*. Les caractères réservés ne doivent pas être `()`, `{}`, ou `[]` ou d'autres caractères qui vont toujours ensemble pour délimiter le début et la fin d'un élément. Surtout durant la retranscriptions, ces pairs requièrent des mouvements de curseur plus complexe, pour aller une fois au début et une fois à la fin de la zone délimitée.
++ *Utiliser des clés de préférence courtes*. Si une clé est utilisée très souvent et que son nom est long (plus de 5 lettres), il peut être judicieux de choisir une alternative plus courte. L'alternative peut être un surnom (`exercise` -> `exo`) ou le début (`directory` -> `dir`). Une clé devrait au minimum avoir deux lettres.
++ *Une erreur ne doit pas empêcher le reste de l'extraction*. Le parseur doit détecter les erreurs mais faire comme si elle n'était pas là. Une information manquante prend ainsi une valeur par défaut, pour permettre un usage ou aperçu limité à la place de perdre le reste de l'information.
++ *La struct Rust des objets extraits ne doit pas contraindre la structure de rédaction*. Par exemple, pour une struct `Exo` avec deux champs `name` et `instruction` (consigne), ne doit pas contraindre la rédaction à l'usage de deux clés séparées.
+
+Dans l'état actuel, la syntaxe DY n'a pas de tabulations ni d'espace, aucun caractère réservé (la fin de ligne et l'espace sont des séparateurs mais ne sont pas réservés à la syntaxe). Les clés réservées peuvent être échappées pour écrire le mot littéral.
+
+// + Réutiliser des concepts déjà utilisés dans d'autres formats quand ils sont concis: concept de clé comme le YAML, usage des commentaires en `//`
+
 == Modèle de données de PLX et choix des clés
 Avant de spécifier une syntaxe et d'implémentater un parseur, il est nécessaire de définir les données que nous souhaitons extraire.
 
@@ -116,6 +132,35 @@ L'implémentation est donc divisée en deux parties très claires: le coeur du p
 
 #figure(
 ```rust
+pub struct ParseResult<T> {
+    pub items: Vec<T>,
+    pub errors: Vec<ParseError>,
+    pub some_file_path: Option<String>,
+    pub some_file_content: Option<String>,
+}
+``` , caption: [La struct décrivant un vecteur de résultat de type générique, incluant les erreurs trouvées. Le nom du fichier, si disponible et contenu sont inclus pour permettre l'affichage des erreurs])
+
+#figure(
+```rust
+pub trait FromDYBlock<'a> {
+    fn from_block_with_validation(block: &Block<'a>) -> (Vec<ParseError>, Self);
+}
+``` , caption: [Un trait (interface) `FromDYBlock` qui impose d'implémentater `from_block_with_validation`, utilisé sur chaque struct final associée à une spec DY])
+
+#figure(
+```rust
+pub fn parse_with_spec<'a, T>(
+    spec: &'a ValidDYSpec,
+    some_file: &Option<String>,
+    content: &'a str,
+) -> ParseResult<T>
+where
+    T: FromDYBlock<'a>,
+``` , caption: [])
+
+
+#figure(
+```rust
 pub fn parse_course(some_file: &Option<String>, content: &str) -> ParseResult<DYCourse> {
     parse_with_spec::<DYCourse>(
         &ValidDYSpec::new(COURSE_SPEC).expect("COURSE_SPEC is invalid !"),
@@ -135,26 +180,31 @@ C'est comme si on avait fusionné le code du parseur JSON et de son validateur, 
 
 En DY, la spec DY est le schéma et se définit directement en Rust au lieu d'être dans un fichier texte comme pour les schémas JSON. Cette spec DY est un paramètre du coeur du parseur qui va mixer l'extraction du contenu et une partie de sa validation en se basant sur cette spec.
 
-== Définition de la syntaxe DY
+== Etapes du coeur du parseur
 
+=== Catégorisation des lignes
+La première étape consiste à prendre le fichier brut, d'itérer sur chaque ligne.
+
+#figure(
+  image("../syntax/exo/exo.svg", width: 100%),
+  caption: [TODO `exo.dy`],
+)
+
+#figure(
+```rust
+Line { index: 0, slice: "exo Salue-moi", lt: WithKey(KeySpec 'exo')},
+Line { index: 1, slice: "Un petit programme qui te salue avec ton nom complet.", lt: Unknown},
+Line { index: 2, slice: "", lt: Unknown},
+Line { index: 3, slice: "check Il est possible d'être salué avec son nom complet", lt: WithKey(KeySpec 'check')},
+Line { index: 4, slice: "see Quel est ton prénom ?", lt: WithKey(KeySpec 'see') },
+Line { index: 5, slice: "type John", lt: WithKey(KeySpec 'type') },
+Line { index: 6, slice: "see Salut John, quel est ton nom de famille ?", lt: WithKey(KeySpec 'see')},
+Line { index: 7, slice: "type Doe", lt: WithKey(KeySpec 'type',) },
+Line { index: 8, slice: "see Passe une belle journée John Doe !", lt: WithKey(KeySpec 'see')},
+Line { index: 9, slice: "exit 0", lt: WithKey(KeySpec 'exit')},
+``` , caption: [Liste de lignes avec un index, la référence vers le morceau de texte de la ligne, ainsi que type de ligne `lt`])
 
 // todo tout spoiler dans les grandes lignes ici.
-=== Lignes directrices
-Ces lignes directrices sont la base de tous les choix de conceptions de la syntaxe.
-+ *Pas de tabulations ni d'espace en début de ligne*. Cela introduit le fameux débat des espaces versus tabulations. En utilisant des espaces, le nombre d'espaces devient configurable. Cela complexifie la collaboration et le démarrage. Les changements dans Git deviennent plus difficile à lire si deux enseignant·es n'utilisent pas les mêmes réglages.
-+ *Une seule manière de définir une chose*. Au lieu d'ajouter différentes variantes pour faire la même chose juste pour satisfaire différents style, ne garder qu'une seule possibilité. Dès que des variantes sont introduites, cela complexifie le parseur et l'apprentissage. Dans un cours PLX, il faut à nouveau se mettre d'accord sur le style.
-// + *Privilégier une limitation des mouvements du curseur*: lors de la rédaction d'un nouvel exercice, le curseur de l'éditeur ne devrait jamais avoir besoin de retourner en arrière.
-+ *Peu de caractères réservés, simple à taper et restreint à certains endroits*. Le moins de caractère réservés doivent être définis car cela pourra rentrer en conflit avec le contenu. Ils doivent toujours être possible dans des zones restreintes du texte, pour que ces contraintes puissent être détournées si nécessaire.
-+ *Pas de pairs caractères pour les caractères réservés*. Les caractères réservés ne doivent pas être `()`, `{}`, ou `[]` ou d'autres caractères qui vont toujours ensemble pour délimiter le début et la fin d'un élément. Ces pairs requièrent des mouvements de curseur plus complexe, pour aller une fois au début et une fois à la fin de la zone délimitée.
-+ *Une erreur ne doit pas empêcher le reste de l'extraction*
-+ *Privilégier la facilité plutôt de rédaction, plutôt que la facilité d'extraction*
-+ *La struct Rust des objets extraits ne doit pas contraindre la structure de rédaction*. Par exemple, pour une struct `Exo` avec deux champs `name` et `instruction` (consigne), ne doit pas contraindre la rédaction à l'usage de deux clés.
-
-L'usage d'un formatteur pourrait aider, sauf si une partie ne l'utilise pas.
-
-- No tabs at start of lines, because it introduces the tab vs space issue, the tab size when replaced by spaces, etc... The hierarchy should be represented by specific keyword marking the parent and child elements. it means the document can have formatting errors if the tabulation is not correct, thus requiring a formatter to fix these errors, thus making huge git diff if someone doesn't have or doesn't run this formatter...
-+ Réutiliser des concepts déjà utilisés dans d'autres formats quand ils sont concis: concept de clé comme le YAML, usage des commentaires en `//`
-+
 
 === Définition et contraintes des clés
 Les clés sont tirés du concept de clé/valeur du JSON. Une clé est une string en minuscule, contenant uniquement des caractères alphabétiques. Elle doit se trouver tout au début d'une ligne sans espace avant. Les clés introduisent une valeur et parfois le début d'un objet si elles contiennent d'autres clés enfants.
