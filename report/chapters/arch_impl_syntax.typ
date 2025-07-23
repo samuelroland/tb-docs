@@ -32,6 +32,20 @@ Tout le développement du parseur s'est fait en _Test Driven Development_ (TDD),
 
 L'extension de fichier recommendée est `.dy`. Ces fichiers doivent être encodés en UTF8 et le caractère de retour à la ligne doit être le `\n`.
 
+=== Librairies implémentées
+
+
+Nous ne voulons pas créer de parseur spécifique aux données d'un cours ni même des données de PLX. A la place, nous souhaitons pouvoir utiliser une abstraction qui nous permet de facilement définir des nouveaux objets en DY et avec le minimum de code pour l'extraire dans une struct Rust dédiée. Nous ne pouvons pas tout implémenter au même endroit, car cela demanderait de constamment changer la logique du parseur pour s'adapter à de nouvelles clés.
+
+L'implémentation est donc divisée en deux parties très claires: le coeur du parseur et les spécifications DY (appelées par la suite #quote("spec DY")). Les deux sont indispensables et leur combinaison permet de parser du contenu définit par un spec DY.
+
+Le projet PLX a maintenant 3 librairies. En plus de `plx-core` déjà présenté pour le développement du serveur, nous avons créé deux crate: le coeur du parseur dans la crate librairie `dy` et la spec DY pour PLX dans la crate librairie `plx-dy`. Cet dernière peut ainsi être utilisé par le CLI avec des fonctions haut-niveaux comme `parse_course()`.
+
+#figure(
+  image("../schemas/parser-libs-deps.png", width: 80%),
+  caption: [ ],
+) <escaped-exo>
+
 === Lignes directrices de conception
 Ces lignes directrices permettent de mieux comprendre certains choix de clés, de syntaxe ou de stratégie.
 + *Privilégier la facilité plutôt de rédaction, plutôt que la facilité d'extraction*: quand de nouveaux éléments syntaxiques sont ajoutés, l'optimisation de la rédaction est la priorité, face
@@ -195,7 +209,7 @@ figure(
 
 #figure(
   image("../syntax/specs/exo.spec.svg", width: 90%),
-  caption: [Aperçu graphique de la spec DY des exercices PLX. La clé `exo`, `check` et `see` sont obligatoires (`required`)],
+  caption: [Aperçu graphique de la spec DY des exercices PLX. La clé `exo`, `check` et `see` sont obligatoires (`required=true`). `args` et `exit` ne peut apparaître qu'une seule fois par check `once=true`. Seuls `exo` et `see` peuvent être donnés sur plusieurs lignes (`ValueType=Multiline`).],
 )
 
 
@@ -213,9 +227,6 @@ Tous les champs supportent le Markdown, cela signifie que les snippets de code e
 
 == Abstraction du coeur du parseur
 
-Nous ne voulons pas créer de parseur spécifique aux données d'un cours ni même des données de PLX. A la place, nous souhaitons pouvoir utiliser une abstraction qui nous permette de facilement définir des nouveaux objets en DY et avec le minimum de code pour l'extraire dans une struct Rust dédiée. Nous ne pouvons pas tout implémenter au même endroit, car cela demanderait de constamment changer la logique du parseur pour s'adapter à de nouvelles clés.
-
-L'implémentation est donc divisée en deux parties très claires: le coeur du parseur et les spécifications DY (appelées par la suite #quote("spec DY")). Les deux sont indispensables et leur combinaison permet de parser du contenu définit par un spec DY. L'implémentation est faite dans deux crates Rust: le coeur du parseur dans la crate `dy` et la spec DY pour PLX dans la crate `plx-dy`.
 
 #figure(
   image("../schemas/parser-core-specs-separation.png", width:100%),
@@ -232,7 +243,7 @@ pub fn parse_course(some_file: &Option<String>, content: &str) -> ParseResult<DY
         content,
     )
 }
-``` , caption: [Exemple d'usage de `parse_with_spec` pour définir la fonction `parse_course`]) <parse-with-spec-example>
+``` , caption: [Exemple d'usage de `parse_with_spec` pour définir la fonction `parse_course` dans la spec DY des cours]) <parse-with-spec-example>
 
 // todo update tout vers prg2 !!!
 
@@ -283,7 +294,7 @@ where
 
 
 === Catégorisation des lignes
-La première étape consiste à prendre le fichier brut, d'itérer sur chaque ligne et de catégoriser la ligne pour définir si elle contient une clé (`WithKey`) ou non (`Unknown`). Une liste de toutes les clés présente dans l'arbre `ValidDYSpec` est extraite. Pour ne comparer à chaque fois toutes les clés, elles sont regroupées par longueur dans une `HashMap`. A chaque ligne, on extrait le premier mot et on regarde uniquement les clés de même longeur que ce mot.
+La première étape consiste à prendre le fichier brut, d'itérer sur chaque ligne et de catégoriser la ligne pour définir si elle contient une clé (`WithKey`) ou non (`Unknown`). Une liste de toutes les clés présente dans l'arbre `ValidDYSpec` est extraite. Pour ne pas comparer à chaque fois toutes les clés, elles sont regroupées par longueur dans une `HashMap`. A chaque ligne, on extrait le premier mot et on regarde uniquement les clés de même longeur que ce mot.
 
 #figure(
   image("../syntax/exo/exo.svg", width: 100%),
@@ -318,20 +329,21 @@ Cet arbre représente la hiérarchie des clés et valeurs trouvées et respecte 
 
 Grâce à l'interface `FromDYBlock`, nous pouvons donner chaque bloc racine à la méthode `T::from_block_with_validation(&block)` afin qu'il puisse être converti en type `T` et générer d'autres erreurs si nécessaires. La liste d'erreur créé durant la construction de l'arbre de blocs 
 
+Pour finir l'exemple de 
 
+#figure(
+  text(size: 0.8em)[
 
+```rust
 
-=== Hiérarchie implicite
-Les fins de ligne définissent la fin du contenu pour les clés sur une seule ligne. La clé `exo` supporte plusieurs lignes, son contenu se termine ainsi dès qu'une autre clé valide est détecté (ici `check`). La hiérarchie est implicite dans la sémantique, un exercice contient un ou plusieurs checks, sans qu'il y ait besoin d'indentation ou d'accolades pour indiquer les relations de parents et enfants. De même, un check contient une séquence d'actions à effectuer (`run`, `see`, `type` et `kill`), ces clés n'ont de sens qu'à l'intérieur la définition d'un check (uniquement après une ligne avec la clé `check`).
+```], caption: [])
 
-TODO
-
-=== Détection d'erreurs générales
 
 == Usage de la syntaxe dans PLX
 La crate `plx-dy` définit les noms des fichiers dans lesquels se trouvent les définitions de nos 3 objets. Le cours est décrit dans `course.dy`, les compétences dans `skills.dy` et chaque exercice dans un fichier `exo.dy` dans son dossier à coté du code et de ses solutions. Le fichier `live.toml` est attendue à la racine également.
 #figure(
 ```
+plx-demo> tree
 .
 ├── README.md
 ├── course.dy
@@ -353,12 +365,8 @@ La crate `plx-dy` définit les noms des fichiers dans lesquels se trouvent les d
         └── main.sol.cpp
 ``` , caption: [Exemple de structure de fichiers pour un cours PLX de démonstration, avec 2 compétences et 3 exercices.])
 
-==== Détection d'erreurs spécifiques à PLX
-TODO
-
 TODO fix headings level
 
-== Implémentation de la librairie `dy`
 TODO
 
 == Intégration de `plx-dy`
@@ -387,17 +395,6 @@ Options:
   image("../syntax/course/course-parsed.svg", width: 100%),
   caption: [Equivalent extrait du parseur et affiché en JSON],
 )
-
-#pagebreak()
-#figure(
-  image("../syntax/course-error/course.svg", width: 100%),
-  caption: [Définition incorrecte d'un cours PLX dans un fichier `course.dy`.\ Le `goal` manque et le `code` doit être placé après la clé `course`.],
-)
-#figure(
-  image("../syntax/course-error/course-parsed.svg", width: 100%),
-  caption: [Les erreurs ont été détectées par le parseur],
-)
-
 #pagebreak()
 #figure(
   image("../syntax/skills/skills.svg", width: 100%),
@@ -407,16 +404,6 @@ Options:
   image("../syntax/skills/skills-parsed.svg", width: 100%),
   caption: [TODO],
 )
-#pagebreak()
-#figure(
-  image("../syntax/skills-error/skills.svg", width: 100%),
-  caption: [TODO `skills.dy`],
-)
-#figure(
-  image("../syntax/skills-error/skills-parsed.svg", width: 100%),
-  caption: [TODO],
-)
-
 
 #pagebreak()
 #figure(
@@ -425,6 +412,28 @@ Options:
 )
 #figure(
   image("../syntax/exo/exo-parsed.svg", width: 100%),
+  caption: [TODO],
+)
+
+
+=== Détection d'erreurs
+
+
+#figure(
+  image("../syntax/course-error/course.svg", width: 100%),
+  caption: [Définition incorrecte d'un cours PLX dans un fichier `course.dy`.\ Le `goal` manque et le `code` doit être placé après la clé `course`.],
+)
+#figure(
+  image("../syntax/course-error/course-parsed.svg", width: 100%),
+  caption: [Les erreurs ont été détectées par le parseur],
+)
+
+#figure(
+  image("../syntax/skills-error/skills.svg", width: 100%),
+  caption: [TODO `skills.dy`],
+)
+#figure(
+  image("../syntax/skills-error/skills-parsed.svg", width: 100%),
   caption: [TODO],
 )
 
@@ -437,6 +446,7 @@ Options:
   image("../syntax/exo-error/exo-parsed.svg", width: 100%),
   caption: [TODO],
 )
+
 
 
 // todo fix heading levels and names
