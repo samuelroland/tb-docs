@@ -43,8 +43,22 @@ Le projet PLX a maintenant 3 librairies. En plus de `plx-core` déjà présenté
 
 #figure(
   image("../schemas/parser-libs-deps.png", width: 80%),
-  caption: [ ],
-) <escaped-exo>
+  caption: [Aperçu des librairies en jeu, et des dépendences entre librairie et du CLI et de l'application desktop.],
+)
+// todo update tout vers prg2 !!!
+
+Le coeur du parseur ne connait _que_ le concept de clé, de leur hiérarchie, des propriétés et des commentaires. Il ne sait pas savoir quelles clés et propriétés seront utilisées au final. Une spec DY définit des clés et leur hiérarchie. Elle définit en Rust comment construire la struct final à partir du résultat du coeur du parseur. Elle peut aussi générer d'autres erreurs spécifiques si nécessaire.
+
+Pour faire un parallèle avec le JSON, son parseur est indépendant de son validateur de schéma (du projet JSON Schema @JsonSchemaWebsite), il est facile de déterminer où sont les clés et valeurs en JSON grâce au nombreux séparateurs (`:` et `"`). En DY, le coeur du parseur est incapable de déterminer si une ligne commence par une clé ou non, comme un clé n'est pas distinguable des autres mots tant que ce mot n'est pas définie comme une clé.
+
+C'est comme si on avait fusionné le code du parseur JSON et de son validateur, tout en ne donnant le schéma à valider qu'au moment de parser un document.
+
+En DY, la spec DY est le schéma et se définit directement en Rust au lieu d'être dans un fichier texte comme pour les schémas JSON. Cette spec DY est un paramètre du coeur du parseur qui va mixer l'extraction du contenu et une partie de sa validation en se basant sur cette spec.
+
+#figure(
+  image("../schemas/parser-core-specs-separation.png", width: 80%),
+  caption: [Séparation claire entre spec DY et coeur du parseur],
+)
 
 === Lignes directrices de conception
 Ces lignes directrices permettent de mieux comprendre certains choix de clés, de syntaxe ou de stratégie.
@@ -63,72 +77,15 @@ Dans l'état actuel, la syntaxe DY n'a pas de tabulations ni d'espace, aucun car
 
 // + Réutiliser des concepts déjà utilisés dans d'autres formats quand ils sont concis: concept de clé comme le YAML, usage des commentaires en `//`
 
-== Modèle de données de PLX et choix des clés
-Pour que l'application desktop de PLX fonctionne, nous avons besoin de décrire un cours, divisé en compétences, qui regroupent des exercices. Un exercice définit un ou plusieurs checks. Voici une liste des informations associés à ces quatres objets.
-+ *Un cours*: un nom (par exemple `Programmation 2`), un code (souvent il existe un raccourci du nom, comme `PRG2`) et une description de l'objectif du cours. Une liste de compétences.
-+ *Une compétence*: un nom, une description et un ensemble d'exercices. Une compétence peut aussi être une sous compétence, pour subdiviser une grande compétence en sous compétences plus spécifiques.
-+ *Un exercice*: un nom, une consigne et un ou plusieurs checks pour vérifier le comportement d'un programme.
-+ *Un check*: un nom, des arguments à passer au programme, un code d'exit attendu et une séquence d'actions/assertions à lancer. Une action peut être ce qu'on tape au clavier et une assertion concerne la vérification que l'output est correct.
+=== Commentaires
+Pour permettre de communiquer des informations supplémentaires durant la rédaction, les commentaires sont supportés et ne sont visibles que dans le fichier directement. Le parseur les ignore et ne se rappelle pas de leur position. Les commentaires ne peuvent être définits que sur une ligne dédiée, les 2 premiers caractères de la ligne doivent être `//` et le reste de la ligne est complètement libre. Le texte tel que `exo intro // c'est basique` n'est pas considéré comme un incluant commentaire, contrairement au C et d'autres langages.
 
-Nous avons ensuite défini la liste de clés et leur hiérarchie pour le modèle de données précédent, ainsi que les structs finales à remplir.
-#grid(columns: 2, gutter: 10pt,
-[
-Un cours
-  - `course` est le nom du cours
-    - `code` donne un raccourci du nom du cours
-    - `goal` pour l'objectif du cours, sur plusieurs lignes
-],
+=== Support du Markdown
+Tous les champs supportent le Markdown, cela signifie que les snippets de code en Markdown sont considérées comme du contenu par notre parseur. La zone concernée commence par #raw("```") ou `~~~`, elle est ignorée jusqu'à trouver le même marqueur. Ainsi, de potentielles clés ou commentaires présents ne sont pas considérés, ce qui permet de préserver les commentaires de code.
 
-figure(
-  ```rust
-  pub struct DYCourse {
-      pub name: String,
-      pub code: String,
-      pub goal: String,
-  }
-  ``` , caption: [Simple struct Rust pour un cours]),
-
-[
-Une compétence
-  - `skill` définit un nom la même ligne et une description optionnel sur les lignes suivantes.
-    - `dir` est le dossier dans lequels sont définis les exercices de cette compétences
-    - `subskill`: une sous compétence, pour découper en compétences plus spécifiques
-],
-figure(
-  ```rust
-  pub struct DYSkill {
-      pub name: String,
-      pub description: String,
-      pub directory: String,
-      pub subskills: Vec<DYSkill>,
-  }
-  ``` , caption: [Le nom et description sont séparés en deux champs pour les compétences]),
-  [ Un exercice
-  - `exo` définit un nom sur la même ligne et une consigne optionnel sur les lignes suivantes.
-    - `check` introduit le début d'un check avec un titre
-      - `args` définit les arguments du programme de l'exercice
-      - `see` demande à voir une ou plusieurs lignes en sortie standard. L'entrée peut être sur plusieurs lignes.
-      - `type` simule une entrée au clavier
-      - `exit` définit le code d'exit attendu, valeur optionnelle
-  ],
-figure(
-```rust
-pub enum TermAction {
-    See(String),
-    Type(String),
-}
-pub struct Check {
-    pub name: String,
-    pub args: Vec<String>,
-    pub exit: Option<i32>,
-    pub sequence: Vec<TermAction>,
-}
-pub struct DYExo {
-    pub name: String,
-    pub instruction: String,
-    pub checks: Vec<Check>,
-}
-``` , caption: [Définition d'un exercice, avec des checks et la séquence d'action])
+#figure(
+  image("../syntax/meta-exo/exo.svg", width: 90%),
+  caption: [Exercice avec une consigne qui contient un bloc de code contenant lui-même un autre exercice en DY.\ Le contenu du bloc de code n'est pas interprété et la consigne se termine avant le `check` colorisé],
 )
 
 === Définition et contraintes des clés
@@ -160,102 +117,7 @@ Les clés, créés dans une spec DY en Rust à l'aide de la struct `KeySpec`, po
 
 Une valeur ne peut être que de type string (ce qui nous permet d'éviter les guillements ou certaines ambiguités). Elle commence après la clé et se termine dès qu'une autre clé valide est trouvée ou que la fin du fichier est atteint. Si le type de valeur (attribut `vt`) est une ligne simple, alors le contenu s'arrête à la fin de la ligne, les lignes suivantes seront ignorées. Si celles-ci ne sont pas vides, cela causera une erreur de `InvalidMultilineContent`.
 
-== Définition d'une hiérarchie de clés en Rust
-
-Après avoir présenté les attributs de la struct `KeySpec`, voici un exemple concret de définition en Rust de spec DY. Nous avons défini sur le @speccourse une constante par clé, puis regroupés les clés `goal` et `code` en sous clés de `course`.
-
-#figure(
-```rust
-const GOAL_KEYSPEC: &KeySpec = &KeySpec {
-    id: "goal",
-    desc: "The goal key describes the learning goals of this course.",
-    subkeys: &[],
-    vt: ValueType::Multiline,
-    once: true,
-    required: true,
-};
-const CODE_KEYSPEC: &KeySpec = &KeySpec {
-    id: "code",
-    desc: "The code of the course is a shorter name of the course, under 10 letters usually.",
-    subkeys: &[],
-    vt: ValueType::SingleLine,
-    once: true,
-    required: true,
-};
-const COURSE_KEYSPEC: &KeySpec = &KeySpec {
-    id: "course",
-    desc: "A PLX course is grouping skills and exos related to a common set of learning goals.",
-    subkeys: &[CODE_KEYSPEC, GOAL_KEYSPEC],
-    vt: ValueType::SingleLine,
-    once: true,
-    required: true,
-};
-pub const COURSE_SPEC: &DYSpec = &[COURSE_KEYSPEC];
-``` , caption: [Exemple de définition en Rust de la spec DY des cours PLX, avec 3 `KeySpec` pour les 3 clés]) <speccourse>
-
-Le tableau de `KeySpec` final (alias de type `DYSpec`) de toutes les clés autorisées à la racine, doit encore être validé. Un type _wrapper_ `ValidDYSpec` permet de valider que chaque id de clé est bien unique.
-
-#grid(columns: 2, gutter: 10pt,
-figure(
-  image("../syntax/specs/course.spec.svg", width: 100%),
-  caption: [Aperçu graphique de la spec DY des cours.],
-),
-
-figure(
-  image("../syntax/specs/skills.spec.svg", width: 100%),
-  caption: [Aperçu graphique de la spec DY des compétences.],
-)
-)
-
-#figure(
-  image("../syntax/specs/exo.spec.svg", width: 90%),
-  caption: [Aperçu graphique de la spec DY des exercices PLX. La clé `exo`, `check` et `see` sont obligatoires (`required=true`). `args` et `exit` ne peut apparaître qu'une seule fois par check `once=true`. Seuls `exo` et `see` peuvent être donnés sur plusieurs lignes (`ValueType=Multiline`).],
-)
-
-
-
-=== Commentaires
-Pour permettre de communiquer des informations supplémentaires durant la rédaction, les commentaires sont supportés et ne sont visibles que dans le fichier directement. Le parseur les ignore et ne se rappelle pas de leur position. Les commentaires ne peuvent être définits que sur une ligne dédiée, les 2 premiers caractères de la ligne doivent être `//` et le reste de la ligne est complètement libre. Le texte tel que `exo intro // c'est basique` n'est pas considéré comme un incluant commentaire, contrairement au C et d'autres langages.
-
-=== Support du Markdown
-Tous les champs supportent le Markdown, cela signifie que les snippets de code en Markdown sont considérées comme du contenu par notre parseur. La zone concernée commence par #raw("```") ou `~~~`, elle est ignorée jusqu'à trouver le même marqueur. Ainsi, de potentielles clés ou commentaires présents ne sont pas considérés, ce qui permet de préserver les commentaires de code.
-
-#figure(
-  image("../syntax/meta-exo/exo.svg", width: 90%),
-  caption: [Exercice avec une consigne qui contient un bloc de code contenant lui-même un autre exercice en DY.\ Le contenu du bloc de code n'est pas interprété et la consigne se termine avant le `check` colorisé],
-)
-
-== Abstraction du coeur du parseur
-
-
-#figure(
-  image("../schemas/parser-core-specs-separation.png", width:100%),
-  caption: [Aperçu de l'abstraction du coeur du parseur et des specs DY],
-) <parser-core-specs-separation>
-
-
-#figure(
-```rust
-pub fn parse_course(some_file: &Option<String>, content: &str) -> ParseResult<DYCourse> {
-    parse_with_spec::<DYCourse>(
-        &ValidDYSpec::new(COURSE_SPEC).expect("COURSE_SPEC is invalid !"),
-        some_file,
-        content,
-    )
-}
-``` , caption: [Exemple d'usage de `parse_with_spec` pour définir la fonction `parse_course` dans la spec DY des cours]) <parse-with-spec-example>
-
-// todo update tout vers prg2 !!!
-
-Le coeur du parseur ne connait _que_ le concept de clé, de leur hiérarchie, des propriétés et des commentaires. Il ne sait pas savoir quelles clés et propriétés seront utilisées au final. Une spec DY définit des clés et leur hiérarchie. Elle définit en Rust comment construire la struct final à partir du résultat du coeur du parseur. Elle peut aussi générer d'autres erreurs spécifiques si nécessaire.
-
-Pour faire un parallèle avec le JSON, son parseur est indépendant de son validateur de schéma (du projet JSON Schema @JsonSchemaWebsite), il est facile de déterminer où sont les clés et valeurs en JSON grâce au nombreux séparateurs (`:` et `"`). En DY, le coeur du parseur est incapable de déterminer si une ligne commence par une clé ou non, comme un clé n'est pas distinguable des autres mots tant que ce mot n'est pas définie comme une clé.
-
-C'est comme si on avait fusionné le code du parseur JSON et de son validateur, tout en ne donnant le schéma à valider qu'au moment de parser un document.
-
-En DY, la spec DY est le schéma et se définit directement en Rust au lieu d'être dans un fichier texte comme pour les schémas JSON. Cette spec DY est un paramètre du coeur du parseur qui va mixer l'extraction du contenu et une partie de sa validation en se basant sur cette spec.
-
-== Etapes du coeur du parseur
+== Implémentation de la librairie `dy`
 
 Dans la @steps, la vue d'ensemble des étapes haut niveaux est présentées. Avec le type génLe contenu est découpé en ligne, 
 
@@ -339,8 +201,146 @@ Pour finir l'exemple de
 ```], caption: [])
 
 
-== Usage de la syntaxe dans PLX
-La crate `plx-dy` définit les noms des fichiers dans lesquels se trouvent les définitions de nos 3 objets. Le cours est décrit dans `course.dy`, les compétences dans `skills.dy` et chaque exercice dans un fichier `exo.dy` dans son dossier à coté du code et de ses solutions. Le fichier `live.toml` est attendue à la racine également.
+== Implémentation de `plx-dy`
+
+=== Modèle de données de PLX et choix des clés
+Pour que l'application desktop de PLX fonctionne, nous avons besoin de décrire un cours, divisé en compétences, qui regroupent des exercices. Un exercice définit un ou plusieurs checks. Voici une liste des informations associés à ces quatres objets.
++ *Un cours*: un nom (par exemple `Programmation 2`), un code (souvent il existe un raccourci du nom, comme `PRG2`) et une description de l'objectif du cours. Une liste de compétences.
++ *Une compétence*: un nom, une description et un ensemble d'exercices. Une compétence peut aussi être une sous compétence, pour subdiviser une grande compétence en sous compétences plus spécifiques.
++ *Un exercice*: un nom, une consigne et un ou plusieurs checks pour vérifier le comportement d'un programme.
++ *Un check*: un nom, des arguments à passer au programme, un code d'exit attendu et une séquence d'actions/assertions à lancer. Une action peut être ce qu'on tape au clavier et une assertion concerne la vérification que l'output est correct.
+
+Nous avons ensuite défini la liste de clés et leur hiérarchie pour le modèle de données précédent, ainsi que les structs finales à remplir.
+#grid(columns: 2, gutter: 10pt,
+[
+Un cours
+  - `course` est le nom du cours
+    - `code` donne un raccourci du nom du cours
+    - `goal` pour l'objectif du cours, sur plusieurs lignes
+],
+
+figure(
+  ```rust
+  pub struct DYCourse {
+      pub name: String,
+      pub code: String,
+      pub goal: String,
+  }
+  ``` , caption: [Simple struct Rust pour un cours]),
+
+[
+Une compétence
+  - `skill` définit un nom la même ligne et une description optionnel sur les lignes suivantes.
+    - `dir` est le dossier dans lequels sont définis les exercices de cette compétences
+    - `subskill`: une sous compétence, pour découper en compétences plus spécifiques
+],
+figure(
+  ```rust
+  pub struct DYSkill {
+      pub name: String,
+      pub description: String,
+      pub directory: String,
+      pub subskills: Vec<DYSkill>,
+  }
+  ``` , caption: [Le nom et description sont séparés en deux champs pour les compétences]),
+  [ Un exercice
+  - `exo` définit un nom sur la même ligne et une consigne optionnel sur les lignes suivantes.
+    - `check` introduit le début d'un check avec un titre
+      - `args` définit les arguments du programme de l'exercice
+      - `see` demande à voir une ou plusieurs lignes en sortie standard. L'entrée peut être sur plusieurs lignes.
+      - `type` simule une entrée au clavier
+      - `exit` définit le code d'exit attendu, valeur optionnelle
+  ],
+figure(
+```rust
+pub enum TermAction {
+    See(String),
+    Type(String),
+}
+pub struct Check {
+    pub name: String,
+    pub args: Vec<String>,
+    pub exit: Option<i32>,
+    pub sequence: Vec<TermAction>,
+}
+pub struct DYExo {
+    pub name: String,
+    pub instruction: String,
+    pub checks: Vec<Check>,
+}
+``` , caption: [Définition d'un exercice, avec des checks et la séquence d'action])
+)
+
+=== Définition d'une hiérarchie de clés en Rust
+
+Après avoir présenté les attributs de la struct `KeySpec`, voici un exemple concret de définition en Rust de spec DY. Nous avons défini sur le @speccourse une constante par clé, puis regroupés les clés `goal` et `code` en sous clés de `course`.
+
+#figure(
+```rust
+const GOAL_KEYSPEC: &KeySpec = &KeySpec {
+    id: "goal",
+    desc: "The goal key describes the learning goals of this course.",
+    subkeys: &[],
+    vt: ValueType::Multiline,
+    once: true,
+    required: true,
+};
+const CODE_KEYSPEC: &KeySpec = &KeySpec {
+    id: "code",
+    desc: "The code of the course is a shorter name of the course, under 10 letters usually.",
+    subkeys: &[],
+    vt: ValueType::SingleLine,
+    once: true,
+    required: true,
+};
+const COURSE_KEYSPEC: &KeySpec = &KeySpec {
+    id: "course",
+    desc: "A PLX course is grouping skills and exos related to a common set of learning goals.",
+    subkeys: &[CODE_KEYSPEC, GOAL_KEYSPEC],
+    vt: ValueType::SingleLine,
+    once: true,
+    required: true,
+};
+pub const COURSE_SPEC: &DYSpec = &[COURSE_KEYSPEC];
+``` , caption: [Exemple de définition en Rust de la spec DY des cours PLX, avec 3 `KeySpec` pour les 3 clés]) <speccourse>
+
+Le tableau de `KeySpec` final (alias de type `DYSpec`) de toutes les clés autorisées à la racine, doit encore être validé. Un type _wrapper_ `ValidDYSpec` permet de valider que chaque id de clé est bien unique.
+
+En suivant la même logique que précédemment, nous avons défini 3 hiérarchie de clés, avec les structures et contraintes de clés suivantes.
+#grid(columns: 2, gutter: 10pt,
+figure(
+  image("../syntax/specs/course.spec.svg", width: 100%),
+  caption: [Aperçu graphique de la spec DY des cours.],
+),
+
+figure(
+  image("../syntax/specs/skills.spec.svg", width: 100%),
+  caption: [Aperçu graphique de la spec DY des compétences.],
+)
+)
+
+#figure(
+  image("../syntax/specs/exo.spec.svg", width: 90%),
+  caption: [Aperçu graphique de la spec DY des exercices PLX. La clé `exo`, `check` et `see` sont obligatoires (`required=true`). `args` et `exit` ne peut apparaître qu'une seule fois par check `once=true`. Seuls `exo` et `see` peuvent être donnés sur plusieurs lignes (`ValueType=Multiline`).],
+)
+
+==== Fonctions publiques
+Chacune des 3 spécifications donne accès à une fonction haut niveau comme `parse_course`, `parse_skills` et `parse_exo`. Ces fonctions font simplement appel à `parse_with_spec`, comme le montre l'exemple en <parse-with-spec-example>.
+#figure(
+```rust
+pub fn parse_course(some_file: &Option<String>, content: &str) -> ParseResult<DYCourse> {
+    parse_with_spec::<DYCourse>(
+        &ValidDYSpec::new(COURSE_SPEC).expect("COURSE_SPEC is invalid !"),
+        some_file,
+        content,
+    )
+}
+``` , caption: [Exemple d'usage de `parse_with_spec` pour définir la fonction `parse_course` dans la spec DY des cours]) <parse-with-spec-example>
+
+
+== Intégration de `plx-dy`
+=== Structures de fichiers DY
+La crate `plx-dy` définit des constantes pour des fichiers dans lesquels se trouvent les définitions de nos 3 objets. Le cours est décrit dans `course.dy`, les compétences dans `skills.dy` et chaque exercice dans un fichier `exo.dy` dans son dossier à coté du code et de ses solutions. Le fichier `live.toml` est attendue à la racine également.
 #figure(
 ```
 plx-demo> tree
@@ -369,10 +369,10 @@ TODO fix headings level
 
 TODO
 
-== Intégration de `plx-dy`
+
+=== Intégration au CLI
 
 La première intégration a été faite dans le CLI (qui permet aussi de démarrer le serveur, pour rappel). Ce CLI est utile pour que les enseignant·es puissent vérifier que le contenu du contenu d'un cours PLX est valide. Dans le futur, il pourrait aussi servir à d'autres outils qui pourrait réutiliser le JSON généré, par exemple pour insérer les exercices dans une base de données.
-
 #figure(
 ```
 > plx parse -h
@@ -415,9 +415,7 @@ Options:
   caption: [TODO],
 )
 
-
-=== Détection d'erreurs
-
+== Détection d'erreurs
 
 #figure(
   image("../syntax/course-error/course.svg", width: 100%),
@@ -447,10 +445,8 @@ Options:
   caption: [TODO],
 )
 
-
-
 // todo fix heading levels and names
-=== Tests unitaires
+== Tests unitaires
 
 #figure(
 ```
@@ -534,14 +530,14 @@ exit blabla
 ```
 ``` , caption: [Aperçu des 32 tests unitaires développés pour les crates `dy` et `plx-dy`])
 
-
-
-== Conclusion
-// todo fix header level
-
-TODO add these ideas
-
-Grâce à la connaissance des clés à extraire, la hiérarchie peut être implicite.
-
-moins de chose représentée, juste les éléments des specs définis et peu de strucures de données. mais extensible via le post processing. chaque projet peut ainsi choisir de définir des éléments supplémentaires de post parsing.
+//
+//
+// == Conclusion
+// // todo fix header level
+//
+// TODO add these ideas
+//
+// Grâce à la connaissance des clés à extraire, la hiérarchie peut être implicite.
+//
+// moins de chose représentée, juste les éléments des specs définis et peu de strucures de données. mais extensible via le post processing. chaque projet peut ainsi choisir de définir des éléments supplémentaires de post parsing.
 
