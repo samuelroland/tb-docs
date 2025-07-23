@@ -265,7 +265,7 @@ Tous les `ClientManager` ont un _channel_ (flèche violette) vers les `SessionBr
   caption: [Aperçu des tâches tokio lancées et interactions possibles pour 5 clients et 1 session en cours.],
 ) <servers-tasks>
 
-Le `ClientManager`, lors de la réception d'un message, doit parser le JSON du message vers la structure `Action`. Une fois le message extrait, il doit vérifier que le rôle permet l'action ou alors renvoyer une erreur directement. Si la demande est autorisée et concerne la gestion de sessions alors il peut l'effectuer en utilisant une des méthodes de `SessionsManagement`, comme `get_sessions()` par exemple.
+Le `ClientManager`, lors de la réception d'un message, doit parser le JSON du message vers la structure `Action`. Une fois le message extrait, il doit vérifier que le rôle permet l'action ou alors renvoyer une erreur directement. Si la demande est autorisée et concerne la gestion de sessions alors il peut l'effectuer en utilisant une des méthodes de `SessionsManagement`, comme `get_sessions()` par exemple. Dans le cas d'un `SendFile`, si le clien est bien dans une session, il peut directement créer le `ForwardFile` et l'envoyer au `SessionBroadcaster` pour qu'il puisse l'envoyer à tous les leaders.
 
 Le `SessionsManagement` possède deux `HashMap` (tables de hachage avec clés/valeurs): la première contient des sessions regroupées par `group_id`. Chaque session contient évidemment le nom et `group_id`, mais également le `client_id` du créateur de la session et le dernier `client_num` attribué. Une seconde liste existe pour lier `client_id` de leader vers la session créée pour facilement retrouver la session dans la première liste.
 

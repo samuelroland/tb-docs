@@ -2085,9 +2085,9 @@
     {
       "id": "LQrsP88ggEFfRmy5P3aii",
       "type": "text",
-      "x": 2541.707427634254,
-      "y": 2851.237165980885,
-      "width": 59.279937744140625,
+      "x": 2543.2651288912916,
+      "y": 2846.839264366342,
+      "width": 177.83981323242188,
       "height": 25,
       "angle": 0,
       "strokeColor": "#1e1e1e",
@@ -2102,8 +2102,8 @@
       "index": "c0A7",
       "roundness": null,
       "seed": 332756916,
-      "version": 23,
-      "versionNonce": 764514700,
+      "version": 81,
+      "versionNonce": 1005647244,
       "isDeleted": false,
       "boundElements": [
         {
@@ -2111,26 +2111,26 @@
           "type": "arrow"
         }
       ],
-      "updated": 1753260014346,
+      "updated": 1753265557569,
       "link": null,
       "locked": false,
-      "text": "Lignes",
+      "text": "Lignes catégorisées",
       "fontSize": 20,
       "fontFamily": 6,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "Lignes",
+      "originalText": "Lignes catégorisées",
       "autoResize": true,
       "lineHeight": 1.25
     },
     {
       "id": "TIpSwLEh5xaM19M1gIX4Q",
       "type": "arrow",
-      "x": 2569.1220934391945,
-      "y": 2887.6800773892733,
+      "x": 2613.7545970004494,
+      "y": 2883.28217577473,
       "width": 0,
-      "height": 45.29784512151764,
+      "height": 56.292599157874974,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "#ffffff",
@@ -2146,11 +2146,11 @@
         "type": 2
       },
       "seed": 702294412,
-      "version": 274,
-      "versionNonce": 454734004,
+      "version": 364,
+      "versionNonce": 325268492,
       "isDeleted": false,
       "boundElements": null,
-      "updated": 1753260253442,
+      "updated": 1753265561071,
       "link": null,
       "locked": false,
       "points": [
@@ -2160,7 +2160,7 @@
         ],
         [
           0,
-          45.29784512151764
+          56.292599157874974
         ]
       ],
       "lastCommittedPoint": null,
@@ -2171,8 +2171,8 @@
       },
       "endBinding": {
         "elementId": "kTeOkgABtoRu-x6DztG79",
-        "focus": -0.014060175003070321,
-        "gap": 16.19318793200273
+        "focus": 0.34157730357266514,
+        "gap": 9.59633551018851
       },
       "startArrowhead": null,
       "endArrowhead": "triangle_outline",
