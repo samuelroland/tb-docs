@@ -19,9 +19,9 @@
 */
 #import "template/_title.typ": *
 #_title(TBtitle, TBsubtitle, TBacademicYears, TBdpt, TBfiliere, TBorient, TBauthor, TBsupervisor, TBindustryContact, TBindustryName, TBindustryAddress, confidential)
-// TODO renable this at the end
-#import "template/_second_title.typ": *
-#_second_title(TBtitle, TBacademicYears, TBdpt, TBfiliere, TBorient, TBauthor, TBsupervisor, TBindustryName, TBresumePubliable)
+// TODO renable this at the end, nope
+// #import "template/_second_title.typ": *
+// #_second_title(TBtitle, TBacademicYears, TBdpt, TBfiliere, TBorient, TBauthor, TBsupervisor, TBindustryName, TBresumePubliable)
 #include "template/_preambule.typ"
 
 #include "chapters/remerciements.typ"
