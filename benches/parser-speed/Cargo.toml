@@ -1,0 +1,7 @@
+[package]
+name = "parser-speed"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+plx-dy = { git = "https://github.com/samuelroland/dy" }
