@@ -12,11 +12,11 @@ plxWebsite:
   url: https://plx.rs
   date: 2025
   title: PLX website
-  author: Contributeurs de PLX
 
 # https://www.amazon.com/Peak-How-Achieve-Extraordinary-Things/dp/0143192795
 peakBook:
   type: Book
+  title: "Peak: How all of us can achieve extraordinary things"
   author:
     - Ericsson, Anders
     - Pool, Robert
@@ -30,21 +30,22 @@ PRG2RecueilExercicesGithub:
   url: https://github.com/PRG2-HEIGVD/PRG2_Recueil_Exercices/tree/1027428583bdfa68b6638d90eaca215ec0647317
   date: 2025-05-22
   title: GitHub - PRG2-HEIGVD/PRG2_Recueil_Exercices at 1027428583bdfa68b6638d90eaca215ec0647317
-  author: Enseignants de PRG2 à la HEIG-VD
+  author:
+    name: Enseignants de PRG2 à la HEIG-VD
 
 PRG2RecueilExercicesGithubExoString:
   type: Web
   url: https://github.com/PRG2-HEIGVD/PRG2_Recueil_Exercices/blob/1027428583bdfa68b6638d90eaca215ec0647317/C5_Chaines_de_caracteres/05-03-Op%C3%A9rations_sur_les_buffers.md
   date: 2024-03-19
   title: PRG2_Recueil_Exercices/C5_Chaines_de_caracteres/05-03-Opérations_sur_les_buffers.md at 1027428583bdfa68b6638d90eaca215ec0647317
-  author: Enseignants de PRG2 à la HEIG-VD
+  author:
+    name: Enseignants de PRG2 à la HEIG-VD
 
 TypstWebsite:
   type: Web
   url: https://typst.app/
   date: 2025
   title: "Typst: Compose papers faster"
-  author: Typst contributeurs
 
 JsonRfcIntro:
   type: Web
@@ -54,8 +55,7 @@ JsonRfcIntro:
   author:
     - Crockford, Douglas
     - Bray, Tim
-# Titre défini à la main, ça joue ?
-#
+
 JsonSchemaWebsite:
   type: Web
   url: https://json-schema.org/
@@ -97,7 +97,8 @@ KHIRSGithub:
 bitmarkAssociation:
   type: Web
   title: bitmark Association website
-  organization: bitmark Association
+  author:
+    name: bitmark Association
   date: 2025
   url: https://www.bitmark-association.org/
 bitmarkAssociationHackaton:
@@ -111,13 +112,14 @@ bitmarkDocs:
   type: Web
   title: bitmark Documentation
   author:
-    name: Association
-    prefix: bitmark
+    name: bitmark Association
   date: 2025
   url: https://docs.bitmark.cloud/
 
 bitmarkLicense:
   type: Web
+  author:
+    name: bitmark Association
   url: https://docs.bitmark.cloud/about/#license
   date: 2025
   title: About and Contact - bitmark Documentation - License
@@ -192,12 +194,7 @@ cooklangMention:
   author: Dubovskoy, Alexey
   date: 2025
   url: https://cooklang.org/
-# cooklangParserInRust:
-#   type: Web
-#   title: Canonical Cooklang parser in Rust
-#   author: Dubovskoy, Alexey
-#   date: 2025
-#   url: https://github.com/cooklang/cooklang-rs
+
 sdlangWebsite:
   type: Web
   title: SDLang, Simple Declarative Language
@@ -212,27 +209,17 @@ sdlangWebsiteReferenceStrings:
   url: https://github.com/dlang-community/SDLang-D/wiki/Language-Guide#string-literals
 kdlWebsite:
   type: Web
-  title: KDL, a cudlly document language
-  author: Kat Marchán (zkat), et contributeurs
+  title: KDL, a cuddly document language
+  author: Marchán, Kat
   date: 2025
   url: https://kdl.dev/
-
-# ronMention:
-#   type: Web
-#   title: Rusty Object Notation
-#   author:
-#     name: Ron
-#     given-name: Contributeurs
-#     prefix: de
-#   date: 2025
-#   url: https://github.com/ron-rs/ron
 
 PklLangWebsite:
   type: Web
   url: https://pkl-lang.org/
   date: 2025
   title: "Pkl :: Pkl Docs"
-  organization: Apple Inc
+  author: Apple Inc
 
 cratesIoParserTagsList:
   type: Web
@@ -255,7 +242,7 @@ SublimeHQSyntax:
 TextMateDocsLanguageGrammars:
   type: Web
   title: Language Grammars — TextMate 1.x Manual - Example Grammar
-  author: Ltd, MacroMates
+  author: MacroMates Ltd.
   url: https://macromates.com/manual/en/language_grammars#example_grammar
 TreeSitterWebsite:
   type: Web
@@ -281,7 +268,8 @@ TreeSitterGrammarDSL:
 neovimTSSupport:
   type: Web
   title: Neovim Documentation - Treesitter
-  author: ""
+  author:
+    name: Contributeurs de Neovim
   date: 2025
   url: https://neovim.io/doc/user/treesitter.html
 SirabenTreeSitterTuto:
@@ -293,37 +281,37 @@ SirabenTreeSitterTuto:
 TreeSitterUsageGithub:
   type: Web
   title: Navigating code on GitHub
-  author: Github, et contributeurs
+  author: Github
   date: 2025
   url: https://docs.github.com/en/repositories/working-with-files/using-files/navigating-code-on-github
 zedTSSupport:
   type: Web
   title: Language Extensions - Grammar
-  author: ""
+  author: Zed Industries
   date: 2025
   url: https://zed.dev/docs/extensions/languages?#grammar
 atomTSSupport:
   type: Web
   title: Creating a Grammar
-  author: ""
+  author: Github
   date: 2025
   url: https://flight-manual.atom-editor.cc/hacking-atom/sections/creating-a-grammar/
 textmateRegex:
   type: Web
-  title: ""
-  author: ""
+  title: Regular Expressions
+  author: MacroMates Ltd.
   date: 2025
   url: https://macromates.com/manual/en/regular_expressions
 vscodeSyntaxHighlighting:
   type: Web
-  title: ""
-  author: ""
+  title: Syntax Highlight Guide
+  author: Microsoft
   date: 2025
   url: https://code.visualstudio.com/api/language-extensions/syntax-highlight-guide
 ideaSyntaxHighlighting:
   type: Web
-  title: ""
-  author: ""
+  title: TextMate
+  author: Jetbrains
   date: 2025
   url: https://www.jetbrains.com/help/idea/textmate.html
 TSVSCodeWorkStart:
@@ -389,37 +377,34 @@ chumskyCratesio:
 pestCratesio:
   type: Web
   title: pest v2.8.0 The Elegant Parser
-  author: ""
+  author: Contributeurs
   date: 2025
   url: https://crates.io/crates/pest
 kdlrsDeps:
   type: Web
   title: Dependencies of kdl crate
-  author: ""
   date: 2025
   url: https://crates.io/crates/kdl/6.3.4/dependencies
 nomRevDeps:
   type: Web
   title: Reverse dependencies of nom crate
-  author: ""
   date: 2025
   url: https://crates.io/crates/nom/reverse_dependencies
 librsMostPopular:
   type: Web
   title: Most popular Rust libraries
-  author: ""
   date: 2025
   url: https://lib.rs/std
 serders:
   type: Web
   title: Overview - Serde
-  author: ""
+  author: Contributeurs
   date: 2025
   url: https://serde.rs/
 serdersDatamodel:
   type: Web
   title: Serde data model
-  author: ""
+  author: Contributeurs
   date: 2025
   url: https://serde.rs/data-model.html
 lspWebsite:
@@ -453,7 +438,7 @@ jsonrpcSpec:
   date: 2013
   url: https://www.jsonrpc.org/specification
 tinymistGithub:
-  type: Web
+  type: repository
   title: Tinymist [ˈtaɪni mɪst] is an integrated language service for Typst [taɪpst].
   author: Myriad-Dreamin, et contributeurs
   date: 2025
@@ -467,24 +452,19 @@ AsmLspCratesio:
 tinymistSyncLspImpl:
   type: Web
   title: sync-ls - Synchronized language service inspired by async-lsp, primarily for tinymist.
-  author: Myriad-Dreamin, et contributeurs
+  author: Myriad-Dreamin, contributeurs
   date: 2025
   url: https://crates.io/crates/sync-ls
 lspTypesCratesio:
   type: Web
   title: lsp-types v0.97.0 Types for interaction with a language server, using VSCode's Language Server Protocol
   author:
-    name: lsp-types
-    given-name: Contributeurs
-    prefix: de
+    name: Contributeurs de lsp-types
   date: 2024
   url: https://crates.io/crates/lsp-types
 lspTypesUses:
   type: Web
   title: Reverse dependencies of lsp-types crate
-  author:
-    name: organisation gluon-lang
-    given-name: et contributeurs
   date: 2024
   url: https://crates.io/crates/lsp-types/reverse_dependencies
 lspClientsList:
@@ -511,44 +491,44 @@ AsyncLspCratesio:
   author: oxalica, et contributeurs
   date: 2025
   url: https://crates.io/crates/async-lsp
+RustAnalyzerGithub:
+  type: Web
+  url: https://github.com/rust-lang/rust-analyzer
+  date: 2025
+  title: "GitHub - rust-lang/rust-analyzer: A Rust compiler front-end for IDEs"
+  author:
+    name: Contributeurs de rust-analyzer
+
 gotodefLspserver:
   type: Web
   title: rust-analyzer/lib/lsp-server/examples/goto_def.rs at master · rust-lang/rust-analyzer · GitHub
   author:
-    name: organisation rust-lang, et contributeurs
+    name: Contributeurs de rust-analyzer
   date: 2025
   url: https://github.com/rust-lang/rust-analyzer/blob/master/lib/lsp-server/examples/goto_def.rs
 LspServerCratesio:
   type: Web
   title: Reverse dependencies of lsp-server crate
-  author:
-    name: organisation
-    given-name: et contributeurs
-    prefix: rust-lang
   date: 2024
   url: https://crates.io/crates/lsp-server/reverse_dependencies
 TowerLspCratesio:
   type: Web
   title: Reverse dependencies of tower-lsp crate
-  author: Eyal Kalderon, et contributeurs
+  author: Kalderon, Eyal et contributeurs
   date: 2023
   url: https://crates.io/crates/tower-lsp/reverse_dependencies
 TowerLspServerCratesio:
   type: Web
   title: tower-lsp-server v0.21.1 Language Server Protocol implementation based on Tower
   author:
-    name: organisation
-    given-name: et contributeurs
-    prefix: tower-lsp-community
+    name: Contributeurs de tower-lsp-community
   date: 2025
   url: https://crates.io/crates/tower-lsp-server
 EclipseJdtlsGithub:
   type: Web
   title: "GitHub - eclipse-jdtls/eclipse.jdt.ls: Java language server"
   author:
-    name: organisation
-    given-name: et contributeurs
-    prefix: eclipse-jdtls
+    name: Contributeurs de eclipse-jdtls
   date: 2025
   url: https://github.com/eclipse-jdtls/eclipse.jdt.ls
 TailwindcssIntellisenseGithub:
@@ -561,9 +541,7 @@ TypescriptLanguageServerGithub:
   type: Web
   title: "GitHub - typescript-language-server/typescript-language-server: TypeScript & JavaScript Language Server"
   author:
-    name: organisation
-    given-name: et contributeurs
-    prefix: typescript-language-server
+    name: Contributeurs de typescript-language-server
   date: 2025
   url: https://github.com/typescript-language-server/typescript-language-server
 ProtobufWebsite:
@@ -576,40 +554,34 @@ ProstGithub:
   type: Web
   title: "GitHub - tokio-rs/prost: PROST! a Protocol Buffers implementation for the Rust Language"
   author:
-    name: contributeurs
-    prefix: tokio-rs organisation et
-  date: 2025
+    name: Contributeurs de tokio-rs
   url: https://github.com/tokio-rs/prost
 TonicGithub:
   type: Web
   title: "GitHub - hyperium/tonic: A native gRPC client &amp; server implementation with async/await support."
   author:
-    name: contributeurs
-    prefix: hyperium organisation et
+    name: Contributeurs de tonic
   date: 2025
   url: https://github.com/hyperium/tonic
 GrpcWebsite:
   type: Web
   title: gRPC - A high performance, open source universal RPC framework
   author:
-    name: Authors
-    prefix: gRPC
+    name: Contributeurs de gRPC
   date: 2025
   url: https://grpc.io/
 GrpcDocs:
   type: Web
   title: Supported languages | gRPC
   author:
-    name: Authors
-    prefix: gRPC
+    name: Contributeurs de gRPC
   date: 2025
   url: https://grpc.io/docs/languages/
 GrpcDocsIntro:
   type: Web
   title: Introduction to gRPC | gRPC
   author:
-    name: Authors
-    prefix: gRPC
+    name: Contributeurs de gRPC
   date: 2025
   url: https://grpc.io/docs/what-is-grpc/introduction/
 GrpcBlogStateOfGrpcWeb:
@@ -621,7 +593,8 @@ GrpcBlogStateOfGrpcWeb:
 EventSourceStreamMax:
   type: Web
   title: EventSource - Web APIs | MDN
-  author: Contributors, MDN
+  author:
+    name: Contributeurs de MDN
   date: 2025
   url: https://developer.mozilla.org/en-US/docs/Web/API/EventSource
 DocsRSSerdeJson:
@@ -633,16 +606,15 @@ DocsRSSerdeJson:
 DocsRSSerdeJsonConJsonVal:
   type: Web
   title: serde_json - Constructing JSON values
-  author: ""
+  author:
+    name: Contributeurs de serde_json
   date: 2025
   url: https://docs.rs/serde_json/latest/serde_json/index.html#constructing-json-values
 MsgpackWebsite:
   type: Web
   title: "MessagePack: It's like JSON. but fast and small."
   author:
-    name: contributeurs
-    given-name: Benoist Claassen
-    prefix: et
+    name: Claassen Benoist, et Contributeurs de serde_json
   date: 2025
   url: https://msgpack.org/
 CapnprotoWebsite:
@@ -654,57 +626,49 @@ CapnprotoWebsite:
 TarpcGithub:
   type: Web
   title: "GitHub - google/tarpc: An RPC framework for Rust with a focus on ease of use."
-  author:
-    name: contributeurs
-    prefix: google organisation et
+  author: Google
   date: 2025
   url: https://github.com/google/tarpc
 ThriftWebsite:
   type: Web
   title: Apache Thrift - Home
-  author: ""
+  author:
+    name: Contributeurs de Apache Thrift
   date: 2025
   url: https://thrift.apache.org/
 WebsocketCratesio:
   type: Web
   title: websocket
   author:
-    name: contributeurs
-    prefix: websockets-rs organisation et
+    name: Contributeurs de websocket
   date: 2025
   url: https://crates.io/crates/websocket
 AutobahnTestsuiteGithub:
   type: Web
   title: "GitHub - crossbario/autobahn-testsuite: Autobahn WebSocket protocol testsuite"
   author:
-    name: contributeurs
-    prefix: crossbario organisation et
+    name: Contributeurs
   date: 2025
   url: https://github.com/crossbario/autobahn-testsuite
 TungsteniteCratesio:
   type: Web
   title: Lightweight stream-based WebSocket implementation
   author:
-    name: contributeurs
-    given-name: Snapview GmbH
-    prefix: et
+    name: Snapview GmbH
   date: 2025
   url: https://crates.io/crates/tungstenite
 TokioTungsteniteCratesio:
   type: Web
   title: tokio-tungstenite
   author:
-    name: contributeurs
-    given-name: Snapview GmbH
-    prefix: et
+    name: Snapview GmbH
   date: 2025
   url: https://crates.io/crates/tokio-tungstenite
 FastwebsocketsCratesio:
   type: Web
   title: fastwebsockets
   author:
-    name: contributeurs
-    prefix: denoland organisation et
+    name: denoland
   date: 2025
   url: https://crates.io/crates/fastwebsockets
 WSRFC:
@@ -762,13 +726,6 @@ VSCodeUpdateWithTsExperimental:
   date: 2025-03
   title: March 2025 (version 1.99) - Tree-Sitter based syntax highlighting (Preview)
 
-PlxDocsStatus:
-  type: Web
-  url: https://plx.rs/book/status.html
-  date: 2025
-  title: Project status - PLX docs
-  author: Contributeurs de PLX
-
 RustlingsWebsite:
   type: Web
   url: https://rustlings.rust-lang.org/
@@ -795,14 +752,15 @@ GolingsGithub:
   url: https://github.com/mauricioabreu/golings
   date: 2025
   title: GitHub - mauricioabreu/golings":" rustlings but for golang this time
-  author: mauricioabreu organisation et contributeurs
+  author: mauricioabreu, et contributeurs
 
 CodebergZiglings:
   type: Web
   url: https://codeberg.org/ziglings/exercises
   date: 2025
   title: "ziglings/exercises: Learn the ⚡Zig programming language by fixing tiny broken programs. - Codeberg.org"
-  author: Contributeurs de ziglings
+  author:
+    name: Contributeurs de ziglings
 
 JonasloosBibtexToHayagrivaWebapp:
   type: Web
@@ -810,20 +768,6 @@ JonasloosBibtexToHayagrivaWebapp:
   date: 2025
   title: BibTeX to Hayagriva
   author: jonasloos
-
-languagetoolWebsite:
-  type: Web
-  url: https://languagetool.org
-  date: 2025
-  title: Free AI Grammar Checker - LanguageTool
-  author: Learneao
-
-HEIGVDTypstTemplateForTBGithub:
-  type: Web
-  url: https://github.com/DACC4/HEIG-VD-typst-template-for-TB
-  date: 2025
-  title: "GitHub - DACC4/HEIG-VD-typst-template-for-TB: This template is a typst version of a LaTeX template for the travail de bachlor (TB) used at the HEIG-VD."
-  author: DACC4 et contributeurs
 
 PlxBookLogo:
   type: Web
@@ -890,7 +834,7 @@ ElectronJs:
   url: https://1password.github.io/typeshare/
   date: 2024-10
   title: Overview - The Typeshare Book
-  organization: 1Password
+  author: 1Password
 
 TauriSpectaCratesio:
   type: Web
@@ -913,4 +857,27 @@ NeovimWebsite:
   url: https://neovim.io/
   date: 2025
   title: Home - Neovim
-  author: ???
+  author:
+    name: Contributeurs de Neovim
+
+TokioTasksDocs:
+  type: Web
+  url: https://docs.rs/tokio/latest/tokio/task/
+  date: 2025
+  title: tokio::task - Asynchronous green-threads.
+  author:
+    name: Contributeurs de tokio-rs
+
+DelibayDocsSyntax:
+  type: Web
+  url: https://delibay.org/docs/use/dy-syntax
+  date: 2024
+  title: The Delibay project - DY syntax
+  author: Roland, Samuel
+
+DelibayDocsParser:
+  type: Web
+  url: https://delibay.org/docs/dev/parser
+  date: 2024
+  title: The Delibay project - DY parser
+  author: Roland, Samuel

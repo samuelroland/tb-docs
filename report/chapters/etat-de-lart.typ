@@ -265,7 +265,7 @@ Par défaut, avec un nouveau langage, il faut manuellement lancer le compilateur
 
 Le support d'un éditeur consiste à intégrer les erreurs du parseur, l'autocomplétion, les propositions de corrections, des informations au survol... et de nombreuses petites fonctionnalités qui améliorent l'expérience de rédaction. L'avantage d'avoir les erreurs de compilation directement soulignées dans l'éditeur, c'est de pouvoir voir les erreurs dans leur contexte et de corriger immédiatement les problèmes. Supporter chaque éditeur de code indépendamment signifie travailler avec des API légèrement différentes pour supporter la même fonctionnalité et utiliser plusieurs langages de programmation différents.
 
-Les développeur·euses de nouveaux IDE font face à un défi similaire, mais encore plus difficile, celui de supporter des centaines de langages pour qu'un maximum de monde puisse développer avec. Microsoft était face au même problème pour son éditeur VSCode et a inventé un protocole, nommé `Language Server Protocol (LSP)` @lspWebsite. Ce protocole définit un pont commun entre un client LSP implémenté à l'interne de chaque IDE et un serveur LSP, appelé serveur de langage (_language server_). L'IDE peut ainsi demander de manière unique des informations, tel que _Donne moi les résultats d'autocomplétion pour le curseur à cette position_ sans devoir supporter des détails du langage édité. Le projet a pour but de simplifier la vie des développeur·euses de nouveaux langages et des nouveaux éditeurs qui peuvent intégrer rapidement des centaines de langages en implémentant "juste" un client LSP.
+Les développeur·euses de nouveaux IDE font face à un défi similaire, mais encore plus difficile, celui de supporter des centaines de langages pour qu'un maximum de monde puisse développer avec. Microsoft était face au même problème pour son éditeur VSCode et a inventé un protocole, nommé `Language Server Protocol (LSP)` @lspWebsite. Ce protocole définit un pont commun entre un client LSP implémenté à l'interne de chaque IDE et un serveur LSP, appelé serveur de langage (_language server_). L'IDE peut ainsi demander de manière unique des informations, tel que _Donne moi les résultats d'autocomplétion pour le curseur à cette position_ sans devoir supporter des détails du langage édité. Le projet a pour but de simplifier la vie des développeur·euses de nouveaux langages et des nouveaux éditeurs qui peuvent intégrer rapidement des centaines de langages en implémentant "juste" un client LSP. @lspSpec
 
 Les serveurs de langages tournent dans des processus séparés de l'éditeur, ce qui permet de ne pas imposer de langage de programmation. Le client LSP se charge de lancer le processus du serveur, de lancer des requêtes et d'intégrer les données des réponses dans leur interface visuelle. Les serveurs de langage n'ont aucune idée de l'éditeur qui leur demande des informations et ils n'en ont pas besoin puisque le protocole définit les réponses attendues en retour.
 
@@ -295,8 +295,8 @@ Content-Length: ...\r\n
 ) <jsonRpcExample>
 
 Quelques exemples de serveurs de langages implémentés en Rust
-- `rust-analyzer`, serveur de langage officiel du langage Rust
-- `tinymist`, serveur de langage de Typst (système d'édition de document, concurrent du Latex, utilisé pour la rédaction de ce rapport)
+- `rust-analyzer` serveur de langage officiel du langage Rust @RustAnalyzerGithub
+- `tinymist` @tinymistGithub, serveur de langage de Typst (système d'édition de document, concurrent du Latex, utilisé pour la rédaction de ce rapport)
 - `asm-lsp` @AsmLspCratesio, permet d'inclure des erreurs dans du code assembleur
 
 D'autres exemples de serveurs de langages implémentés dans d'autres langages
