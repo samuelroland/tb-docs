@@ -159,8 +159,6 @@ export interface ExoCheckResult {
 
 == Implémentation du client
 
-// todo schéma architecture globale du client
-
 Le client a été développé dans le _frontend_ de PLX pour simplifier l'implémentation. En effet, une partie des messages pourrait être envoyée depuis la librairie, par exemple dès qu'un résultat de check est disponible. Et une autre partie viendrait de l'interface graphique via les boutons de gestion de sessions. Nous ne pouvons pas avoir deux connexions WebSocket séparées, les messages du _frontend_ devrait donc passer par des commandes Tauri pour arriver sur le socket géré en Rust. Pour les actions de sessions, cela peut fonctionner mais cela devient difficile à gérer lorsqu'il faut attendre des événements comme `ForwardFile` et `ForwardResult` sur le websocket et en même temps de continuer de pouvoir envoyer des actions comme `StopSession`.
 
 Après avoir tenté l'approche précédente, gérer tout le client dans le _frontend_ s'est révelé beaucoup plus simple. Au final, l'entrainement dans une session live ne fait de différence que dans l'interface. Le backend de l'application desktop n'a pas besoin de se préoccuper de savoir si l'exercice est fait seul·e ou dans une session live. A la réception de résultats des checks ou d'erreurs de compilation, le _frontend_ se charge d'envoyer des actions `SendFile` et `SendResult`.
@@ -168,11 +166,15 @@ Après avoir tenté l'approche précédente, gérer tout le client dans le _fron
 === Implémentation du tableau de bord
 Avant de présenter l'implémentation technique, voici un aperçu du tableau de bord réalisé pour les clients leaders et des changements d'interface pour les clients followers.
 
-*Screenshots à venir, quand l'interface aura été un poil amélioré et que le switch d'exo fonctionnera*.
+#figure(
+  image("../imgs/session-creation.png", width: 60%),
+  caption: [Création de la session, avec un nom `jack`],
+) <fig-session-creation>
 
-todo création de session
-
-todo rejoindre la session
+#figure(
+  image("../imgs/join-session.png", width: 60%),
+  caption: [Il est possible de rejoindre la session `jack`, les sessions du cours sont listées],
+) <fig-join-session>
 
 todo les stats
 
