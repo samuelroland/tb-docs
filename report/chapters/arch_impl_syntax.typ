@@ -22,6 +22,12 @@ struct DYCourse {
 )
 Dans la @course-basic, les clés sont `course`, `code` et `goal`, chaque clé introduit une valeur. Le but est de remplir la struct Rust du @rust-course-struct avec ces valeurs.
 
+Nous souhaitons aussi intégrer une validation du document à notre parseur et de permettre un affichage dans ce style de la @styleerror.
+#figure(
+  image("../syntax/course-error/course-parsed.svg", width: 80%),
+  caption: [Exemple d'affichage d'erreurs],
+) <styleerror>
+
 Cette idée de syntaxe légère et optimisée pour l'écriture par des humains peut être utile à d'autres projets ou d'autres exercices en dehors de la programmation, le but n'est pas de construire un parseur spécifique à PLX. Nous cherchons à mettre en place une abstraction qui nous permet rapidement d'intégrer cette syntaxe dans un autre contexte qui souhaite utiliser des fichiers textes structurés. La syntaxe DY se base d'un côté sur une hiérarchie de clés, qui est fournie au coeur du parseur afin d'extraire le contenu et de le valider en partie. Pour des erreurs plus spécifiques que la vérification des contraintes définies sur les clés, il est possible de définir en Rust des validations plus avancées.
 
 Pour la détection d'erreurs, si on adoptait l'approche des compilateurs de langages de programmation qui échoue la compilation à la moindre erreur, l'expérience serait très frustrante. Au moindre exercice mal retranscrit parmi une centaine présents, tout le cours serait inaccessible dans l'interface de PLX. Nous préférons au contraire accepter d'avoir des objets partiels (un exercice avec un titre vide, mais une consigne et des checks valides par exemple) et d'afficher les erreurs dans l'interface pour avertir des erreurs présentes. Les parties érronées ne sont pas extraites pour ne pas impacter le reste des données valides.
@@ -33,6 +39,32 @@ Le parseur prend en entrée une `String` directement et n'est pas responsable d'
 Tout le développement du parseur s'est fait en _Test Driven Development_ (TDD), qui s'est révélé très facile à mettre en place comme chaque étape possède des entrées et sorties bien définies.
 
 L'extension de fichier recommandée est `.dy`. Ces fichiers doivent être encodés en UTF8 et le caractère de retour à la ligne doit être le `\n`.
+
+=== Définition et contraintes des clés
+Les clés sont tirées du concept de clé/valeur du JSON. Une clé est une string en minuscule, contenant uniquement des caractères alphabétiques. Elle doit se trouver tout au début d'une ligne sans espace. Si un caractère existe après la clé, il ne peut être que l'espace ou le retour à la ligne `\n`. Ainsi `coursetest` ne contient pas la clé `course`. Les clés introduisent une valeur et parfois le début d'un objet si elles contiennent d'autres clés enfants.
+
+Dans l'exemple de la @keys-example, les clés sont `course`, `code` et `goal`. La clé `course` introduit une valeur (le nom du cours) et un objet (le cours) qui contiendra les valeurs tirées des clés enfants (`code` et `goal`). Les types de valeurs introduites sont toujours une string qui s'étend au maximum sur une seule ligne ou sur plusieurs. La clé `code` introduit la valeur `PRG1`, qui ne peut être définie que sur une ligne, car un code raccourci ne peut pas contenir de retour à la ligne. La valeur de la clé `goal` peut s'étendre sur plusieurs lignes.
+#figure(
+  image("../syntax/keys-example/course.svg", width: 80%),
+  caption: [Exemple d'usage de clés et de leur hiérarchie avec un cours PLX],
+) <keys-example>
+
+Si du contenu devait contenir un mot qui est aussi utilisé pour une clé il suffit de ne pas le placer au début d'une ligne. Ajouter un espace devant le mot suffit à respecter cette contrainte comme le démontre la @escaped-exo. Cet espace supplémentaire n'aura pas d'impact sur l'affichage si le Markdown est interprété en HTML, puisque le rendu graphique d'un navigateur ignore les double espaces.
+
+#figure(
+  image("../syntax/escaped-exo/exo.svg", width: 80%),
+  caption: [Exemple de consigne avec un mot en début de ligne qui est aussi une clé, ici `check` échappé par un espace],
+) <escaped-exo>
+
+En Rust, les clés sont définies grâce à la struct `KeySpec` définie par la librairie `dy`. Cette struct contient tous les attributs suivants à définir obligatoirement pour que le code compile. Cette déclaration des clés n'est que déclarative, elle ne contient pas de code.
++ `id`: Le texte de la clé (exemple `course`), qui doit être unique pour toute la spec DY, en minuscule et avec des caractères alphabétiques uniquement.
++ `desc`: Une description qui sert à documenter le but de la clé, qui sera utile pour la documentation au survol et l'autocomplétion pour le futur serveur de langage.
++ `subkeys`: un vecteur de sous-clés possibles, qui peut être vide.
++ `vt`: Un type de valeur, soit ligne simple ou multiple, défini via l'enum `ValueType`.
++ `once`: champ booléen qui définit si la clé ne peut se retrouver qu'une fois dans chaque objet de la clé parent ou du document si la clé est à la racine. L'erreur `DuplicatedKey` est créée si la clé est trouvée plus d'une fois.
++ `required`: si la clé doit exister au moins une fois dans tout objet de la clé parent et si une valeur est requise pour la clé. Si ces contraintes ne sont pas respectées, des erreurs `MissingRequiredKey` ou `MissingRequiredValue` sont générées.
+
+Une valeur ne peut être que de type string. Elle commence après la clé et se termine dès qu'une autre clé valide est trouvée ou que la fin du fichier est atteint. Si le type de valeur (attribut `vt`) est une ligne simple, alors le contenu s'arrête à la fin de la ligne, les lignes suivantes ne sont pas incluses et générent des erreurs `InvalidMultilineContent` si elles ne sont pas vides.
 
 === Librairies implémentées
 
@@ -87,35 +119,10 @@ Tous les champs supportent le Markdown. La syntaxe du Markdown n'est pas interpr
   caption: [Exercice avec une consigne qui contient un bloc de code, contenant lui-même un autre exercice en DY. Le contenu du bloc de code n'est pas interprété et la consigne se termine avant le `check` colorisé],
 )
 
-=== Définition et contraintes des clés
-Les clés sont tirées du concept de clé/valeur du JSON. Une clé est une string en minuscule, contenant uniquement des caractères alphabétiques. Elle doit se trouver tout au début d'une ligne sans espace. Si un caractère existe après la clé, il ne peut être que l'espace ou le retour à la ligne `\n`. Ainsi `coursetest` ne contient pas la clé `course`. Les clés introduisent une valeur et parfois le début d'un objet si elles contiennent d'autres clés enfants.
-
-Dans l'exemple de la @keys-example, les clés sont `course`, `code` et `goal`. La clé `course` introduit une valeur (le nom du cours) et un objet (le cours) qui contiendra les valeurs tirées des clés enfants (`code` et `goal`). Les types de valeurs introduites sont toujours une string qui s'étend au maximum sur une seule ligne ou sur plusieurs. La clé `code` introduit la valeur `PRG1`, qui ne peut être définie que sur une ligne, car un code raccourci ne peut pas contenir de retour à la ligne. La valeur de la clé `goal` peut s'étendre sur plusieurs lignes.
-#figure(
-  image("../syntax/keys-example/course.svg", width: 80%),
-  caption: [Exemple d'usage de clés et de leur hiérarchie avec un cours PLX],
-) <keys-example>
-
-Si du contenu devait contenir un mot qui est aussi utilisé pour une clé il suffit de ne pas le placer au début d'une ligne. Ajouter un espace devant le mot suffit à respecter cette contrainte comme le démontre la @escaped-exo. Cet espace supplémentaire n'aura pas d'impact sur l'affichage si le Markdown est interprété en HTML, puisque le rendu graphique d'un navigateur ignore les double espaces.
-
-#figure(
-  image("../syntax/escaped-exo/exo.svg", width: 80%),
-  caption: [Exemple de consigne avec un mot en début de ligne qui est aussi une clé, ici `check` à échapper par un espace],
-) <escaped-exo>
-
-En Rust, les clés sont définies grâce à la struct `KeySpec` définie par la librairie `dy`. Cette struct contient tous les attributs suivants à définir obligatoirement pour que le code compile. Cette déclaration des clés n'est que déclarative, elle ne contient pas de code.
-+ `id`: Le texte de la clé (exemple `course`), qui doit être unique pour toute la spec DY, en minuscule et avec des caractères alphabétiques uniquement.
-+ `desc`: Une description qui sert à documenter le but de la clé, qui sera utile pour la documentation au survol et l'autocomplétion pour le futur serveur de langage.
-+ `subkeys`: un vecteur de sous-clés possibles, qui peut être vide.
-+ `vt`: Un type de valeur, soit ligne simple ou multiple, défini via l'enum `ValueType`.
-+ `once`: champ booléen qui définit si la clé ne peut se retrouver qu'une fois dans chaque objet de la clé parent ou du document si la clé est à la racine. L'erreur `DuplicatedKey` est créée si la clé est trouvée plus d'une fois.
-+ `required`: si la clé doit exister au moins une fois dans tout objet de la clé parent et si une valeur est requise pour la clé. Si ces contraintes ne sont pas respectées, des erreurs `MissingRequiredKey` ou `MissingRequiredValue` sont générées.
-
-Une valeur ne peut être que de type string. Elle commence après la clé et se termine dès qu'une autre clé valide est trouvée ou que la fin du fichier est atteint. Si le type de valeur (attribut `vt`) est une ligne simple, alors le contenu s'arrête à la fin de la ligne, les lignes suivantes ne sont pas incluses et générent des erreurs `InvalidMultilineContent` si elles ne sont pas vides.
 
 == Implémentation de la librairie `dy`
 
-Dans la @steps, la vue d'ensemble des étapes haut niveaux est présentées. Le point d'entrée `parse_with_spec<T>` va lancer les différentes étapes: le contenu est découpé en ligne pour les catégoriser (processus inspiré d'un lexer/tokenizer), puis un arbre de blocs est construit (inspiré du concept de l'analyse syntaxique dans la construction d'un compilateur classique). Cet arbre représente la hiérarchie valide des instances des clés trouvées dans le document avec les lignes constituant la valeur associée à la clé. Chaque bloc à la racine de l'arbre est converti ensuite vers la struct Rust, via du code défini par la spec DY.
+Dans la @steps, la vue d'ensemble des étapes haut niveaux est présentée. Le point d'entrée `parse_with_spec<T>`, avec `T` le type générique de la struct Rust de résultat (`DYCourse` par exemple). Cette fonction va lancer les différentes étapes: le contenu est découpé en un vecteur de lignes pour les catégoriser (processus inspiré d'un lexer/tokenizer), puis un arbre de blocs est construit (inspiré du concept de l'analyse syntaxique dans la construction d'un compilateur classique). Cet arbre représente la hiérarchie valide des instances des clés trouvées dans le document avec les lignes constituant la valeur associée à la clé. Chaque bloc à la racine de l'arbre est converti ensuite vers la struct Rust, via du code défini par la spec DY.
 
 #figure(
   image("../schemas/parser-steps.png", width: 90%),
@@ -154,7 +161,9 @@ pub trait FromDYBlock<'a> {
 
 === Types d'erreurs
 
-Les erreurs stockées dans `ParseResult`, présenté précédemment en @parseresult, sont de types `ParseError` visibles en @parseerrors. Chaque erreur contient un `Range`, type tirés de la crate `lsp-types` qui définit une plage de caractères entre un caractère de début et de fin, afin de définir la zone à surligner lors de l'affichage de l'erreur. Cette plage sera aussi utilisé dans le futur serveur de langage pour indiquer à l'éditeur quel zone doit être soulignée de vaguelettes rouges.
+Les erreurs stockées dans `ParseResult`, présenté précédemment en @parseresult, sont de types `ParseError` visibles en @parseerrors. Chaque erreur contient un `Range`, type tirés de la crate `lsp-types`, qui définit une plage de caractères entre un caractère de début et de fin, afin de définir la zone à surligner lors de l'affichage de l'erreur. Cette plage sera aussi utilisée dans le futur serveur de langage pour indiquer à l'éditeur quelle zone doit être soulignée de vaguelettes rouges.
+
+Nous avons défini deux catégories d'erreurs: les erreurs structurelles basées sur la définition des contraintes sur les clés et les erreurs spécifiques à la spec DY, avec la variante `ValidationError` qui a été définie pour cet usage. Ainsi, l'implémentation de `FromDYBlock` peut générer des erreurs avec cette variante. Les messages d'erreurs associés au variantes seront visibles plus loin lorsque la liste des erreurs seront exemplifiées.
 
 #figure(
 ```rust
@@ -178,9 +187,8 @@ pub enum ParseErrorType {
     #[error("{0}")]
     ValidationError(String),
 }
-``` , caption: [Définition de `ParseError` et extrait simplifié de `ParseErrorType`. Dans le code, chaque variante possède une `#[error]` qui définit son message (retirés ici pour alléger le schéma).]) <parseerrors>
+``` , caption: [Définition de `ParseError` et extrait simplifié de `ParseErrorType`. Dans le code, chaque variante possède une `#[error]` qui définit son message (retirés ici pour alléger le schéma). Cette énumération contient les variantes pour les erreurs structurelles puis la seule variante pour les erreurs spécifiques.]) <parseerrors>
 
-Pour que le code pour chaque implémentation de `FromDYBlock` puisse également générer des erreurs spécifiques, une variante `ValidationError` a été définie pour cet usage.
 
 === Catégorisation des lignes
 La première étape consiste à prendre le contenu brut, d'itérer sur chaque ligne et de catégoriser la ligne pour définir si elle contient une clé (`WithKey`) ou non (`Unknown`). Une liste de toutes les clés présente dans l'arbre `ValidDYSpec` est extraite avant ce parcours. Pour ne pas comparer toutes les clés à chaque ligne, elles sont regroupées par longueur dans une `HashMap`. A chaque ligne, on extrait le premier mot et on regarde uniquement les clés de même longeur que ce mot.
@@ -206,25 +214,25 @@ Line { index: 8, slice: "see Passe une belle journée John Doe !", lt: WithKey(K
 Line { index: 9, slice: "exit 0", lt: WithKey(KeySpec 'exit')},
 ```], caption: [Liste de lignes avec un index, la référence vers le morceau de texte de la ligne, ainsi que type de ligne `lt`]) <somelines>
 
-A ce stade, aucune analyse de la hiérarchie des clés et effectuée, nous cherchons seulement à distinguer les lignes avec clé du reste, pour mieux générer certaines erreurs durant la phase suivante. Par exemple si une clé n'est pas au bon endroit (prenons le `code` d'un cours avant le `cours`), elle risque d'être considéré simplement contenu en dehors d'objets `ContentOutOfKey` alors que nous aimerions être plus spécifique avec l'erreur `WrongKeyPosition`. En parcourant la hiérarchie de clé plus tard, nous ne pouvons pas détecter que `code` est en fait une clé valide, même si ce n'est pas la bonne position, car la définition de la clé se trouve sous la définition de la clé `course`.
+À ce stade, aucune analyse de la hiérarchie des clés et effectuée, nous cherchons seulement à distinguer les lignes avec clé du reste, pour mieux générer certaines erreurs durant la phase suivante. Par exemple si une clé n'est pas au bon endroit (prenons le `code` d'un cours avant la clé `cours`), elle risque d'être considéré simplement du contenu invalide non associé à une clé (`ContentOutOfKey`) alors que nous aimerions être plus spécifique avec l'erreur `WrongKeyPosition`, qui a trouvé une clé mais pas à la bonne position. De par la manière de parcourir la hiérarchie de clé durant la construction de l'arbre de blocs, nous ne pouvons pas détecter que `code` est en fait une clé valide, même si ce n'est pas la bonne position. La définition de la clé `code` se trouve sous la définition de la clé `course` et elle ne sera pas prise en compte tant qu'une clé `course` n'a pas été rencontrée.
 
 === Construction d'un arbre de blocs
-Cet arbre représente la hiérarchie des clés et valeurs trouvées et respecte en tout temps la hiérarchie de `ValidDYSpec`. Un bloc contient le texte extrait (sous forme de vecteur de lignes), la plage du contenu concerné (`Range`) et une référence vers la définition de la clé associée au bloc. Les erreurs recontrées au fur et à mesure n'impacte pas cet arbre et sont insérées dans une liste d'erreurs séparées. Les commentaires ne sont pas inclus.
+Cet arbre représente la hiérarchie des clés et valeurs trouvées et respecte en tout temps la hiérarchie de `ValidDYSpec`. Un bloc contient le texte extrait (sous forme de vecteur de lignes), la plage du contenu concerné (`Range`) et une référence vers la définition de la clé associée au bloc. Les erreurs rencontrées au fur et à mesure n'impacte pas cet arbre et sont insérées dans une liste d'erreurs séparées. Les commentaires ne sont pas inclus.
 
 #figure(
   image("../syntax/blocks/salue-moi-blocks.svg", width:100%),
-  caption: [Arbre de blocs généré à partir des lignes du @somelines, les blocs sont ordrés de haut en bas.],
+  caption: [Arbre de blocs généré à partir des lignes du @somelines, l'ordre des blocs est de haut en bas.],
 )
 
 === Conversion vers la struct T
 
-Grâce à l'interface `FromDYBlock`, implémenté pour le type générique `T` passé à `parse_with_spec`, nous pouvons donner chaque bloc racine à la méthode `T::from_block_with_validation(&block)` afin qu'il puisse être converti en type `T`. La liste d'erreur retournée étend la liste récupérée par la construction de l'arbre de blocs. Finalement, les erreurs sont triées par début de plage dans le fichier, pour permettre de les afficher de haut en bas et faciliter la lecture. Si la position de départ de l'erreur est la même entre deux erreurs, le type de l'erreur est utilisé comme second critère de comparaison.
+Grâce à l'interface `FromDYBlock`, implémenté pour le type générique `T` passé à `parse_with_spec`, nous pouvons donner chaque bloc racine à la méthode `T::from_block_with_validation(&block)` afin qu'il puisse être converti en type `T`. La liste d'erreur retournée étend la liste récupérée par la construction de l'arbre de blocs. Finalement, les erreurs sont triées par position de début dans le fichier, pour permettre de les afficher de haut en bas et faciliter la lecture d'une longue liste d'erreurs. Si cette position est la même entre deux erreurs, le type de l'erreur est utilisé comme second critère de comparaison.
 
 == Implémentation de `plx-dy`
 
 === Modèle de données de PLX et choix des clés
-Pour que l'application desktop de PLX fonctionne, nous avons besoin de décrire un cours, divisé en compétences, qui regroupent des exercices. Un exercice définit un ou plusieurs checks. Voici une liste des informations associés à ces quatres objets.
-+ *Un cours*: un nom (par exemple `Programmation 2`), un code (souvent il existe un raccourci du nom, comme `PRG2`) et une description de l'objectif du cours. Une liste de compétences.
+Pour que l'application desktop de PLX fonctionne, nous avons besoin de décrire un cours, divisé en compétences, qui regroupent des exercices. Un exercice définit un ou plusieurs checks. Voici une liste des informations associées à ces quatre objets.
++ *Un cours*: un nom (par exemple `Programmation 2`), un code (il existe souvent un raccourci du nom, comme `PRG2`) et une description de l'objectif du cours. Une liste de compétences.
 + *Une compétence*: un nom, une description et un ensemble d'exercices. Une compétence peut aussi être une sous compétence, pour subdiviser une grande compétence en sous compétences plus spécifiques.
 + *Un exercice*: un nom, une consigne et un ou plusieurs checks pour vérifier le comportement d'un programme.
 + *Un check*: un nom, des arguments à passer au programme, un code d'exit attendu et une séquence d'actions/assertions à lancer. Une action peut être ce qu'on tape au clavier et une assertion concerne la vérification que l'output est correct.
@@ -233,7 +241,7 @@ Nous avons ensuite défini la liste de clés et leur hiérarchie pour le modèle
 #grid(columns: 2, gutter: 10pt,
 [
 Un cours
-  - `course` est le nom du cours
+  - `course` est le nom du cours, qui sera intégré au champ `name` de la struct
     - `code` donne un raccourci du nom du cours
     - `goal` pour l'objectif du cours, sur plusieurs lignes
 ],
@@ -249,9 +257,9 @@ figure(
 
 [
 Une compétence
-  - `skill` définit un nom la même ligne et une description optionnel sur les lignes suivantes.
-    - `dir` est le dossier dans lequels sont définis les exercices de cette compétences
-    - `subskill`: une sous compétence, pour découper en compétences plus spécifiques
+  - `skill` définit un nom la même ligne et une description optionnelle sur les lignes suivantes. Cette valeur ira dans le champ `name` et `description` de la struct.
+    - `dir` est le dossier dans lequel sont définis les exercices de cette compétence
+    - `subskill` une sous compétence, pour découper en compétences plus spécifiques
 ],
 figure(
   ```rust
@@ -263,12 +271,12 @@ figure(
   }
   ``` , caption: [Le nom et description sont séparés en deux champs pour les compétences]),
   [ Un exercice
-  - `exo` définit un nom sur la même ligne et une consigne optionnel sur les lignes suivantes.
+  - `exo` définit un nom sur la même ligne et une consigne optionnel sur les lignes suivantes. Ces deux informations iront dans le champ `name` et `instruction` de la struct.
     - `check` introduit le début d'un check avec un titre
       - `args` définit les arguments du programme de l'exercice
       - `see` demande à voir une ou plusieurs lignes en sortie standard. L'entrée peut être sur plusieurs lignes.
       - `type` simule une entrée au clavier
-      - `exit` définit le code d'exit attendu, valeur optionnelle
+      - `exit` définit le code d'exit attendu, qui est une valeur optionnelle
   ],
 figure(
 ```rust
@@ -417,13 +425,13 @@ plx-demo> tree
 ``` , caption: [Exemple de structure de fichiers pour un cours PLX de démonstration, avec 2 compétences `intro` et `structs` et 3 exercices (sous-dossiers dans les compétences)])
 
 === Intégration à PLX desktop
-Le parseur a été intégré à `plx-core` dans les fichiers `src/models/course.rs` et `src/models/exo.rs`, au lieu de lire des fichiers TOML, les fichiers DY sont maintenant utilisés. Certains fichiers TOML existent encore mais ne servent qu'à gérer de l'état d'un exercice (terminé ou non) et sont ne sont modifiés que par PLX. L'interface affiche les cours, compétences et exercices comme avant ce travail, la migration a complètement fonctionnée. En plus, on affiche un compteur d'erreurs pour indiquer leur présence, tout en permettant l'entrainement du cours. Bien sûr, si le cours ou les compétences ne sont pas définis, il n'est pas possible de l'ouvrir, mais ces erreurs ne sont pas liées au parseur. Dans le futur, les détails des erreurs pourront facilement être affichés dans cette interface, pour les personnes qui préfère une interface graphique à l'usage du CLI.
+Le parseur a été intégré à `plx-core` dans les fichiers `src/models/course.rs` et `src/models/exo.rs`, au lieu de lire des fichiers TOML, les fichiers DY sont maintenant utilisés. Certains fichiers TOML existent encore, mais ne servent qu'à gérer de l'état d'un exercice (terminé ou non) et ne sont modifiés que par PLX. L'interface affiche les cours, compétences et exercices comme avant ce travail, la migration a fonctionné. Un compteur du nombre d'erreurs sera affiché dans l'interface pour indiquer leur présence, tout en permettant l'entrainement du cours. Bien sûr, si le cours ou les compétences ne sont pas définis, il n'est pas possible de l'ouvrir, mais ces erreurs ne sont pas liées au parseur. Dans le futur, les détails des erreurs pourront facilement être affichés dans cette interface, pour les personnes qui préfèrent une interface graphique à l'usage du CLI.
 
 // todo fix button
 
 === Intégration au CLI
 
-La première intégration a été faite dans le CLI (qui permet aussi de démarrer le serveur, pour rappel). Ce CLI est utile pour que les enseignant·es puissent vérifier que le contenu du contenu d'un cours PLX est valide. Dans le futur, il pourrait aussi servir à d'autres programmes qui souhaiterait réutiliser ce contenu sans intégrer le parseur Rust mais en utilisant le JSON généré.
+La première intégration a été faite dans le CLI (qui permet aussi de démarrer le serveur, pour rappel). Ce CLI est utile pour que les enseignant·es puissent vérifier que le contenu d'un cours PLX est valide. Dans le futur, il pourrait aussi servir à d'autres programmes qui souhaiterait réutiliser ce contenu sans intégrer le parseur Rust, mais en utilisant le JSON généré.
 #figure(
 ```
 > plx parse -h
@@ -447,6 +455,7 @@ Si un fichier `course.dy` est donnée à la commande `plx parse`, la fonction `p
   image("../syntax/course/course-parsed.svg", width: 90%),
   caption: [Résultat du parsing du cours affiché en JSON],
 )
+
 Si un fichier `skills.dy` est donnée à la commande `plx parse`, la fonction `parse_skills` est appelée.
 #figure(
   image("../syntax/skills/skills.svg", width: 90%),
@@ -456,8 +465,6 @@ Si un fichier `skills.dy` est donnée à la commande `plx parse`, la fonction `p
   image("../syntax/skills/skills-parsed.svg", width: 70%),
   caption: [Résultat du parsing des compétences affichées en JSON],
 )
-
-#pagebreak()
 
 Si un fichier `exo.dy` est donnée à la commande `plx parse`, la fonction `parse_exo` est appelée.
 #figure(
@@ -469,17 +476,17 @@ Si un fichier `exo.dy` est donnée à la commande `plx parse`, la fonction `pars
   caption: [Résultat du parsing de l'exercice affiché en JSON],
 )
 
-Tout nom de fichier autre que les trois mentionnés sera refusé, car aucune autre spec DY n'existe. Ces affichages se produise lorsqu'aucune erreur est détectée.
+Tout nom de fichier autre que les trois mentionnés sera refusé par le CLI, car aucune autre spec DY n'existe. Ces affichages se produise lorsqu'aucune erreur est détectée.
 
 A noter que tous les messages d'erreurs ou les messages de succès sont envoyés sur le flux `stderr`. Ceci permet d'utiliser le JSON en `stdout` par d'autres outils sans devoir séparer le message du JSON.
 
 == Détection d'erreurs
 
-Après avoir vu les cas de contenu valides, voici une liste exemplifiée de toutes les types d'erreurs qui peuvent être détectés. En cas d'erreur détectées, le CLI échoue le code d'exit 2. En cas d'erreur non liées au parseur (fichier inexistant par exemple), le code d'exit est 1.
+Après avoir vu les cas de contenu valides, voici une liste exemplifiée de toute les types d'erreurs qui peuvent être détectés. En cas d'erreur détectée, le CLI échoue le code d'exit 2. En cas d'erreur non liée au parseur (fichier inexistant par exemple), le code d'exit est 1.
 
 #figure(
   image("../syntax/course-error/course.svg", width: 100%),
-  caption: [Exemple erroné de `course.dy`: Définition incorrecte d'un cours PLX dans un fichier `course.dy`.\ Le `goal` manque et le `code` doit être placé après la clé `course`.],
+  caption: [Exemple erroné de `course.dy`: Définition incorrecte d'un cours PLX dans un fichier `course.dy`.\ La clé `goal` manque et le `code` doit être placé après la clé `course`.],
 )
 #figure(
   image("../syntax/course-error/course-parsed.svg", width: 100%),
@@ -490,7 +497,7 @@ Après avoir vu les cas de contenu valides, voici une liste exemplifiée de tout
 
 #figure(
   image("../syntax/skills-error/skills.svg", width: 100%),
-  caption: [Exemple erroné de `skills.dy`: Le dossier `dir` est obligatoire et ne peut pas être donné sur plusieurs lignes. Le nom d'un compétence ne peut pas être vide.],
+  caption: [Exemple erroné de `skills.dy`: Le dossier `dir` est obligatoire et ne peut pas être donné sur plusieurs lignes. Le nom d'une compétence ne peut pas être vide.],
 )
 #figure(
   image("../syntax/skills-error/skills-parsed.svg", width: 100%),
@@ -510,7 +517,7 @@ Après avoir vu les cas de contenu valides, voici une liste exemplifiée de tout
 
 Dans cette dernière @exoerrors, la dernière erreur est particulièrement intéressante. Nous disions en section @lignes-conception que seul le type string était nativement supporté et là nous avons une erreur sur le type qui doit être un entier 32 bits signé. La ligne directrice a été respectée, cette erreur a été généré dans l'implémentation de `FromDYBlock` sur `DYExo`. Le problème d'ambiguïté entre les strings et les nombres n'existe pas dans ce cas comme ce nombre n'est possible que après la clé `exit`.
 
-Sur l'extrait du @parseexitcode, lorsque le sous bloc correspond à la clé `exit`, le text est parsé en `i32` (le type Rust d'entier signé 32bits). Le code d'exit doit être initialisé à une valeur par défaut (ici `None`). Si le parsing du nombre échoue, l'erreur spécifique avec le message défini dans la constante `ERROR_CANNOT_PARSE_EXIT_CODE`, est ajouté à la liste des erreurs via la variante `ParseErrorType::ValidationError`. Le plage de l'erreur est le plage de la valeur, ce qui produit ces marqueurs `^^^` juste sous le `one`.
+Sur l'extrait du @parseexitcode, lorsque le sous bloc correspond à la clé `exit`, le texte est parsé en `i32` (le type Rust d'entier signé 32bits). Le code d'exit doit être initialisé à une valeur par défaut (ici `None`). Si le parsing du nombre échoue, l'erreur spécifique avec le message défini dans la constante `ERROR_CANNOT_PARSE_EXIT_CODE`, est ajouté à la liste des erreurs via la variante `ParseErrorType::ValidationError`. La plage de l'erreur est le plage de la valeur, ce qui produit ces marqueurs `^^^` juste sous le `one`.
 
 #text(size:0.9em)[
 
@@ -538,7 +545,7 @@ if check_subblock_id == EXIT_KEYSPEC.id {
 // todo fix heading levels and names
 == Tests unitaires
 
-Tout le développement du parseur s'est fait en _Test Driven Development_ (TDD), ce qui a facilité le refactoring et a permis de valider chaque étape. Un parseur ayant souvent de nombreux cas limites, au vu de l'infinité des possibilités de représentations, il est indispensable de tester chaque erreur générée et chaque condition implémentée.
+Tout le développement du parseur s'est fait en _Test Driven Development_ (TDD), ce qui a facilité la refactorisation et nous a permis de valider chaque étape. Un parseur ayant souvent de nombreux cas limites, au vu de l'infinité des possibilités de représentations, il est indispensable de tester chaque erreur générée et chaque condition implémentée.
 
 #figure(
 ```
