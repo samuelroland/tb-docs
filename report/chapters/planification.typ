@@ -38,15 +38,15 @@ En se basant sur le calendrier des travaux de Bachelor, voici un aperçu du déc
 - Rédaction du rapport final.
 
 == Planification finale
-La rédaction du rapport de l'état de l'art a pris beaucoup de temps au début du projet, en plus de la finition du cahier des charges, pour bien creuser les cinq sujets concernés par ce travail. Le nombre important de technologies à investiguer, en parallèle du développement des POCs, a retardé la spécification du protocole de communication et de la syntaxe DY.
+La rédaction du rapport de l'état de l'art a pris beaucoup de temps au début du projet. En plus de la finition du cahier des charges, nous avons creuser les cinq sujets concernés par ce travail et a été chronophage. Le nombre important de technologies à investiguer, en parallèle du développement des POCs, a retardé la spécification du protocole de communication et de la syntaxe DY.
 
-De manière générale, la rédaction du rapport a pris important dans ce travail. Pour apprendre petit à petit à mieux contextualiser, à expliquer d'abord les problèmes puis les solutions, il a fallu passer par de multiples relectures et éditions, demander des retours à d'autres personnes et intégrer ces retours.
+De manière générale, la rédaction du rapport a pris une part importante dans ce travail. Pour apprendre petit à petit à mieux contextualiser, à expliquer d'abord les problèmes puis les solutions, il a fallu passer par de multiples relectures et éditions, demander des retours à d'autres personnes et intégrer ces retours.
 
 L'écriture des tests de validation du protocole, qui était prévue avant de commencer le serveur, s'est finalement intégrée au développement du serveur. Cela avait plus du sens d'écrire les tests au fur et à mesure que les nouveaux messages du protocole étaient définis pour s'adapter aux nombreux ajustements des structures de données et de l'architecture.
 
 Après la préparation du développement du serveur qui a permis de spécifier le protocole et le comportement attendu du client et du serveur, le développement a été plus rapide que prévu. Nous pensions passer deux semaines de développement et une semaine pour les tests et de rapport. Au final, l'historique Git nous montre que c'est plutôt en une semaine, entre le 24 juin et le 30 juin, que la majorité du serveur a pu être mise en place. Cela n'a pas permis de prendre de l'avance sur le programme, car l'intégration dans l'application desktop de PLX n'a pas été évidente.
 
-Heureusement, la deuxième partie de développement autour de notre syntaxe DY a été également plus courte que prévu. Entre le 13 et 18 juillet, le développement du parseur de son intégration dans PLX desktop et dans un CLI ont pu être menés à bien.
+Heureusement, la deuxième partie de développement autour de notre syntaxe DY a été également plus courte que prévu. Entre le 13 et 18 juillet, le développement du parseur puis son intégration dans PLX desktop et dans le CLI ont pu être menés à bien.
 
 Malgré ces décalages, nous avons réussi à développer et documenter tous les éléments planifiés.
 

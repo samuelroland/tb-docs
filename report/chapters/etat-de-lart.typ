@@ -780,7 +780,7 @@ Starting to send check's result every 2000 ms
 Sending another check result
 ``` , caption: [Le `student` compile le code de `fake-exo`, exécute le check, puis envoie le résultat.])
 
-Le message envoyé, visible en @check-result-details contient le chemin du fichier, un statut `IncorrectOutput` qui contient la sortie éronnée et le contenu du code.
+Le message envoyé, visible en @check-result-details contient le chemin du fichier, un statut `IncorrectOutput` qui contient la sortie érronée et le contenu du code.
 #figure(
 ```json
 {
@@ -788,7 +788,7 @@ Le message envoyé, visible en @check-result-details contient le chemin du fichi
   "status": { "IncorrectOutput": { "stdout": "Hello, world!\n" } },
   "code": "// Just print \"Hello <name> !\" where <name> comes from argument 1\nfn main() {\n    println!(\"Hello, world!\");\n}\n"
 }
-``` , caption: [Le résultat éronné puisque l'exercice n'est pas encore implémenté.]) <check-result-details>
+``` , caption: [Le résultat érroné puisque l'exercice n'est pas encore implémenté.]) <check-result-details>
 
 Le serveur sur le S1 affiche `Forwarded one message to teacher`.
 #figure(
