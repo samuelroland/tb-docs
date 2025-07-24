@@ -267,8 +267,6 @@ Le code est exécuté sur le serveur et l'édition se fait dans le navigateur da
 
 Ces solutions existantes sont intéressantes mais ne couvrent qu'une partie des besoins de PLX. Le plus gros manque est l'impossibilité de faire des sessions live.
 
-#pagebreak()
-// ici c'est bien fait
 == Glossaire
 La rédaction du rapport s'est permise un certain nombre d'anglicismes quand un équivalent français n'existe pas. Certaines constructions de programmations bien connues comme les `strings` au lieu d'écrire `chaînes de caractères` sont également utilisées. Certaines sont spécifiques à certains langages et sont décrites ci-dessous pour aider à la lecture.
 

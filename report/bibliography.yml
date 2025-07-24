@@ -129,7 +129,8 @@ classtimeUsingBitmark:
   url: https://youtu.be/XegSepmkSnU?t=96
   date: 2022-04-04
   title: How bitmark helps Classtime to import and export learning content efficiently
-  author: todo
+  author:
+    name: bitmark Association
 
 ClasstimeDocs:
   type: Web

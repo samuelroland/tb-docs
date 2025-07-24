@@ -6,8 +6,6 @@ Cette section explore l'état de l'art de cinq sujets liés aux deux défis de c
 Pour conclure ces recherches, le défi du serveur de session live a demandé d'explorer les *protocoles de communication bidirectionnels*, pour nous permettre d'envoyer et de recevoir des messages en temps réel. Ce dernier sujet inclut aussi une comparaison entre *formats textes et binaires de sérialisation* des messages.
 
 En plus de la comparaison des solutions existantes, quelques *POCs* sont développés pour découvrir et tester le fonctionnement des solutions choisies. L'implémentation est disponible dans le dossier `pocs` du repository Git de la documentation du projet. Ce dossier est accessible sur #link("https://github.com/samuelroland/tb-docs/tree/main/pocs").
-// TODO: lien qqepart des 2-3 repos ?
-
 
 == Format de données humainement éditables existants
 
@@ -226,7 +224,6 @@ La diminution de la verbosité des syntaxes décrites précédemment est intére
 
 Ces améliorations sont déjà un gain important, mais il est possible d'aller encore plus loin, en sacrifiant une partie des structures de données. Notre syntaxe DY propose une approche encore plus légère. En se limitant à un ensemble de clés autorisées avec une hiérarchie définie, nous pouvons exprimer la hiérarchie du document sans nécessiter de tabulations ni d'accolades et valider le document directement durant le parsing.
 
-#pagebreak()
 == Librairies de parsing en Rust
 // todo mieux expliquer le challenge
 Après s'être intéressé aux syntaxes existantes, nous nous intéressons maintenant aux solutions pour simplifier le développement du parseur DY. Après quelques recherches avec le tag `parser` sur crates.io @cratesIoParserTagsList, j'ai trouvé la liste de librairies suivantes :
@@ -253,7 +250,6 @@ Le @harddymultiline nous montre une consigne qui démarre après la ligne `exo` 
 
 La syntaxe DY est relativement simple à parser et sa nature implicite rend compliqué l'usage de librairies pensées pour des formats avec beaucoup de séparateurs. Après ces recherches et quelques essais avec `winnow`, nous avons décidé que l'écriture manuelle du parseur sans librairie serait plus simple.
 
-#pagebreak()
 == Les serveurs de langage
 
 Par défaut, avec un nouveau langage, il faut manuellement lancer le compilateur ou le parseur sur son fichier, voir les erreurs et de revenir dans l'éditeur pour les corriger. Certaines opérations répétitives, comme renommer une fonction à chaque appel, doivent être faites à la main. Pour ces raisons, il devient très intéressant d'intégrer un nouveau langage aux différents IDE utilisés dans le monde, mais cela posent de nombreux challenges.
@@ -344,7 +340,6 @@ Le code du serveur qui gère la requête du type `GotoDefinition` est visible en
 ) <gotodefrs>
 
 
-#pagebreak()
 Maintenant que nous avons un petit serveur fonctionnel, nous pouvons lancer notre client. Sur la @lsp-demo les lignes après `CLIENT:` sont envoyés en `stdin` et celles après `SERVER:` sont reçues en `stdout`.
 + Durant l'initialisation, le serveur nous indique qu'il supporte un _fournisseur de définition_ avec `definitionProvider` à `true`.
 + Le client envoie ensuite une requête `textDocument/definition`, pour le symbole dans un fichier `/tmp/test.rs` sur la ligne 7 au caractère 23.
@@ -485,10 +480,7 @@ Cette décision se justifie notamment par la roadmap de VSCode: entre mars et ma
 L'usage du surlignage sémantique n'est pas au programme de ce travail, mais pourra être exploré dans le futur si certains éléments sémantiques pourraient en bénéficier.
 
 === POC de surlignage de notre syntaxe avec Tree-Sitter
-// todo les propriétés à introduire qqepart ?????????
 Ce POC vise à prouver que l'usage de Tree-Sitter fonctionne pour coloriser les clés et les propriétés. L'exemple du @exo-dy-ts-poc est un exercice de choix multiples. Ce format n'est pas supporté par PLX, mais cela nous permet de coloriser un exemple minimaliste incluant des clés `exo` (titre) et `opt` (options) avec en plus des propriétés `.ok` et `.multiple`.
-
-// todo mentionner aussi sur dy impl ?
 
 #figure(raw(block: true, lang: "text", read("../imgs/mcq.dy")), caption: [Affichage noir sur blanc ce qui rend la lecture difficile\ avec une question à choix multiples dans un fichier `mcq.dy`]) <exo-dy-ts-poc>
 
@@ -577,7 +569,6 @@ Le serveur de sessions live a besoin d'un système de communication en temps ré
 
 === JSON
 Contrairement à toutes les critiques relevées précédemment sur le JSON et d'autres formats pour leur rédaction manuelle, le JSON est une option solide pour la communication client-serveurs. Il est très populaire pour les API REST, les fichiers de configuration et s'intègre bien en Rust.
-// todo okay ces affirmations ? pas besoin de présenter plus ?
 
 En Rust, avec `serde_json`, il est simple de parser du JSON dans une struct. Une fois la macro `Deserialize` appliquée, on peut directement appeler `serde_json::from_str(json_data)`.
 

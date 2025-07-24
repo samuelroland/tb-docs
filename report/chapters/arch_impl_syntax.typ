@@ -89,8 +89,6 @@ Une spec DY est le schéma et se définit directement en Rust au lieu d'être da
   caption: [Aperçu de la séparation claire des concepts entre spec DY et coeur du parseur, développés dans deux librairies différentes.],
 )
 
-TODO mentionner résumé du dessus
-
 === Lignes directrices de conception <lignes-conception>
 Ces lignes directrices permettent de mieux comprendre certains choix de clés, de syntaxe ou de stratégie.
 + *Privilégier la facilité de rédaction, plutôt que la facilité de parsing*
@@ -215,6 +213,8 @@ Line { index: 9, slice: "exit 0", lt: WithKey(KeySpec 'exit')},
 ```], caption: [Liste de lignes avec un index, la référence vers le morceau de texte de la ligne, ainsi que type de ligne `lt`]) <somelines>
 
 À ce stade, aucune analyse de la hiérarchie des clés et effectuée, nous cherchons seulement à distinguer les lignes avec clé du reste, pour mieux générer certaines erreurs durant la phase suivante. Par exemple si une clé n'est pas au bon endroit (prenons le `code` d'un cours avant la clé `cours`), elle risque d'être considéré simplement du contenu invalide non associé à une clé (`ContentOutOfKey`) alors que nous aimerions être plus spécifique avec l'erreur `WrongKeyPosition`, qui a trouvé une clé mais pas à la bonne position. De par la manière de parcourir la hiérarchie de clé durant la construction de l'arbre de blocs, nous ne pouvons pas détecter que `code` est en fait une clé valide, même si ce n'est pas la bonne position. La définition de la clé `code` se trouve sous la définition de la clé `course` et elle ne sera pas prise en compte tant qu'une clé `course` n'a pas été rencontrée.
+
+#pagebreak()
 
 === Construction d'un arbre de blocs
 Cet arbre représente la hiérarchie des clés et valeurs trouvées et respecte en tout temps la hiérarchie de `ValidDYSpec`. Un bloc contient le texte extrait (sous forme de vecteur de lignes), la plage du contenu concerné (`Range`) et une référence vers la définition de la clé associée au bloc. Les erreurs rencontrées au fur et à mesure n'impacte pas cet arbre et sont insérées dans une liste d'erreurs séparées. Les commentaires ne sont pas inclus.

@@ -178,16 +178,23 @@ Avant de présenter l'implémentation technique, voici un aperçu du tableau de 
   caption: [Il est possible de rejoindre la session `jack`, les sessions du cours sont listées],
 ) <fig-join-session>
 
-todo les stats
 
-todo choix des exos
+#figure(
+  image("../imgs/live-cast.png", width: 100%),
+  caption: [Les bouts de code arrivent en temps réel dans le tableau de bord de l'enseignant·e. Le nombre de followers et leader est affiché à droite. L'état des checks est affiché à droite du code.],
+) <fig-live-cast>
 
-todo switch d'exos
 
-todo lancement d'un exo étudiant, erreur de build
+#figure(
+  image("../imgs/survol-live.png", width: 80%),
+  caption: [En survolant un check, il est possible de voir son détail (ici l'output d'une exécution qui a échouée à cause d'un segfault)],
+) <fig-survol-live>
 
-todo code actuel et erreur de build disponible dans le dashboard
-
+// todo switch d'exos
+//
+// todo lancement d'un exo étudiant, erreur de build
+//
+// todo code actuel et erreur de build disponible dans le dashboard
 
 == Implémentation du serveur
 
@@ -241,11 +248,6 @@ Une solution à ce problème est de passer vers du Rust `async`. Concrètement, 
 // TODO okay ?
 
 Ce runtime de threads virtuels permet ainsi de lancer des milliers de tâches tokio avec un faible cout mémoire ou du temps nécessaire à leur ordonnancement qui est plus léger. Tokio est donc une solution bien adaptée aux applications en réseau avec de nombreux clients concurrents mais aussi beaucoup d'attente sur des entrées/sorties. @TokioTasksDocs
-// TODO check explication tokio
-
-// TODO BCS
-// TODO: est-ce que ca doit faire partie de létat de lart plutot cet explication de Tokio et la réflexion sur sync vers async ??
-
 #pagebreak()
 
 === Tâches tokio

@@ -24,11 +24,11 @@
 // #_second_title(TBtitle, TBacademicYears, TBdpt, TBfiliere, TBorient, TBauthor, TBsupervisor, TBindustryName, TBresumePubliable)
 #include "template/_preambule.typ"
 
-#include "chapters/remerciements.typ"
 
 #import "template/_authentification.typ": *
 #_authentification(TBauthor)
 
+#include "chapters/remerciements.typ"
 
 #show: MyStyle
 
