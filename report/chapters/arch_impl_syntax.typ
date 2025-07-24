@@ -510,6 +510,8 @@ Dans cette dernière @exoerrors, la dernière erreur est particulièrement inté
 
 Sur l'extrait du @parseexitcode, lorsque le sous bloc correspond à la clé `exit`, le text est parsé en `i32` (le type Rust d'entier signé 32bits). Le code d'exit doit être initialisé à une valeur par défaut (ici `None`). Si le parsing du nombre échoue, l'erreur spécifique avec le message défini dans la constante `ERROR_CANNOT_PARSE_EXIT_CODE`, est ajouté à la liste des erreurs via la variante `ParseErrorType::ValidationError`. Le plage de l'erreur est le plage de la valeur, ce qui produit ces marqueurs `^^^` juste sous le `one`.
 
+#text(size:0.9em)[
+
 #figure(
 ```rust
 if check_subblock_id == EXIT_KEYSPEC.id {
@@ -520,20 +522,16 @@ if check_subblock_id == EXIT_KEYSPEC.id {
             errors.push(ParseError {
                 range: range_on_line_part(
                     check_subblock.range.start.line,
-                    check_subblock.range.start.character
-                        + check_subblock_id.len() as u32
-                        + 1,
+                    check_subblock.range.start.character + check_subblock_id.len() as u32 + 1,
                     check_subblock.range.end.character,
                 ),
-                error: ParseErrorType::ValidationError(
-                    ERROR_CANNOT_PARSE_EXIT_CODE.to_string(),
-                ),
+                error: ParseErrorType::ValidationError(ERROR_CANNOT_PARSE_EXIT_CODE.to_string()),
             });
         }
     }
 }
 ``` , caption: [Extrait de l'implémentation de `FromDYBlock` sur `DYExo`]) <parseexitcode>
-
+]
 
 // todo fix heading levels and names
 == Tests unitaires
