@@ -2,6 +2,8 @@
 
 Cette partie documente les besoins de PLX, la définition et l'implémentation de la syntaxe DY, son parseur, l'intégration dans PLX et son usage via le CLI. Le nom *DY* vient de *deliberately* en référence à la pratique délibérée qui a inspiré le projet de PLX.
 
+Le code de cette partie a été développé sur le repository #link("https://github.com/samuelroland/dy") qui contient les deux librairies `dy` et `plx-dy`. Le parseur a été intégré ensuite dans le repository #link("https://github.com/samuelroland/plx") avec le CLI (sous dossier `cli`) et dans les fichiers de modèles (`src/models`).
+
 == Vue d'ensemble
 Tout l'enjeu de ce développement consiste à prendre un bout de texte écrit dans notre syntaxe DY et de la convertir vers une struct Rust.
 #grid(columns: (2fr, 1fr) , gutter: 19pt,

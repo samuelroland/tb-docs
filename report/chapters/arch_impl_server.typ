@@ -2,13 +2,15 @@
 = Développement du serveur de session live <arch_impl_server>
 Cette partie documente l'architecture et l'implémentation du serveur de session live, l'implémentation d'un client dans PLX et le protocole définit entre les deux.
 
+Tout le code de cette partie a été développé sur le repository #link("https://github.com/samuelroland/plx"), voir `src/live` pour l'implémentation du serveur, voir `tests/live.rs` pour les tests de bout en bout voir l'intégration dans le dossier `desktop`, notamment le fichier `desktop/src/client.ts`. Le repository contient le CLI, PLX desktop et la librairie `plx-core` incluant l'implémentation du serveur.
+
 La @high-level-arch montre la vue d'ensemble des composants logiciels avec trois clients. Le serveur de session live est accessible par tous les clients. Les clients des étudiant·es transmettent et recoivent d'autres informations que les clients des enseignant·es.
 
 Tous les clients ont accès à tous les exercices, stockés dans des repository Git. Le parseur s'exécute sur les clients pour extraire les informations du cours, des compétences et des exercices. Le serveur n'a pas besoin de connaître les détails des exercices, il ne sert que de relai pour les participant·es d'une même session. Le serveur n'est utile que pour participer à des sessions live, PLX peut continuer d'être utilisé sans serveur pour l'entrainement seul·e.
 
 #figure(
   image("../schemas/high-level-arch.png", width:90%),
-  caption: [Vue d'ensemble avec le serveur de session live, des clients, et notre parseur],
+  caption: [Vue d'ensemble avec le serveur de session live, des clients et notre parseur],
 ) <high-level-arch>
 
 // Inside == Définition du `Live protocol`
@@ -268,48 +270,69 @@ Le `ClientManager`, lors de la réception d'un message, doit parser le JSON du m
 
 Le `SessionsManagement` possède deux `HashMap` (tables de hachage avec clés/valeurs): la première contient des sessions regroupées par `group_id`. Chaque session contient évidemment le nom et `group_id`, mais également le `client_id` du créateur de la session et le dernier `client_num` attribué. Une seconde liste existe pour lier `client_id` de leader vers la session créée pour facilement retrouver la session dans la première liste.
 
-TODO besoin de voir les actions effectuées de bout en bout pour un message `SendFile` pour mieux se représenter les interactions ou déjà clair ??
-
-// TODO def channel enough ?
+// TODO besoin de voir les actions effectuées de bout en bout pour un message `SendFile` pour mieux se représenter les interactions ou déjà clair ??
 
 // Tous les types des structures de données du protocole sont définies en Rust. Les messages sont en fait des enumérations `Action` et `Event` en Rust. La version JSON des messages n'est qu'un dérivé d'une liste d'exemples utilisant ces types.
 
-// pas d'état plus que dernier code et résultats, pas de persistence.
-
-// todo docs pas de support pour plusieurs leaders ou pas ?
-
 == Tests de bouts en bouts
-TODO
+
+Les tests de bout en bouts peuvent être lancés dans le repository `plx` de la manière suivante.
+
 #figure(
-// ```rust
-//
-// fn spawn_test_server() -> u16 {
-//     let random_dynamic_port = rand::random_range(49152..65535);
-//     // https://superuser.com/questions/956226/what-are-the-differences-between-the-3-port-types
-//
-//     thread::spawn(move || {
-//         let server = LiveServer::new().unwrap();
-//         server.start(random_dynamic_port, false);
-//     });
-//     // just a short sleep so the server has time to start before clients start connecting
-//     thread::sleep(Duration::from_millis(90));
-//     random_dynamic_port
-// }
-//
-//
-// /// Spawn a server and N connected clients (no session yet)
-// fn spawn_server_and_n_clients(n: u16) -> Vec<LiveClient> {
-//     assert!(n > 0);
-//     let random_port = spawn_test_server();
-//     let mut clients = Vec::new();
-//     for i in 0..n {
-//         let c = LiveClient::connect("127.0.0.1", random_port, format!("SecretId{i}")).unwrap();
-//         clients.push(c);
-//     }
-//     clients
-// }
-// ```
-//
+```
+> cargo test --test live
+
+running 16 tests
+test websocket_can_connect_with_client_id_and_protocol_version ... ok
+test exo_switch_without_session_fails ... ok
+test exo_switch_from_leader_is_forwarded_when_session_exists ... ok
+test get_sessions_works ... ok
+test websocket_fails_to_connect_without_info ... ok
+test websocket_fails_with_different_version_number ... ok
+test websocket_can_connect_with_client_id_containins_special_chars ... ok
+test websocket_fails_with_missing_client_id ... ok
+test cannot_create_same_session_twice ... ok
+test exo_switch_from_follower_fails ... ok
+test can_join_session_and_get_correct_events_back ... ok
+test client_can_leave_session_and_leader_can_receive_stats ... ok
+test client_cannot_leave_session_when_not_joined ... ok
+test get_sessions_correctly_use_group_id ... ok
+test forwarding_to_leaders_work ... ok
+test session_continues_to_exist_when_leader_disconnects ... ok
+``` , caption: [Aperçu des 16 tests développés])
+
+Nous avons d'abord préparé quelques fonctions utilitaires pour lancer un serveur sur un port aléatoire et lancer des clients qui se connectent à ce serveur, comme visible sur le @utilsfns.
+#figure(
+```rust
+/// Spawn a test server on a random dynamic port
+fn spawn_test_server() -> u16 {
+    let random_dynamic_port = rand::random_range(49152..65535);
+    // https://superuser.com/questions/956226/what-are-the-differences-between-the-3-port-types
+
+    thread::spawn(move || {
+        let server = LiveServer::new().unwrap();
+        server.start(random_dynamic_port, false);
+    });
+    // just a short sleep so the server has time to start before clients start connecting
+    thread::sleep(Duration::from_millis(90));
+    random_dynamic_port
+}
+
+/// Spawn a server and N connected clients (no session yet)
+fn spawn_server_and_n_clients(n: u16) -> Vec<LiveClient> {
+    assert!(n > 0);
+    let random_port = spawn_test_server();
+    let mut clients = Vec::new();
+    for i in 0..n {
+        let c = LiveClient::connect("127.0.0.1", random_port, format!("SecretId{i}")).unwrap();
+        clients.push(c);
+    }
+    clients
+}
+```, caption: [Fonctions utilitaires utilisant le `LiveServer` et notre client de test `LiveClient`]) <utilsfns>
+
+Voici ensuite un exemple de test en @testsrv qui vérifie qu'il n'est pas possible de créer deux sessions avec le même nom et `group_id`. Nous lancons un serveur de test avec deux clients connectés. Un premier client crée une session avec les constantes `NAME` et `GROUP_ID`, en envoyant un message `StartSession`. Nous nous assurons que la session est bien créée en attendant le `SessionJoined` en retour. Puis un autre client teste de faire la même action `StartSession` et nous devons recevoir l'erreur `olError::FailedToStartSession` en retour. Ce test passe, notre serveur gère correctement cette unicité des sessions.
+#figure(
 ```rust
 #[test]
 #[ntest::timeout(4000)]
@@ -334,6 +357,5 @@ fn cannot_create_same_session_twice() {
         ))
     );
 }
-```, caption: [Exemple de tests de bout en bout])
-// comment bcp de contexte ?? citer le fichier ?
+```, caption: [Exemple de tests de bout en bout])<testsrv>
 
