@@ -353,7 +353,7 @@ LspSpecSemanticTokens:
 combineCratesio:
   type: Web
   title: combine v4.6.7 Fast parser combinators on arbitrary streams with zero-copy support.
-  author: (Marwes), Markus Westerlind
+  author: Westerlind, Markus (Marwes)
   date: 2024
   url: https://crates.io/crates/combine
 nomCratesio:

@@ -5,9 +5,7 @@ Cette section explore l'état de l'art de cinq sujets liés aux deux défis de c
 
 Pour conclure ces recherches, le défi du serveur de session live a demandé d'explorer les *protocoles de communication bidirectionnels*, pour nous permettre d'envoyer et de recevoir des messages en temps réel. Ce dernier sujet inclut aussi une comparaison entre *formats textes et binaires de sérialisation* des messages.
 
-En plus de la comparaison des solutions existantes, quelques *POCs* sont développés pour découvrir et tester le fonctionnement des solutions choisies. L'implémentation est disponible dans le dossier `pocs` du repository Git de la documentation du projet. Ce dossier est accessible sur #link("https://github.com/samuelroland/tb-docs/tree/main/pocs")
-// todo lien en bibliographie aussi ?
-
+En plus de la comparaison des solutions existantes, quelques *POCs* sont développés pour découvrir et tester le fonctionnement des solutions choisies. L'implémentation est disponible dans le dossier `pocs` du repository Git de la documentation du projet. Ce dossier est accessible sur #link("https://github.com/samuelroland/tb-docs/tree/main/pocs").
 // TODO: lien qqepart des 2-3 repos ?
 
 
@@ -228,8 +226,6 @@ La diminution de la verbosité des syntaxes décrites précédemment est intére
 
 Ces améliorations sont déjà un gain important, mais il est possible d'aller encore plus loin, en sacrifiant une partie des structures de données. Notre syntaxe DY propose une approche encore plus légère. En se limitant à un ensemble de clés autorisées avec une hiérarchie définie, nous pouvons exprimer la hiérarchie du document sans nécessiter de tabulations ni d'accolades et valider le document directement durant le parsing.
 
-// TODO BCS okay cet conclusion avec un peu de spoil mais pas bcp sur pourquoi la syntaxe DY est différente et vaut la peine
-
 #pagebreak()
 == Librairies de parsing en Rust
 // todo mieux expliquer le challenge
@@ -252,7 +248,6 @@ Pour DY, l'aspect multiligne et le fait qu'une partie des clés est optionnelle,
 
 #figure(
   image("../syntax/examples/long-desc.svg", width: 50%), caption: [Exemple d'exercice PLX en DY, avec une consigne en Markdown sur plusieurs lignes]) <harddymultiline>
-// todo check width preview, modified in svg
 
 Le @harddymultiline nous montre une consigne qui démarre après la ligne `exo` et continue sur plusieurs lignes jusqu'à qu'on trouve une autre clé (ici `check`). Le problème se pose aussi avec la clé `see`, qui est aussi multiligne, dont la valeur s'arrête au prochain `see`, `type`, `exit` ou `check`.
 
@@ -325,10 +320,6 @@ Cette partie est un _nice-to-have_, nous espérons avoir le temps de l'intégrer
 
 === POC de serveur de language avec `lsp-server`
 
-
- // dans le dossier `pocs/lsp-server-demo`
-// todo comment citer les dossiers de POCs à coté ??
-
 La crate `lsp-server` contient un exemple de `goto_def.rs` @gotodefLspserver qui implémente la possibilité de `Aller à la définition` (_Go to definition_), généralement accessible dans l'IDE par un `Ctrl+clic` sur une fonction. Nous avons modifié et exécuté cet exemple puis créé un petit script `demo.fish` qui simule un client et affiche chaque requête. Le client va simplement demander la définition d'une position dans `/tmp/another.rs` et le serveur va lui renvoyer une autre position.
 
 Le code du serveur qui gère la requête du type `GotoDefinition` est visible en @gotodefrs. Le serveur répond avec un `GotoDefinitionResponse` qui contient une position dans le code (de type `Location`) sur le fichier `/tmp/another.rs` à la ligne 3 entre les caractères 12 et 25 (la plage est décrite avec le type `Range`).
@@ -367,8 +358,6 @@ Maintenant que nous avons un petit serveur fonctionnel, nous pouvons lancer notr
 
 == Surlignage du code
 
-// todo surlignage de code comme terme prioritaire, à refactor
-
 Par défaut un nouveau langage avec une extension de fichier dédiée reste en noir en blanc dans l'IDE. Pour faciliter la lecture, nous souhaitons pouvoir coloriser la majorité du contenu de notre syntaxe, tout en groupant les couleurs par type d'éléments surlignés. Pour notre syntaxe DY, on aimerait que toutes les clés aient la même couleur, tout comme les propriétés qui doivent être toutes colorisées d'une seconde couleur. Les commentaires doivent être grisés.
 
 Le bout de C `printf("salut");` est vu par un système de surlignage de code comme une suite de morceaux, des _tokens_ d'une certaine catégorie. Ce bout de code pourrait être subdivisé avec les tokens suivants `printf` (identifiant), `(` (séparateur), `"` (séparateur), `salut` (valeur littérale), `"`, `)` et `;` (séparateur).
@@ -401,9 +390,6 @@ Le @textmateexemple montre un exemple de grammaire Textmate décrivant un langag
    );
 }
 ``` , caption: [Exemple de grammaire Textmate tiré de leur documentation @TextMateDocsLanguageGrammars.]) <textmateexemple>
-
-// useless
-// La documentation précise un choix important de conception: #quote("A noter que ces regex sont matchées contre une seule ligne à la fois. Cela signifie qu'il n'est pas possible d'utiliser une pattern qui matche plusieurs lignes. La raison est technique: être capable de redémarrer le parseur à une ligne arbitraire et devoir reparser seulement un nombre minimal de lignes affectés par un changement. Dans la plupart des situations, il est possible d'utiliser le model `begin`/`end` pour dépasser cette limite.") @TextMateDocsLanguageGrammars (Traduction personnelle, dernier paragraphe section 12.2).
 
 === Tree-Sitter - surlignage syntaxique
 

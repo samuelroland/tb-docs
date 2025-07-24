@@ -19,8 +19,6 @@ Ce *processus fastidieux* se fait au détriment de la pratique délibérée, con
 
 Ce travail de Bachelor s'inscrit dans ce contexte en poursuivant le projet PLX, application desktop qui accompagne les étudiant·es dans leur apprentissage du code. L'acronyme _PLX_ signifie _#strong("P")ractice programming exercises in a deliberate #strong("L")earning e#strong("X")perience_. Le projet vise à *redéfinir l'expérience d'apprentissage et d'enseignement* de la programmation, en s'inspirant de la pratique délibérée.
 
-// todo aussi expliquer le besoin de fichiers texte ? ou ca doit venir plus loin ?
-
 #pagebreak()
 == Problèmes de l'expérience actuelle
 Pour mieux comprendre à quel point le processus actuel d'entrainement est fastidieux, regardons un exercice concret de C pour débutant. Une enseignante qui suit une classe de 40 étudiant·es, fournit la consigne suivante sur un serveur, comme premier exercice de la session.
@@ -104,8 +102,6 @@ Pour commencer à s'entrainer, les étudiant·es clonent un repository Git conte
 
 Ces checks restent pour l'instant assez primitifs, seulement l'output est comparée à celui attendu. D'autres vérifications plus avancées pourront être supportées dans le futur. Les enseignant·es rédigent le titre, la consigne, ainsi que les détails des checks dans des fichiers texte en format TOML.
 
-// todo yatil des études scientifiques dans l'état de l'art à mentionner ? peut-être qui soutient les défaut du YAML ou d'autres formats ?
-
 #figure(
   box(stroke: 2pt + gray,  image("../imgs/plx-course-details.png", width: 90%)),
   caption: [Dans PLX, l'aperçu des listes de compétences et exercices dans un cours fictif, il est possible de parcourir les exercices et d'en démarrer un],
@@ -126,8 +122,6 @@ Ces checks restent pour l'instant assez primitifs, seulement l'output est compar
   caption: [Une fois tous les checks passés, tout passe au vert et l'exercice est terminé],
 ) <fig-plx-checks-passing>
 
-// todo screen 2 avec vscode à coté mieux ?
-
 #pagebreak()
 
 == Nouveaux défis
@@ -135,15 +129,13 @@ Le besoin de feedback humain pour les étudiant·es en plus du feedback automati
 
 === Défi 1: Comment les enseignant·es peuvent voir le code et les résultats en temps réel ?
 
-// todo mix de permet et permettra et permettrait ? que faire ?
-
 Comme mentionné précédemment, le rendu manuel d'exercices prend un peu de temps et ne sera pas fait fréquemment durant un entrainement. De plus, avoir accès à une archive de fichiers de code, demanderait encore de les compiler et lancer localement avant de pouvoir construire des statistiques de l'état des checks.
-// todo c'est un dupliqué ou pas ?
 
 Comme l'application fonctionne localement et s'exécute à chaque sauvegarde, le code et les résultats des checks sont déjà connus par PLX. Il suffirait d'avoir un serveur central, qui héberge les sessions d'entrainement synchrones (appelées "sessions live"). A chaque changement, PLX pourrait ainsi envoyer le code et l'état des checks. Ces informations pourraient être transférées par le serveur vers le client PLX de l'enseignant·e, pour les afficher sur un tableau de bord dédié.
 
-Ce tableau de bord permettra aux enseignant·es de rapidement comprendre les lacunes des étudiant·es, en relisant les différentes réponses affichées. Grâce à l'état des checks, il sera facile de voir si la classe a terminé l'exercice ou de filtrer les réponses pour concentrer sa relecture. Il sera possible de sélectionner certaines réponses particulières pour les afficher au beamer, pouvoir les commenter ou demander à la classe de critiquer constructivement le code choisi.
-// todo mode beamer implémenté ou pas ??
+Ce tableau de bord permettra aux enseignant·es de rapidement comprendre les lacunes des étudiant·es, en relisant les différentes réponses affichées. Grâce à l'état des checks, il sera facile de voir si la classe a terminé l'exercice ou de filtrer les réponses pour concentrer sa relecture.
+// Il sera possible de sélectionner certaines réponses particulières pour les afficher au beamer, pouvoir les commenter ou demander à la classe de critiquer constructivement le code choisi.
+// todo mode beamer implémenté ou pas ?? nope
 
 Pour accéder aux exercices, les étudiants doivent cloner le repository Git du cours sur leur machine à travers l'interface de PLX pour qu'il puisse avoir une liste de cours disponibles localement. Nous prenons en exemple le cours de PRG2, cours de C à la HEIG-VD. Une session live peut être démarrée par un·e enseignant·e pour un cours donné (le cours étant unique par l'origine du repository Git) et les étudiant·es peuvent la rejoindre. En ouvrant le cours dans PLX, la liste des sessions ouvertes liées au repository est affichée et les étudiant·es peuvent choisir celle de leur enseignant·e. Durant la session, l'enseignant·e définit une liste d'exercice et les lance l'un après l'autre au rythme choisi.
 
@@ -159,8 +151,6 @@ Ce premier défi nécessite le développement d'un serveur central et la spécif
 === Défi 2: Comment faciliter la rédaction et la maintenance des exercices ?
 
 La rédaction de contenu sous forme de fichier textes, au lieu de l'approche classique de formulaires, semble particulièrement plaire en informatique. En effet, de nombreux enseignant·es à la HEIG-VD rédigent une part de leur contenu (exercices, slides, consignes de laboratoires, évaluations) dans divers formats textuels.
-
-// TODO besoin de source ?
 
 Un exemple d'usage du Markdown est le recueil d'exercices du cours de PRG2 @PRG2RecueilExercicesGithub. On note également l'usage de balises HTML `<details>` et `<summary>`, pour rendre disponible la solution tout en la cachant par défaut. Pour combler le manque de mise en page du Markdown, d'autres enseignant·es utilisent Latex ou Typst @TypstWebsite.
 
@@ -214,8 +204,6 @@ Cet exemple d'exercice en @exemple-dy-json est minimal, mais montre clairement q
 Un autre format plus léger à rédiger est le YAML, regardons ce que cela donne:
 
 #figure(raw(block: true, lang: "yaml", read("../sources/plx-dy-simple.yaml")), caption: [Equivalent YAML de l'exercice défini sur le @exemple-dy-md-start]) <exemple-dy-yaml>
-
-// todo besoin d'inclure le format TOML aussi ou pas ?
 
 Le YAML nous a permis ici de retirer tous les guillemets, les accolades et crochets. Cependant, malgré sa légereté, il contient encore plusieurs points de friction:
 - Les tirets sont nécessaires pour chaque élément de liste et les deux points pour chaque clé
@@ -300,7 +288,5 @@ La rédaction du rapport s'est permise un certain nombre d'anglicismes quand un 
 - `regex`: raccourcis pour les expressions régulières
 - `snippet`: court morceau de code ou de données
 - `querystring`: partie d'un URL après le `?` tel que `?action=send&id=23`, qui se termine au premier `#` rencontré
-
-// todo check ces définitions
 
 #pagebreak()

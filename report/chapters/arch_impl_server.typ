@@ -45,7 +45,6 @@ Le serveur PLX peut être déployé dans un conteneur Docker via la commande `pl
   caption: [Aperçu du réseau et processus qui composent le projet PLX],
 ) <network-arch-ipc-websockets>
 
-// todo les commandes CLI autour du parseur dans tout ça il va où ?
 === Typage des commandes Tauri
 Pour les commandes Tauri mises à disposition du frontend, l'appel d'une commande se fait par défaut via une fonction `invoke` faiblement typée: le nom de la commande est une _string_ et les paramètres sont mis dans un objet, comme montré sur le @notypescommand. Les types de ces valeurs ne sont pas vérifiés à la compilation, seule l'exécution permet de trouver des erreurs dans la console de la fenêtre du _frontend_. En cas de changement de signature en Rust, nous pourrions oublier d'adapter le code du _frontend_ sans s'en rendre compte.
 
@@ -70,7 +69,6 @@ const success = await invoke("clone_course", {
 
 Pour résoudre ce problème, le projet `tauri-specta` @TauriSpectaCratesio nous permet de générer une définition une fonction bien typée de l'appel à la commande, après avoir annoté la fonction Rust et les types des paramètres.
 
-// todo remove label of Rust and fix the padding !!!
 #text(size: 0.8em)[
 #figure(
 
@@ -116,15 +114,14 @@ Si la commande en Rust changeait de nom, de type des paramètres ou de valeur de
 
 Les structures de données comme `Action`, `Event`, `LiveProtocolError`, `Session`, `CheckStatus` sont également utiles du côté du client TypeScript. On aimerait éviter de devoir définir des types TypeScript manuellement en doublon des types Rust afin de faciliter le développement et les changements du protocole. Il existe plusieurs solutions pour exporter les types Rust vers des types TypeScript équivalent. Le CLI `typeshare` @1passwordTypeshare a permis d'exporter automatiquement les types communs, en activant l'export via une annotation `#[typeshare]`. Le fichier généré est `desktop/src/ts/shared.ts`.
 
-Prenons un exemple avec le résultat d'un check. L'attribut `#[serde...]` demande que le `CheckStatus` soit sérialisé avec un champ discriminant `type` et son contenu sous un champ `content`. Cette conversion est nécessaire pour permettre de générer un équivalent TypeScript.
-
-// TODO should i mention figure x ? for attribute serde
+Prenons un exemple en @checkstatuscode avec le résultat d'un check. L'attribut `#[serde...]` demande que le `CheckStatus` soit sérialisé avec un champ discriminant `type` et son contenu sous un champ `content`. Cette conversion est nécessaire pour permettre de générer un équivalent TypeScript.
 
 // TODO make sure à jour après intégration finale
 
 #text(size: 0.8em)[
 #grid(columns: (4fr, 3fr), rows: 1, align: horizon, column-gutter: 10pt,
-figure(
+    [
+    #figure(
 ```rs
 #[derive(Serialize, Deserialize, Eq, PartialEq, Clone, Debug)]
 #[serde(tag = "type", content = "content")]
@@ -141,7 +138,7 @@ pub struct ExoCheckResult {
     pub index: u16,
     pub state: CheckStatus,
 }
-```, caption: [2 types Rust pour décrire le résultat d'un check.]),
+```, caption: [2 types Rust pour décrire le résultat d'un check.]) <checkstatuscode>],
 figure(
 ```js
 export type CheckStatus = 
@@ -281,3 +278,60 @@ TODO besoin de voir les actions effectuées de bout en bout pour un message `Sen
 
 == Tests de bouts en bouts
 TODO
+#figure(
+// ```rust
+//
+// fn spawn_test_server() -> u16 {
+//     let random_dynamic_port = rand::random_range(49152..65535);
+//     // https://superuser.com/questions/956226/what-are-the-differences-between-the-3-port-types
+//
+//     thread::spawn(move || {
+//         let server = LiveServer::new().unwrap();
+//         server.start(random_dynamic_port, false);
+//     });
+//     // just a short sleep so the server has time to start before clients start connecting
+//     thread::sleep(Duration::from_millis(90));
+//     random_dynamic_port
+// }
+//
+//
+// /// Spawn a server and N connected clients (no session yet)
+// fn spawn_server_and_n_clients(n: u16) -> Vec<LiveClient> {
+//     assert!(n > 0);
+//     let random_port = spawn_test_server();
+//     let mut clients = Vec::new();
+//     for i in 0..n {
+//         let c = LiveClient::connect("127.0.0.1", random_port, format!("SecretId{i}")).unwrap();
+//         clients.push(c);
+//     }
+//     clients
+// }
+// ```
+//
+```rust
+#[test]
+#[ntest::timeout(4000)]
+fn cannot_create_same_session_twice() {
+    let c = &mut spawn_server_and_n_clients(2);
+    c[0].send_msg(Action::StartSession {
+        name: NAME.to_string(),
+        group_id: GROUP_ID.to_string(),
+    });
+    assert_eq!(
+        c[0].wait_on_next_event().unwrap(),
+        Event::SessionJoined(ClientNum(0))
+    );
+    c[1].send_msg(Action::StartSession {
+        name: NAME.to_string(),
+        group_id: GROUP_ID.to_string(),
+    });
+    assert_eq!(
+        c[1].wait_on_next_event().unwrap(),
+        Event::Error(LiveProtocolError::FailedToStartSession(
+            "There is already a session with the same group id and name combination.".to_string()
+        ))
+    );
+}
+```, caption: [Exemple de tests de bout en bout])
+// comment bcp de contexte ?? citer le fichier ?
+
