@@ -317,9 +317,9 @@ En cherchant à nouveau sur `crates.io` sur le tag `lsp`, on trouve différents 
 Le projet `tinymist` a extrait une crate `sync-ls`, mais le README déconseille son usage et conseille `async-lsp` à la place @tinymistSyncLspImpl. En continuant la recherche, on trouve encore une autre crate `tower-lsp` et un fork `tower-lsp-server` @TowerLspServerCratesio... `rust-analyzer` a également extrait une crate `lsp-server`. Une crate commune à plusieurs projets est `lsp-types` @lspTypesCratesio qui définit les structures de données, comme `Diagnostic`, `Position`, `Range`. Ce projet est utilisé par `lsp-server`, `tower-lsp` et d'autres @lspTypesUses.
 
 === Choix final
-L'auteur travaillant dans Neovim, l'intégration se fera en priorité dans Neovim pour ce travail. L'intégration dans VSCode pourra être fait dans le futur et devrait être relativement simple.
+Comme nous avons l'habitude de travailler dans Neovim, l'intégration se fera en priorité dans Neovim pour ce travail. L'intégration dans VSCode pourra être fait dans le futur et devrait être relativement simple.
 
-Le choix de `lsp-types` est facilement choisi mais les quantités des autres crates ne rend pas le choix immédiat. Les 2 projets les plus utilisés (en termes de _reverse dependencies_ sur crates.io) sont `lsp-server` (56 projets) @LspServerCratesio et `tower-lsp` (85 projets) @TowerLspCratesio. L'auteur a choisi d'utiliser la crate `lsp-server` étant développé par la communauté Rust, la probabilité d'une maintenance long-terme est plus élevée. L'autre argument est que le projet `tower-lsp` est basée sur des abstractions asynchrones, nous préférons partir sur la version synchrone pour simplifier l'implémentation.
+Le choix de `lsp-types` est facilement choisi mais les quantités des autres crates ne rend pas le choix immédiat. Les 2 projets les plus utilisés (en termes de _reverse dependencies_ sur crates.io) sont `lsp-server` (56 projets) @LspServerCratesio et `tower-lsp` (85 projets) @TowerLspCratesio. Le choix s'est porté sur la crate `lsp-server` étant développé par la communauté Rust, la probabilité d'une maintenance long-terme est plus élevée. L'autre argument est que le projet `tower-lsp` est basée sur des abstractions asynchrones, nous préférons partir sur la version synchrone pour simplifier l'implémentation.
 
 Cette partie est un _nice-to-have_, nous espérons avoir le temps de l'intégrer dans ce travail. Après quelques heures sur le POC suivant, cela semble être assez facile et rapide.
 
@@ -490,7 +490,7 @@ Semantic Tokens
 En voyant la liste des tokens sémantiques définis dans la spécification LSP @LspSpecSemanticTokens, cela peut aider à comprendre l'intérêt et les possibilités d'un surlignage avancé. Par exemple, on trouve des tokens sémantiques comme `macro`, `regexp`, `typeParameter`, `interface`, `enum`, `enumMember`, qui seraient difficiles de détecter au niveau syntaxique.
 
 === Choix final
-L'auteur a ignoré l'option du système de SublimeText, pour la simple raison qu'il n'est supporté nativement uniquement par SublimeText, probablement parce que cet IDE est propriétaire @SublimeHQEULA. Ce système utilise des fichiers `.sublime-syntax`, qui ressemblent à TextMate @SublimeHQSyntax, mais qui sont rédigés en YAML.
+Nous avons ignoré l'option du système de SublimeText, pour la simple raison qu'il n'est supporté nativement uniquement par SublimeText, probablement parce que cet IDE est propriétaire @SublimeHQEULA. Ce système utilise des fichiers `.sublime-syntax`, qui ressemblent à TextMate @SublimeHQSyntax, mais qui sont rédigés en YAML.
 
 *Si le temps le permet, une grammaire sera développée avec Tree-Sitter pour supporter du surlignage dans Neovim.* Le choix de ne pas explorer plus les grammaires Textmate, laisse penser que nous délaissons complètement VSCode. Ce choix peut paraître étonnant comme VSCode est régulièrement utilisé par 73% des 65,437 répondant·es au sondage de StackOverflow 2024 @StackoverflowSurveyIDE.
 

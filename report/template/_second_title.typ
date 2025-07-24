@@ -28,11 +28,7 @@
 
   v(3%)
   
-  [
-    *Résumé publiable*\
-    #v(1%)
-    #TBresumePubliable
-  ]
+  include "../chapters/resume.typ"
 
   v(5%)
   

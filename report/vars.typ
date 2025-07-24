@@ -7,7 +7,7 @@
 
 
 #let TBtitle = "Concevoir une expérience d'apprentissage\ninteractive à la programmation avec PLX"
-#let TBsubtitle = "Ou comment permettre aux enseignants de programmation\nde concevoir des cours orientés sur la pratique et le feedback."
+#let TBsubtitle = "Ou comment permettre aux enseignant·es de programmation\nde concevoir des cours orientés sur la pratique et le feedback."
 #let TByear = "2025"
 #let TBacademicYears = "2024-25"
 

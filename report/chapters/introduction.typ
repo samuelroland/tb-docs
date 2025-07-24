@@ -170,13 +170,6 @@ Un exemple d'usage du Markdown est le recueil d'exercices du cours de PRG2 @PRG2
 
 #pagebreak()
 
-// La gestion des exercices dans un format textuel dans son IDE favori est largement plus productive qu'utiliser des interfaces web parfois lentes avec des dizaines de champs de formulaires. La possibilité de versionner ces fichiers textuels dans Git et facilement collaborer dans des pull requests est un avantage majeur que de nombreux enseignants apprécient. Une partie d'entre eux gèrent leur slides, exercices et évaluations, en utilisant le Markdown, Latex, Typst ou encore AsciiDoc.
-//
-// Le défi maintenant est de permettre de rédiger des exercices de programmation en format textuel, tout en y incluant une partie d'interactivité et d'automatisation d'un outil comme PLX à côté de l'éditeur de code.
-
-// todo okay de mettre des infos d'opinions ?? je peux pas vraiment citer je crois. -> selon les recherches de l'auteur.
-
-
 Pour faciliter l'adoption de PLX, nous avons besoin d'un format de données simple à prendre en main, pour décrire les différents types d'exercices supportés. Si on reprend l'exercice présenté plus tôt, qu'on le rédige en Markdown, en y ajoutant la solution dans le même style du recueil de PRG2 @PRG2RecueilExercicesGithubExoString, cela donne le @exemple-dy-md-start.
 
 #figure(raw(block: true, lang: "markdown", read("../sources/plx-dy-simple.md")), caption: [Exemple d'exercice de programmation, rédigé en Markdown]) <exemple-dy-md-start>
@@ -286,7 +279,7 @@ Le code est exécuté sur le serveur et l'édition se fait dans le navigateur da
 Ces solutions existantes sont intéressantes mais ne couvrent qu'une partie des besoins de PLX. Le plus gros manque est l'impossibilité de faire des sessions live.
 
 #pagebreak()
-// todo move that somewhere useful once we have bottom page notes
+// ici c'est bien fait
 == Glossaire
 La rédaction du rapport s'est permise un certain nombre d'anglicismes quand un équivalent français n'existe pas. Certaines constructions de programmations bien connues comme les `strings` au lieu d'écrire `chaînes de caractères` sont également utilisées. Certaines sont spécifiques à certains langages et sont décrites ci-dessous pour aider à la lecture.
 
