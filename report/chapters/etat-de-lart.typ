@@ -278,7 +278,7 @@ Un serveur de langage n'a pas besoin d'implémenter toutes les fonctionnalités 
 
 Le protocole *JSON-RPC* (_JSON Remote Procedure Call_) est utilisé comme protocole de communication. Similaire au HTTP, il possède des entêtes et un corps. Ce standard définit quelques structures de données à respecter. Une requête doit contenir un champ `jsonrpc`, `id`, `method` et optionnellement `params` @jsonrpcSpec. L'`id` sert à associer une réponse à une requête. Il est aussi possible d'envoyer une notification, c'est-à-dire une requête qui n'attend pas de réponse. Le champ `method` va indiquer l'action à appeler. Le transport des messages JSON-RPC peut se faire en `stdio` (flux standards d'entrée/sortie), sockets TCP ou même en HTTP.
 
-// todo vraiment utile ce morceau du coup ??
+#figure(
 ```
 Content-Length: ...\r\n
 \r\n

@@ -57,7 +57,7 @@ Une spec DY est le schéma et se définit directement en Rust au lieu d'être da
 
 TODO mentionner résumé du dessus
 
-=== Lignes directrices de conception
+=== Lignes directrices de conception <lignes-conception>
 Ces lignes directrices permettent de mieux comprendre certains choix de clés, de syntaxe ou de stratégie.
 + *Privilégier la facilité de rédaction, plutôt que la facilité de parsing*
 + *Pas de tabulations ni d'espace en début de ligne*. Cela introduit le fameux débat des espaces versus tabulations. En utilisant des espaces, le nombre d'espaces par tabulation devient configurable, ce qui va générer de la perte de temps autour de la rédaction. Du temps sera perdu à discuter du style à adopter, à configurer son IDE ou à relire des changements dans Git qui contiendraient principalement des changements de formatage. Créer un formateur automatique n'est pas une solution, car cela demande de l'installer et le configurer également. Si une partie de l'équipe d'enseignant·es ne l'utilisent pas, son utilité est diminuée.
@@ -148,7 +148,7 @@ pub struct ParseResult<T> {
 pub trait FromDYBlock<'a> {
     fn from_block_with_validation(block: &Block<'a>) -> (Vec<ParseError>, Self);
 }
-``` , caption: [Un trait (interface) `FromDYBlock` qui impose d'implémentater `from_block_with_validation`, utilisé sur chaque struct final associée à une spec DY])
+``` , caption: [Un trait (interface) `FromDYBlock` qui impose d'implémenter `from_block_with_validation`, utilisé sur chaque struct final associée à une spec DY])
 
 === Types d'erreurs
 
@@ -176,7 +176,7 @@ pub enum ParseErrorType {
     #[error("{0}")]
     ValidationError(String),
 }
-``` , caption: [Définition de `ParseError` et extrait simplifié de `ParseErrorType` (dans le code chaque variante possède une `#[error]` qui définit son message)]) <parseerrors>
+``` , caption: [Définition de `ParseError` et extrait simplifié de `ParseErrorType`. Dans le code, chaque variante possède une `#[error]` qui définit son message (retirés ici pour alléger le schéma).]) <parseerrors>
 
 Pour que le code pour chaque implémentation de `FromDYBlock` puisse également générer des erreurs spécifiques, une variante `ValidationError` a été définie pour cet usage.
 
@@ -216,7 +216,7 @@ Cet arbre représente la hiérarchie des clés et valeurs trouvées et respecte 
 
 === Conversion vers la struct T
 
-Grâce à l'interface `FromDYBlock`, nous pouvons donner chaque bloc racine à la méthode `T::from_block_with_validation(&block)` afin qu'il puisse être converti en type `T`. La liste d'erreur créé durant la construction de l'arbre de blocs est étendue avec les erreurs retournée par `from_block_with_validation`. Les erreurs
+Grâce à l'interface `FromDYBlock`, implémenté pour le type générique `T` passé à `parse_with_spec`, nous pouvons donner chaque bloc racine à la méthode `T::from_block_with_validation(&block)` afin qu'il puisse être converti en type `T`. La liste d'erreur retournée étend la liste récupérée par la construction de l'arbre de blocs. Finalement, les erreurs sont triées par début de plage dans le fichier, pour permettre de les afficher de haut en bas et faciliter la lecture. Si la position de départ de l'erreur est la même entre deux erreurs, le type de l'erreur est utilisé comme second critère de comparaison.
 
 == Implémentation de `plx-dy`
 
@@ -290,9 +290,11 @@ pub struct DYExo {
 
 === Définition d'une hiérarchie de clés en Rust
 
-Après avoir présenté les attributs de la struct `KeySpec`, voici un exemple concret de définition en Rust de spec DY. Nous avons défini sur le @speccourse une constante par clé, puis regroupés les clés `goal` et `code` en sous clés de `course`.
+Après avoir présenté les attributs de la struct `KeySpec`, voici un exemple concret de la définition de spec DY en Rust d'un cours PLX. Nous avons défini sur le @speccourse une constante par clé, puis regroupés les clés `goal` et `code` en sous-clés de `course`.
 
 #figure(
+
+  text(size: 0.9em)[
 ```rust
 const GOAL_KEYSPEC: &KeySpec = &KeySpec {
     id: "goal",
@@ -319,11 +321,11 @@ const COURSE_KEYSPEC: &KeySpec = &KeySpec {
     required: true,
 };
 pub const COURSE_SPEC: &DYSpec = &[COURSE_KEYSPEC];
-``` , caption: [Exemple de définition en Rust de la spec DY des cours PLX, avec 3 `KeySpec` pour les 3 clés]) <speccourse>
+```] , caption: [Exemple de définition en Rust de la spec DY des cours PLX, avec 3 `KeySpec` pour les 3 clés]) <speccourse>
 
-Le tableau de `KeySpec` final (alias de type `DYSpec`) de toutes les clés autorisées à la racine, doit encore être validé. Un type _wrapper_ `ValidDYSpec` permet de valider que chaque id de clé est bien unique.
+Dans le @speccourse, le tableau de `KeySpec` de toutes les clés autorisées à la racine possède un alias de type nommé `DYSpec`. Il est stocké dans la constante `COURSE_SPEC` et doit encore être validé. Un type _wrapper_ `ValidDYSpec` permet de valider que chaque id de clé est bien unique.
 
-En suivant la même logique que précédemment, nous avons défini 3 hiérarchie de clés, avec les structures et contraintes de clés suivantes.
+En suivant la même logique que précédemment, nous avons défini trois specs DY, avec les structures et contraintes de clés montrées sur les trois schémas suivants.
 #grid(columns: 2, gutter: 10pt,
 figure(
   image("../syntax/specs/course.spec.svg", width: 100%),
@@ -338,11 +340,39 @@ figure(
 
 #figure(
   image("../syntax/specs/exo.spec.svg", width: 90%),
-  caption: [Aperçu graphique de la spec DY des exercices PLX. La clé `exo`, `check` et `see` sont obligatoires (`required=true`). `args` et `exit` ne peut apparaître qu'une seule fois par check `once=true`. Seuls `exo` et `see` peuvent être donnés sur plusieurs lignes (`ValueType=Multiline`).],
+  caption: [Aperçu graphique de la spec DY des exercices PLX. La clé `exo`, `check` et `see` sont obligatoires (`required=true`). `args` et `exit` ne peut apparaître qu'une seule fois par check (`once=true`). Seuls `exo` et `see` peuvent être donnés sur plusieurs lignes (`ValueType=Multiline`).],
 )
 
-==== Fonctions publiques
-Chacune des 3 spécifications donne accès à une fonction haut niveau comme `parse_course`, `parse_skills` et `parse_exo`. Ces fonctions font simplement appel à `parse_with_spec`, comme le montre l'exemple en <parse-with-spec-example>.
+=== Exemple d'implémentation de `FromDYBlock`
+Toujours sur la spec DY d'un cours PLX, voici l'implémentation d'une conversion simple entre un arbre de blocs et la struct `DYCourse`. 
+
+Le code en @fromblockcourse crée un cours avec la valeur du bloc puis itère sur les sous-blocs pour chercher les valeurs pour les attributs `code` et `goal`. Aucune erreur ne doit être détectée ici, un vecteur vide est retourné.
+#figure(
+  text(size: 0.9em)[
+```rust
+impl<'a> FromDYBlock<'a> for DYCourse {
+    fn from_block_with_validation(block: &Block<'a>) -> (Vec<ParseError>, DYCourse) {
+        let errors = Vec::new();
+        let mut course = DYCourse {
+            name: block.get_joined_text(),
+            ..Default::default()
+        };
+        for subblock in block.subblocks.iter() {
+            let id = subblock.key.id;
+            if id == CODE_KEYSPEC.id {
+                course.code = subblock.get_joined_text();
+            }
+            if id == GOAL_KEYSPEC.id {
+                course.goal = subblock.get_joined_text();
+            }
+        }
+        (errors, course)
+    }
+}
+```] , caption: [implémentation de `FromDYBlock` pour `DYCourse`]) <fromblockcourse>
+
+==== Fonctions haut niveau des specs DY
+Chacune des 3 spécifications donne accès à une fonction haut niveau comme `parse_course`, `parse_skills` et `parse_exo`. Ces fonctions font simplement appel à `parse_with_spec`, comme le montre l'exemple en @parse-with-spec-example.
 #figure(
 ```rust
 pub fn parse_course(some_file: &Option<String>, content: &str) -> ParseResult<DYCourse> {
@@ -352,12 +382,14 @@ pub fn parse_course(some_file: &Option<String>, content: &str) -> ParseResult<DY
         content,
     )
 }
-``` , caption: [Exemple d'usage de `parse_with_spec` pour définir la fonction `parse_course` dans la spec DY des cours]) <parse-with-spec-example>
+``` , caption: [Définition de la fonction `parse_course` dans la spec DY des cours, avec appel de `parse_with_spec`]) <parse-with-spec-example>
 
 
 == Intégration de `plx-dy`
+Maintenant que nous avons des fonctions haut niveau, il suffit d'importer la librairie `plx-dy` et de les intégrer au CLI et à PLX desktop.
+
 === Structures de fichiers DY
-La crate `plx-dy` définit des constantes pour des fichiers dans lesquels se trouvent les définitions de nos 3 objets. Le cours est décrit dans `course.dy`, les compétences dans `skills.dy` et chaque exercice dans un fichier `exo.dy` dans son dossier à coté du code et de ses solutions. Le fichier `live.toml` est attendue à la racine également.
+La crate `plx-dy` définit des constantes pour des fichiers dans lesquels se trouvent les définitions de nos 3 objets. Le cours est décrit dans `course.dy`, les compétences dans `skills.dy`. Chaque exercice se trouve dans un fichier `exo.dy` dans son dossier à côté des fichiers de code et de ses solutions. Le fichier `live.toml` est attendue à la racine également.
 #figure(
 ```
 plx-demo> tree
@@ -380,20 +412,16 @@ plx-demo> tree
         ├── exo.dy
         ├── main.cpp
         └── main.sol.cpp
-``` , caption: [Exemple de structure de fichiers pour un cours PLX de démonstration, avec 2 compétences et 3 exercices.])
-
-TODO fix headings level
-
-TODO
+``` , caption: [Exemple de structure de fichiers pour un cours PLX de démonstration, avec 2 compétences `intro` et `structs` et 3 exercices (sous-dossiers dans les compétences)])
 
 === Intégration à PLX desktop
-Le parseur a été intégré à `plx-core`, dans les modèles `course.rs` et `exo.rs`, au lieu de lire des fichiers TOML, les fichiers DY sont maintenant utilisés. Certains fichiers TOML existent encore mais ne servent qu'à gérer de l'état d'un exercice (terminé ou non) et sont générés et modifiés par PLX uniquement. L'interface affiche comme avant les cours, compétences et exercices, la migration a complètement fonctionnée. En plus, on affiche un compteur d'erreurs pour indiquer leur présence, tout en permettant l'entrainement du cours. Bien sûr, si le cours ou les compétences ne sont pas défini, il n'est pas possible de l'ouvrir, mais cela concerne des erreurs non liée au parseur. Dans le futur, les détails des erreurs pourront facilement être affichés dans cette interface, pour les personnes qui préfère une interface graphique à l'usage du CLI.
+Le parseur a été intégré à `plx-core` dans les fichiers `src/models/course.rs` et `src/models/exo.rs`, au lieu de lire des fichiers TOML, les fichiers DY sont maintenant utilisés. Certains fichiers TOML existent encore mais ne servent qu'à gérer de l'état d'un exercice (terminé ou non) et sont ne sont modifiés que par PLX. L'interface affiche les cours, compétences et exercices comme avant ce travail, la migration a complètement fonctionnée. En plus, on affiche un compteur d'erreurs pour indiquer leur présence, tout en permettant l'entrainement du cours. Bien sûr, si le cours ou les compétences ne sont pas définis, il n'est pas possible de l'ouvrir, mais ces erreurs ne sont pas liées au parseur. Dans le futur, les détails des erreurs pourront facilement être affichés dans cette interface, pour les personnes qui préfère une interface graphique à l'usage du CLI.
 
 // todo fix button
 
 === Intégration au CLI
 
-La première intégration a été faite dans le CLI (qui permet aussi de démarrer le serveur, pour rappel). Ce CLI est utile pour que les enseignant·es puissent vérifier que le contenu du contenu d'un cours PLX est valide. Dans le futur, il pourrait aussi servir à d'autres outils qui pourrait réutiliser le JSON généré, par exemple pour insérer les exercices dans une base de données.
+La première intégration a été faite dans le CLI (qui permet aussi de démarrer le serveur, pour rappel). Ce CLI est utile pour que les enseignant·es puissent vérifier que le contenu du contenu d'un cours PLX est valide. Dans le futur, il pourrait aussi servir à d'autres programmes qui souhaiterait réutiliser ce contenu sans intégrer le parseur Rust mais en utilisant le JSON généré.
 #figure(
 ```
 > plx parse -h
@@ -408,108 +436,152 @@ Options:
       --full  Enable the full course parsing in PLX's format. Only valid with a folder
 ``` , caption: [Aide de la sous commande `plx parse`])
 
+Si un fichier `course.dy` est donnée à la commande `plx parse`, la fonction `parse_course` est appelée. On peut aussi donner le dossier du cours pour le même résultat.
 #figure(
-  image("../syntax/course/course.svg", width: 100%),
+  image("../syntax/course/course.svg", width: 60%),
   caption: [Définition d'un cours PLX dans un fichier `course.dy`],
 )
 #figure(
-  image("../syntax/course/course-parsed.svg", width: 100%),
-  caption: [Equivalent extrait du parseur et affiché en JSON],
+  image("../syntax/course/course-parsed.svg", width: 90%),
+  caption: [Résultat du parsing du cours affiché en JSON],
 )
-#pagebreak()
+Si un fichier `skills.dy` est donnée à la commande `plx parse`, la fonction `parse_skills` est appelée.
 #figure(
-  image("../syntax/skills/skills.svg", width: 100%),
-  caption: [TODO `skills.dy`],
+  image("../syntax/skills/skills.svg", width: 90%),
+  caption: [Définition d'une liste de compétences PLX dans un fichier `skills.dy`],
 )
 #figure(
-  image("../syntax/skills/skills-parsed.svg", width: 100%),
-  caption: [TODO],
+  image("../syntax/skills/skills-parsed.svg", width: 70%),
+  caption: [Résultat du parsing des compétences affichées en JSON],
 )
 
 #pagebreak()
+
+Si un fichier `exo.dy` est donnée à la commande `plx parse`, la fonction `parse_exo` est appelée.
 #figure(
-  image("../syntax/exo/exo.svg", width: 100%),
-  caption: [TODO `exo.dy`],
+  image("../syntax/exo/exo.svg", width: 90%),
+  caption: [Définition d'un exercice PLX dans un fichier `exo.dy`],
 )
 #figure(
-  image("../syntax/exo/exo-parsed.svg", width: 100%),
-  caption: [TODO],
+  image("../syntax/exo/exo-parsed.svg", width: 90%),
+  caption: [Résultat du parsing de l'exercice affiché en JSON],
 )
+
+Tout nom de fichier autre que les trois mentionnés sera refusé, car aucune autre spec DY n'existe. Ces affichages se produise lorsqu'aucune erreur est détectée.
+
+A noter que tous les messages d'erreurs ou les messages de succès sont envoyés sur le flux `stderr`. Ceci permet d'utiliser le JSON en `stdout` par d'autres outils sans devoir séparer le message du JSON.
 
 == Détection d'erreurs
 
+Après avoir vu les cas de contenu valides, voici une liste exemplifiée de toutes les types d'erreurs qui peuvent être détectés. En cas d'erreur détectées, le CLI échoue le code d'exit 2. En cas d'erreur non liées au parseur (fichier inexistant par exemple), le code d'exit est 1.
+
 #figure(
   image("../syntax/course-error/course.svg", width: 100%),
-  caption: [Définition incorrecte d'un cours PLX dans un fichier `course.dy`.\ Le `goal` manque et le `code` doit être placé après la clé `course`.],
+  caption: [Exemple erroné de `course.dy`: Définition incorrecte d'un cours PLX dans un fichier `course.dy`.\ Le `goal` manque et le `code` doit être placé après la clé `course`.],
 )
 #figure(
   image("../syntax/course-error/course-parsed.svg", width: 100%),
-  caption: [Les erreurs ont été détectées par le parseur],
+  caption: [Les 3 erreurs ont été détectées par le parseur],
 )
+
+// TODO fix the error !!
 
 #figure(
   image("../syntax/skills-error/skills.svg", width: 100%),
-  caption: [TODO `skills.dy`],
+  caption: [Exemple erroné de `skills.dy`: Le dossier `dir` est obligatoire et ne peut pas être donné sur plusieurs lignes. Le nom d'un compétence ne peut pas être vide.],
 )
 #figure(
   image("../syntax/skills-error/skills-parsed.svg", width: 100%),
-  caption: [TODO],
+  caption: [Les 3 erreurs ont été détectées par le parseur],
 )
 
 #pagebreak()
 #figure(
   image("../syntax/exo-error/exo.svg", width: 100%),
-  caption: [TODO `exo.dy`],
+  caption: [Exemple erroné de `exo.dy`: La clé `args` ne peut pas être définie plusieurs fois, le `see` est requis dans chaque `check`. Le code d'exit doit être un nombre, `one` n'est pas un entier.],
 )
+// TODO fix the error !!
 #figure(
   image("../syntax/exo-error/exo-parsed.svg", width: 100%),
-  caption: [TODO],
-)
+  caption: [Les 3 erreurs ont été détectées par le parseur],
+) <exoerrors>
+
+Dans cette dernière @exoerrors, la dernière erreur est particulièrement intéressante. Nous disions en section @lignes-conception que seul le type string était nativement supporté et là nous avons une erreur sur le type qui doit être un entier 32 bits signé. La ligne directrice a été respectée, cette erreur a été généré dans l'implémentation de `FromDYBlock` sur `DYExo`. Le problème d'ambiguïté entre les strings et les nombres n'existe pas dans ce cas comme ce nombre n'est possible que après la clé `exit`.
+
+Sur l'extrait du @parseexitcode, lorsque le sous bloc correspond à la clé `exit`, le text est parsé en `i32` (le type Rust d'entier signé 32bits). Le code d'exit doit être initialisé à une valeur par défaut (ici `None`). Si le parsing du nombre échoue, l'erreur spécifique avec le message défini dans la constante `ERROR_CANNOT_PARSE_EXIT_CODE`, est ajouté à la liste des erreurs via la variante `ParseErrorType::ValidationError`. Le plage de l'erreur est le plage de la valeur, ce qui produit ces marqueurs `^^^` juste sous le `one`.
+
+#figure(
+```rust
+if check_subblock_id == EXIT_KEYSPEC.id {
+    check.exit = None;
+    match check_subblock.get_joined_text().parse::<i32>() {
+        Ok(code) => check.exit = Some(code),
+        Err(_) => {
+            errors.push(ParseError {
+                range: range_on_line_part(
+                    check_subblock.range.start.line,
+                    check_subblock.range.start.character
+                        + check_subblock_id.len() as u32
+                        + 1,
+                    check_subblock.range.end.character,
+                ),
+                error: ParseErrorType::ValidationError(
+                    ERROR_CANNOT_PARSE_EXIT_CODE.to_string(),
+                ),
+            });
+        }
+    }
+}
+``` , caption: [Extrait de l'implémentation de `FromDYBlock` sur `DYExo`]) <parseexitcode>
+
 
 // todo fix heading levels and names
 == Tests unitaires
 
+Tout le développement du parseur s'est fait en _Test Driven Development_ (TDD), ce qui a facilité le refactoring et a permis de valider chaque étape. Un parseur ayant souvent de nombreux cas limites, au vu de l'infinité des possibilités de représentations, il est indispensable de tester chaque erreur générée et chaque condition implémentée.
+
 #figure(
 ```
 > cargo test
+
 running 22 tests
-test parser::tests::test_line_into_parts ... ok
-test semantic::tests::test_can_build_blocks_for_complex_skills ... ok
-test semantic::tests::test_can_detect_content_out_of_key ... ok
-test semantic::tests::test_can_build_blocks_with_multiline_keys_ignoring_comments ... ok
-test parser::tests::test_can_tokenize_comments_and_empty ... ok
-test semantic::tests::test_can_detect_duplicated_key_error ... ok
-test parser::tests::test_can_tokenize_and_ignore_anything_inside_code_blocks ... ok
-test semantic::tests::test_can_detect_invalid_multiline_content ... ok
-test parser::tests::test_line_starts_with_key ... ok
-test semantic::tests::test_can_detect_wrong_key_positions ... ok
-test semantic::tests::test_required_key_also_work_at_root ... ok
-test semantic::tests::test_missing_keys_and_values_with_required_keys_are_detected ... ok
-test semantic::tests::test_empty_lines_are_present_in_block_text ... ok
-test semantic::tests::test_can_extract_complex_exos_blocks_with_errors_ignorance ... ok
-test semantic::tests::test_strange_exo_parsing_can_correctly_ignore_error ... ok
-test parser::tests::test_can_tokenize_lines_with_invalid_keys_and_empty_lines ... ok
-test parser::tests::test_can_tokenize_basic_lines ... ok
-test semantic::tests::test_can_build_blocks_for_simple_course ... ok
-test spec::tests::test_can_validate_valid_spec ... ok
+test lexer::tests::test_can_tokenize_and_ignore_anything_inside_code_blocks ... ok
+test lexer::tests::test_can_tokenize_basic_lines ... ok
+test lexer::tests::test_can_tokenize_comments_and_empty ... ok
+test lexer::tests::test_line_into_parts ... ok
+test parser::tests::test_can_build_blocks_for_simple_course ... ok
+test lexer::tests::test_line_starts_with_key ... ok
+test parser::tests::test_can_build_blocks_for_complex_skills ... ok
+test parser::tests::test_can_build_blocks_with_multiline_keys_ignoring_comments ... ok
+test lexer::tests::test_can_tokenize_lines_with_invalid_keys_and_empty_lines ... ok
+test parser::tests::test_can_detect_duplicated_key_error ... ok
+test parser::tests::test_can_detect_invalid_multiline_content ... ok
+test parser::tests::test_can_detect_content_out_of_key ... ok
+test parser::tests::test_can_detect_wrong_key_positions ... ok
+test parser::tests::test_required_key_also_work_at_root ... ok
+test parser::tests::test_empty_lines_are_present_in_block_text ... ok
+test parser::tests::test_can_extract_complex_exos_blocks_with_errors_ignorance ... ok
 test spec::tests::test_empty_spec_is_invalid ... ok
 test spec::tests::test_spec_with_duplicated_key_at_root ... ok
 test spec::tests::test_spec_with_duplicated_key_deeply ... ok
+test spec::tests::test_can_validate_valid_spec ... ok
+test parser::tests::test_strange_exo_parsing_can_correctly_ignore_error ... ok
+test parser::tests::test_missing_keys_and_values_with_required_keys_are_detected ... ok
 
 running 10 tests
 test course::tests::test_can_parse_simple_valid_course ... ok
 test course::tests::test_parse_result_display_is_also_correct ... ok
 test course::tests::test_parse_result_display_can_highlight_unknown_content ... ok
 test course::tests::test_parse_result_display_is_correct ... ok
-test exo::tests::test_can_extract_args_by_space_split ... ok
-test exo::tests::test_can_error_on_invalid_exit_code ... ok
-test exo::tests::test_detect_empty_args_error_but_ignores_empty_type ... ok
 test skill::tests::test_can_detect_subskill_missing_value ... ok
-test exo::tests::test_can_parse_a_simple_exo ... ok
 test skill::tests::test_can_parse_simple_skills ... ok
+test exo::tests::test_can_error_on_invalid_exit_code ... ok
+test exo::tests::test_can_extract_args_by_space_split ... ok
+test exo::tests::test_detect_empty_args_error_but_ignores_empty_type ... ok
+test exo::tests::test_can_parse_a_simple_exo ... ok
 ``` , caption: [Aperçu des 32 tests unitaires développés pour les crates `dy` puis `plx-dy`])
 
-Pour mieux se représenter à quoi ressemble ces tests. Ce test `test_can_error_on_invalid_exit_code` petit test pour s'assurer que l'implémentation de `FromDYBlock` pour `DYExo` détecte bien l'erreur d'un code d'exit non numérique et qu'il prend sa valeur par défaut (`None`). On s'assure aussi que le reste de l'exercice est extrait correctement (titre, check, see).
+Pour mieux se représenter à quoi ressemble ces tests. Ce test `test_can_error_on_invalid_exit_code`, écrit pour s'assurer que l'implémentation de `FromDYBlock` pour `DYExo` détecte bien l'erreur d'un code d'exit non numérique et qu'il prend sa valeur par défaut (`None`). On s'assure aussi que le reste de l'exercice est extrait correctement (`titre`, `check`, `see`).
 
 #figure(
 ```rust
@@ -546,8 +618,4 @@ exit blabla
         )
     }
 ``` , caption: [Code du test `test_can_error_on_invalid_exit_code` en exemple de test unitaire])
-
-#figure(
-```
-``` , caption: [Aperçu des 32 tests unitaires développés pour les crates `dy` et `plx-dy`])
 
