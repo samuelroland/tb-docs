@@ -10,7 +10,7 @@
 1. [Liste de POC des différentes technologies pour l'état de l'art](./pocs) - 5 POCs en Rust pour tester différentes crates
 
 ## Implémentation
-L'implémentation de ces fonctionnalités sur PLX se fait dans un repository séparé sur [samuelroland/plx](https://github.com/samuelroland/plx/tree/live). L'implémentation du système de session live se fait sur la branche `live`. L'implémentation du parseur démarrera plus tard.
+L'implémentation de ces fonctionnalités sur PLX se fait dans un repository séparé sur [samuelroland/plx](https://github.com/samuelroland/plx/tree/live). L'implémentation du système de session live et du parseur sont disponibles sur la branche `main`.
 
 ## Schémas
 
