@@ -562,11 +562,8 @@ Le deuxième élément est la couleur exacte pour chaque nom de surlignage. Le C
 )
 
 La réalisation du POC s'inspire de l'article *How to write a tree-sitter grammar in an afternoon* @SirabenTreeSitterTuto.
-// todo comment citer ??
 
-Le résultat de ce POC est encourageant, même s'il faudra probablement plus de temps pour gérer les détails, comprendre, tester et documenter l'intégration dans Neovim. Cette partie _nice-to-have_ a des chances de pouvoir être réalisée dans ce travail au vu du résultat atteint avec ce POC.
-
-// TODO vraiment ???
+Le résultat de ce POC est encourageant, même s'il faudra probablement plus de temps pour gérer les détails, comprendre, tester et documenter l'intégration dans Neovim. Nous avons vu que Tree-Sitter et tous ses concepts prennent un peu de temps à prendre en main. Au final, ce temps d'apprentissage permet d'utiliser un outil puissant et de définir facilement des règles avancées, pour créer une grammaire qui nous a permis ce surglignage. La suite du rapport utiliser la colorisation permise par ce POC.
 
 Le surlignage sémantique pourrait être utile en attendant l'intégration de Tree-Sitter dans VSCode. L'extension `tree-sitter-vscode` en fait déjà une intégration avec cette approche, qui s'avère beaucoup plus lente qu'une intégration native, mais permettrait d'avoir une solution fonctionnelle temporaire. À noter que l'extension n'est pas triviale à installer et ni à configurer, son usage est encore expérimental. Elle nécessite d'avoir un build WebAssembly de notre parseur Tree-Sitter @TreeSitterVscodeGithub.
 #figure(

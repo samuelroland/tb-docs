@@ -1,6 +1,6 @@
 = Développement de la syntaxe DY <arch_impl_dy>
 
-Cette partie documente les besoins de PLX, la définition et l'implémentation de la syntaxe DY, son parseur, l'intégration dans PLX et son usage via le CLI. Le nom *DY* vient de *deliberately* en référence à la pratique délibérée qui a inspiré le projet de PLX.
+Cette partie documente les besoins de PLX, la définition et l'implémentation de la syntaxe DY, son parseur, l'intégration dans PLX et son usage via le CLI.
 
 Le code de cette partie a été développé sur le repository #link("https://github.com/samuelroland/dy") qui contient les deux librairies `dy` et `plx-dy`. Le parseur a été intégré ensuite dans le repository #link("https://github.com/samuelroland/plx") avec le CLI (sous dossier `cli`) et dans les fichiers de modèles (`src/models`).
 

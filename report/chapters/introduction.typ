@@ -37,7 +37,7 @@ Un titre, une consigne et un scénario pour tester le bon fonctionnement sont fo
 Une première solution est développée après deux minutes et peut être testée. Il lance un terminal, compile le code, rentre `John` et `Doe` et s'assure du résultat. Après relecture de l'_output_ générée, il se rend compte d'une erreur sur `Passe une belle journée Doe`: seul le nom de famille s'affiche, le prénom a été oublié. Deux minutes pour tester son code se sont écoulées. Après une minute de correction, l'étudiant retourne dans son terminal et recommence le processus de validation. L'exercice est terminé juste à la fin du temps alloué et l'étudiant peut suivre la correction. S'il avait eu une erreur de plus, il aurait eu besoin de quelques minutes de plus. Certain·es étudiant·es à ses côtés n'ont pas eu le temps de finir et doivent s'arrêter.
 
 #figure(
-  image("../schemas/plx-time-gain-before.png", width: 80%),
+  image("../schemas/plx-time-gain-before.png", width: 100%),
   caption: [Résumé visuel du temps estimé passé sur l'exercice par un étudiant débutant],
 )
 
@@ -77,8 +77,6 @@ En conclusion, le problème est que l'entrainement est fastidieux pour les étud
 
 // bien s'imaginer comment se passe des exercices en classe.
 
-#pagebreak()
-
 == L'approche de PLX
 
 // l'existant
@@ -101,6 +99,9 @@ Pour commencer à s'entrainer, les étudiant·es clonent un repository Git conte
 )
 
 Ces checks restent pour l'instant assez primitifs, seulement l'output est comparée à celui attendu. D'autres vérifications plus avancées pourront être supportées dans le futur. Les enseignant·es rédigent le titre, la consigne, ainsi que les détails des checks dans des fichiers texte en format TOML.
+
+#pagebreak()
+Regardons maintenant quelques captures d'écrans de l'interface actuelle pour mieux comprendre ce qui est déjà implémenté.
 
 #figure(
   box(stroke: 2pt + gray,  image("../imgs/plx-course-details.png", width: 90%)),
@@ -213,9 +214,9 @@ Le YAML nous a permis ici de retirer tous les guillemets, les accolades et croch
 
 L'intérêt clair du YAML, tout comme le JSON est la possibilité de définir des pairs de clés/valeurs, ce qui n'est pas possible en Markdown. On pourrait définir une convention par dessus Markdown: définir qu'un titre de niveau 1 est le titre de l'exercice, qu'un bloc de code sans langage défini est l'_output_ ou encore que le texte entre le titre et l'output est la consigne.
 
-Quand on arrive sur des champs plus spécifiques aux exercices de programmation, cette idée de convention au dessus du Markdown ne fonctionne plus vraiment. Comment définir le code d'exit attendu? Comment définir la commande pour stopper un programme? Ou encore définir les parties de l'_output_ qui sont des entrées utilisateurs ?
+Quand on arrive sur des champs plus spécifiques aux exercices de programmation, cette idée de convention au-dessus du Markdown ne fonctionne plus vraiment. Comment définir le code d'exit attendu? Comment définir la commande pour stopper un programme? Ou encore définir les parties de l'_output_ qui sont des entrées utilisateurs ?
 
-Pour résoudre ces problèmes, nous proposons une nouvelle syntaxe, nommée DY, à mi-chemin entre le Markdown et le YAML, concise et compacte. Voici un exemple en @exemple-dy.
+Pour résoudre ces problèmes, nous proposons une nouvelle syntaxe, nommée DY, à mi-chemin entre le Markdown et le YAML, concise et compacte. Le nom *DY* vient de *deliberately* en référence à la pratique délibérée qui a inspiré le projet de PLX. Voici un exemple en @exemple-dy.
 
 #figure(
   image("../sources/plx-dy-simple.svg", width:70%),
