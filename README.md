@@ -3,14 +3,15 @@
 > Documentation de mon Travail de Bachelor (TB) sur PLX
 
 ## Documents disponibles
-1. [**Le rapport final**](report/rapport-final-tb-plx.pdf) - Typst - en cours de rédaction
-1. [**L'affiche**](affiche) - en cours de finition
+1. [**Le rapport final**](report/rapport-final-tb-plx.pdf) - rendu le 2025-07-24.
+1. [**L'affiche en PDF**](affiche) - version finale
+1. [**Le résumé publiable en Typst**](report/chapters/resume.typ) - version finale
 1. [Descriptif de l'idée pour GAPS](./preparation/descriptif-gaps.md) - Markdown - Rendu le 2024-11-18 pour le sytème de gestion des TBs
 1. [Cahier des charges (cdc)](./preparation/cdc.md) - Markdown - Rendu le 2025-04-09
 1. [Liste de POC des différentes technologies pour l'état de l'art](./pocs) - 5 POCs en Rust pour tester différentes crates
 
 ## Implémentation
-L'implémentation de ces fonctionnalités sur PLX se fait dans un repository séparé sur [samuelroland/plx](https://github.com/samuelroland/plx/tree/live). L'implémentation du système de session live et du parseur sont disponibles sur la branche `main`.
+Le code implémenté est disponible sur les repository [samuelroland/plx](https://github.com/samuelroland/plx) et [samuelroland/dy](https://github.com/samuelroland/dy). Les tags `rendu` marquent l'état au rendu au 2025-07-24.
 
 ## Schémas
 

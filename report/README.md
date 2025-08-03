@@ -1,6 +1,6 @@
 # Rapport du TB
 Ce dossier contient tout le contenu du rapport, écrit en Typst, pour ce travail de Bachelor.
-Export en PDF [**du rapport final**](rapport-final-tb-plx.pdf), **en cours de rédaction** et sera rendu le 2025-07-24
+[**Le rapport final de ce travail**](rapport-final-tb-plx.pdf) a été rendu le 2025-07-24.
 
 ## Export en PDF
 
@@ -9,9 +9,9 @@ Export en PDF [**du rapport final**](rapport-final-tb-plx.pdf), **en cours de r�
 1. Lancer `bash watch.sh` pour lancer `typst watch` et avoir un rafraichissement rapide
 1. Lancer `bash build.sh` pour exporter un PDF à rendre, cela peut prendre plusieurs minutes à cause de la coloration avancée de `syntastica`
 
-## Génération dynamiquement
+## Génération dynamique
 
-Une partie des figures ou éléments intégrés au rapport sont générés dynamiquement. Un petit CLI Rust du nom de `docsgen` exporte tous les messages du protocoles vers des fichiers JSON dédiés. Les schémas PlantUML sont aussi exportés en SVG. Voir [docsgen/README.md](docsgen/README.md).
+Une partie des figures ou éléments intégrés au rapport sont générés dynamiquement. Un petit CLI Rust du nom de `docsgen` exporte tous les messages du protocoles vers des fichiers JSON dédiés. Les schémas PlantUML sont aussi exportés en SVG. Voir plus de détails sur cette génération sur [docsgen/README.md](docsgen/README.md).
 
 ## Template utilisé
 
