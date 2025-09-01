@@ -9,6 +9,7 @@
 1. [Descriptif de l'idée pour GAPS](./preparation/descriptif-gaps.md) - Markdown - Rendu le 2024-11-18 pour le sytème de gestion des TBs
 1. [Cahier des charges (cdc)](./preparation/cdc.md) - Markdown - Rendu le 2025-04-09
 1. [Liste de POC des différentes technologies pour l'état de l'art](./pocs) - 5 POCs en Rust pour tester différentes crates
+1. [Des benchmarks du parseur et du serveur de session live](./benches/)
 
 ## Implémentation
 Le code implémenté est disponible sur les repository [samuelroland/plx](https://github.com/samuelroland/plx) et [samuelroland/dy](https://github.com/samuelroland/dy). Les tags `rendu` marquent l'état au rendu au 2025-07-24.
