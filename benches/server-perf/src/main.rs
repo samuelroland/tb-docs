@@ -14,7 +14,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. In vitae sagittis nisl,
 
 Proin condimentum ligula leo, ut volutpat augue cursus a. Proin et scelerisque enim. Nunc eget sem id erat tincidunt lacinia sit amet ac lectus. Fusce rutrum tincidunt nisl consequat ultrices. Nam interdum nulla ut euismod.";
 
-// Number of file saved per minutes
+// Number of files saved per minutes per client
 const MIN_SAVE_PER_MINUTE: u16 = 2;
 const MAX_SAVE_PER_MINUTE: u16 = 20;
 // Number of client to put in a live session
@@ -22,7 +22,7 @@ const MIN_CLIENT_PER_SESSION: u16 = 20;
 const MAX_CLIENT_PER_SESSION: u16 = 60;
 
 // It is going to create new live sessions while the total of connected clients is not above this minimum
-const EXACT_TOTAL_CLIENTS_TO_REACH: u16 = 1000;
+const EXACT_TOTAL_CLIENTS_TO_REACH: u16 = 700;
 
 async fn spawn_new_follower(session_name: String, session_group_id: String, follower_id: String) {
     let mut follower = AsyncLiveClient::connect(
