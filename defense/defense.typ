@@ -32,7 +32,7 @@
 #blank-slide[
   #align(center, [
   #text(weight: "bold", size: 1.5em, fill: black)[Concevoir une expérience d'apprentissage interactive à la programmation avec PLX]
-  #image("imgs/logo.svg", height: 5em)
+  #image("./report/imgs/plx-logo.svg", height: 5em)
     == Travail de Bachelor - Samuel Roland - 2025
     ==== Suivi par Bertil Chapuis
   ])
@@ -91,28 +91,28 @@ chien-du-quartier> ????
 
 #slide(title: "Exemple d'exercice de C")[
   #text(size: 0.7em)[
-#include "sources/plx-dy-simple.typ"
+#include "./report/sources/plx-dy-simple.typ"
   ]
 ]
 
 #slide(title: "Exemple d'exercice en Markdown")[
 #text(size: 0.7em)[
 #grid(columns: 2, column-gutter: 1em,
-    raw(block: true, lang: "markdown", read("sources/plx-dy-simple.md")),
-    raw(block: true, lang: "markdown", read("sources/plx-dy-simple.suite.md"))
+    raw(block: true, lang: "markdown", read("new/plx-dy-simple.md")),
+    raw(block: true, lang: "markdown", read("new/plx-dy-simple.suite.md"))
 )
 ]
 ]
 
 #slide(title: "Solutions standards")[
 #text(size: 0.93em)[
-#figure(raw(block: true, lang: "json", read("sources/plx-dy-simple.json")), caption: [Equivalent JSON]) <exemple-dy-json>
+#figure(raw(block: true, lang: "json", read("./report/sources/plx-dy-simple.json")), caption: [Equivalent JSON]) <exemple-dy-json>
 ]
 ]
 
 #slide(title: "Solutions standards")[
 #text(size: 0.9em)[
-#figure(raw(block: true, lang: "yaml", read("sources/plx-dy-simple.yaml")), caption: [Equivalent YAML]) <exemple-dy-yaml>
+#figure(raw(block: true, lang: "yaml", read("./report/sources/plx-dy-simple.yaml")), caption: [Equivalent YAML]) <exemple-dy-yaml>
 ]
 ]
 
@@ -175,20 +175,20 @@ En créant une nouvelle syntaxe textuelle
 
 #slide(title: "Définition d'un exercice")[
   Dans un fichier `exo.dy`
-  #image(width: 130%, "syntax/exo/exo.svg")
+  #image(width: 130%, "./report/syntax/exo/exo.svg")
 ]
 
 #slide(title: "Définition d'un cours")[
   Dans un fichier `course.dy`
-#image(width: 130%, "syntax/course/course.svg")
+#image(width: 130%, "./report/syntax/course/course.svg")
 ]
 #slide(title: "Définition des compétences du cours")[
   Dans un fichier `skills.dy`
-#image(width: 150%, "syntax/skills/skills.svg")
+#image(width: 150%, "./report/syntax/skills/skills.svg")
 ]
 
 #slide(title: "Définitions des clés")[
-#image("syntax/specs/exo.spec.svg")
+#image("./report/syntax/specs/exo.spec.svg")
 ]
 
 #slide(title: "Développement d'un parseur")[
@@ -232,7 +232,7 @@ En créant une nouvelle syntaxe textuelle
 
 #slide(title: "Un serveur de session live")[
   #align(center)[
-  #image("imgs/high-level-arch-better.png", height: 85%)
+  #image("./report/schemas/high-level-arch-better.png", height: 85%)
   ]
 ]
 
@@ -245,18 +245,18 @@ En créant une nouvelle syntaxe textuelle
 - Système de rôle: `Leader` et `Follower`
 
   #grid(columns: 2,column-gutter: 2em,
-figure(raw(block: true, lang: "json", read("msgs/Event-ExoSwitched.json"))),
-  image("imgs/basic-event-action-flow.png")
+figure(raw(block: true, lang: "json", read("./report/protocol/messages/Event-ExoSwitched.json"))),
+  image("./report/protocol/imgs/basic-event-action-flow.png")
   )
 ]
 
 #slide(title: "Action et Event")[
   #grid(columns: 2,column-gutter: 0.5em,
-figure(raw(block: true, lang: "json", read("msgs/Action-SendFile.json"))),
-figure(raw(block: true, lang: "json", read("msgs/Event-ForwardFile.json")))
+figure(raw(block: true, lang: "json", read("./report/protocol/messages/Action-SendFile.json"))),
+figure(raw(block: true, lang: "json", read("./report/protocol/messages/Event-ForwardFile.json")))
   )
-#figure(raw(block: true, lang: "json", read("msgs/Event-Stats.json")))
-#figure(raw(block: true, lang: "json", read("msgs/Event-Error-1.json")))
+#figure(raw(block: true, lang: "json", read("./report/protocol/messages/Event-Stats.json")))
+#figure(raw(block: true, lang: "json", read("./report/protocol/messages/Event-Error-1.json")))
 ]
 
 #slide(title: "Réalisation")[
@@ -266,7 +266,7 @@ figure(raw(block: true, lang: "json", read("msgs/Event-ForwardFile.json")))
 - Gestion des sessions
 - Dashboard pour les enseignant·es
   ],
-  image("imgs/join-session-new.png")
+  image("new/join-session-new.png")
 )
 ]
 
@@ -321,7 +321,7 @@ figure(raw(block: true, lang: "json", read("msgs/Event-ForwardFile.json")))
 #blank-slide[
   #page(margin: 0pt)[
 
-#image("imgs/prg1-view-with-counters.png", width: 100%)
+#image("new/prg1-view-with-counters.png", width: 100%)
   ]
 ]
 
