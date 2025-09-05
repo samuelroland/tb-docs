@@ -4,6 +4,7 @@
 
 ## Documents disponibles
 1. [**Le rapport final**](report/rapport-final-tb-plx.pdf) - rendu le 2025-07-24.
+1. [**Les slides de la défense**](./defense/defense.pdf) - passée le 2025-09-02
 1. [**L'affiche en PDF**](/affiche/TB_affiche_PLX.pdf) - version finale
 1. [**Le résumé publiable en Typst**](report/chapters/resume.typ) - version finale
 1. [Descriptif de l'idée pour GAPS](./preparation/descriptif-gaps.md) - Markdown - Rendu le 2024-11-18 pour le sytème de gestion des TBs
