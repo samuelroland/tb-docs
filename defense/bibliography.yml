@@ -1,0 +1,17 @@
+# See https://github.com/typst/hayagriva/pull/192
+# yaml-language-server: $schema=https://raw.githubusercontent.com/typst/hayagriva/0c640417cfb35067c13f1ee0ce0ee35f57a897fb/hayagriva.schema.json
+
+kdlWebsite:
+  type: Web
+  title: KDL, a cuddly document language
+  author: Marchán, Kat
+  date: 2025
+  url: https://kdl.dev/
+
+bitmarkDocsMcqSpec:
+  type: Web
+  title: Quizzes - .multiple-choice, .multiple-choice-1
+  author:
+    name: bitmark Association
+  date: 2025
+  url: https://docs.bitmark.cloud/quizzes/#multiple-choice-multiple-choice-1
