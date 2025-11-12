@@ -1,6 +1,6 @@
 # Concevoir une expérience d'apprentissage interactive à la programmation avec PLX
 
-> Documentation de mon Travail de Bachelor (TB) sur PLX
+> Documentation de mon Travail de Bachelor (TB) sur PLX à la HEIG-VD, suivi par Bertil Chapuis
 
 ## Documents disponibles
 1. [**Le rapport final**](report/rapport-final-tb-plx.pdf) - rendu le 2025-07-24.
